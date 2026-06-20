@@ -85,8 +85,9 @@ accuracy hides. For benchmark flagging at a chosen operating threshold we additi
 report precision/recall/F1 as a secondary, application-facing view. The leakage outcome
 is the \emph{extraction rate}~\cite{carlini2023quantifying}. The headline analysis is
 the \emph{Spearman correlation between per-item contamination score and per-item
-extraction/leakage outcome}, with bootstrap confidence intervals---the quantitative form
-of the paper's thesis.
+extraction/leakage outcome}, with bootstrap confidence intervals and a pre-registered
+partial-correlation control that isolates the contribution of raw loss---the quantitative
+form of the paper's central question.
 
 \subsection{Validation and controls}
 \textbf{[D4]} Robustness is established by repeating each measurement over multiple

@@ -47,11 +47,17 @@ Pythia-160m, N=300 Pile MEMBERS, detector score (whole item) vs fractional extra
 | zlib_ratio | 0.177 [0.063, 0.295] | 0.164 | ✅ |
 | min_20_plusplus | 0.108 [−0.010, 0.220] | 0.169 | ✗ |
 
-**Reading:** the thesis as a number. Even though membership *separation* is at chance on the
-clean split (Table 1), the membership *score still significantly predicts leakage* for 3/4
-detectors. Effect is weak-moderate (ρ 0.11–0.28), outcome is zero-inflated (mean frac 0.037).
-Notably LOSS (crudest proxy) predicts leakage best; Min-K%++ (best membership detector) is the
-weakest and non-significant here. Figure: `figures/correlation_pythia-160m_scatter.png`.
+> **⚠️ SUPERSEDED BY THE R6 CONTROL — read `docs/controls_report.md`.** These RAW correlations
+> do not survive controlling for loss. Partial ρ(detector, leakage | loss): Min-K% −0.178,
+> Min-K%++ −0.148 (both FDR-significant, NEGATIVE), zlib −0.04 (n.s.). The positive association
+> above is carried ENTIRELY by raw loss; the calibrated detectors add no predictive value beyond
+> it. Do not cite the raw numbers below as evidence that the calibrated detectors predict leakage.
+
+**Reading (raw, pre-control):** even though membership *separation* is at chance on the clean
+split (Table 1), the raw membership *score* correlates with leakage for 3/4 detectors. But this
+is loss-driven (see the R6 control box above): LOSS predicts leakage; Min-K%/Min-K%++/zlib do not
+beyond loss. Effect is weak (ρ 0.11–0.28), outcome zero-inflated (mean frac 0.037).
+Figure: `figures/correlation_pythia-160m_scatter.png`.
 
 ---
 
