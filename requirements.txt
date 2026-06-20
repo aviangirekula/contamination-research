@@ -1,0 +1,23 @@
+# Pinned to the exact versions the results were produced with (Python 3.13.5).
+# Reproducibility: these are the tested versions; `pip install -r requirements.txt`.
+# The test suite + `--self-test` need only numpy + pytest; the rest are for real-model runs.
+
+# --- Core (tests + metrics) ---
+numpy==2.1.3
+pytest==8.3.4
+
+# --- Real-model runs (Milestone 1+, scoring/extraction on Pythia) ---
+torch==2.9.1
+transformers==4.57.3
+datasets==4.4.1
+accelerate>=0.30          # optional; only for multi-device / larger models
+
+# --- Plots + configs ---
+matplotlib==3.10.0
+pyyaml>=6.0
+
+# Public datasets used (downloaded at runtime, not vendored):
+#   swj0419/WikiMIA              (membership benchmark)
+#   NeelNanda/pile-10k           (Pile members)
+#   mit-han-lab/pile-val-backup  (Pile validation = non-members)
+# Gated alternative (needs HF auth): iamgroot42/mimir

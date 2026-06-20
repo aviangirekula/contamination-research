@@ -1,0 +1,193 @@
+% =============================================================================
+% related_work.tex  --  "Benchmark Contamination" + detection + memorization/privacy.
+% Owner: Subagent A (Literature Review Writer). All \cite keys -> ../references.bib.
+%
+% CONSISTENCY CONTRACT: every detection method described here is implemented and
+% evaluated (detectors/), and every implemented method is described here. No method
+% is named that is not tested, and vice versa (see docs/method_selection_memo.md).
+%
+% DIVERGENCES FROM THE PASTED DRAFT (flagged for review):
+%  * Typology standardized to verbatim / paraphrased / semantic (the project spine);
+%    the draft's "input-label" case is folded in as a severity axis.
+%  * Replaced Skywork/Wei-2023 definitional cites with primary sources + the survey.
+%  * Detection subsection now matches the IMPLEMENTED+RUN shortlist exactly: LOSS,
+%    Min-K%, Min-K%++, zlib, n-gram overlap, and the Oren permutation test. Guided
+%    prompting and neighbourhood/reference MIA are explicitly framed as related
+%    approaches we DO NOT evaluate (they are not in the implemented set).
+% =============================================================================
+
+\section{Related Work: Contamination, Memorization, and Privacy Leakage}
+\label{sec:relatedwork}
+
+\subsection{Defining benchmark contamination}
+We adopt the standard definition: \emph{benchmark contamination} is the presence of
+evaluation data---inputs, labels, or accompanying metadata---within a model's
+pre-training corpus~\cite{golchin2024timetravel}. Contamination matters for two
+reasons that this paper treats as inseparable. First, it invalidates evaluation: a
+contaminated score conflates capability with retrieval, so the metric no longer
+estimates generalization. Second, and central to our thesis, contamination is a
+\emph{symptom of, and a measurable proxy for, unintended memorization}---and
+memorization of evaluation data sits on the same mechanism that leaks sensitive
+content from the corpus. We make this contamination~$\rightarrow$~memorization~$
+\rightarrow$~leakage chain the object of empirical study.
+
+\subsection{A typology of contamination}
+Following the project's framing and the contamination-detection
+survey~\cite{ravaut2024survey}, we distinguish three forms by the transformation
+between the corpus copy and the benchmark item:
+\begin{itemize}
+  \item \textbf{Verbatim contamination.} The exact token sequence of a test item
+  appears in training data. This is what classical $n$-gram decontamination targets
+  (e.g., the 13-gram overlap test introduced for GPT-3~\cite{brown2020gpt3}) and what
+  verbatim-extraction memorization measures~\cite{carlini2023quantifying}.
+  \item \textbf{Paraphrased contamination.} The semantic content is present but
+  reworded, so surface-level $n$-gram matching misses it. A perfect verbatim filter
+  provides only a false sense of safety, since style-transfer rephrasings evade it
+  while preserving the leaked information~\cite{ippolito2023verbatim}.
+  \item \textbf{Semantic contamination.} The underlying knowledge or answer is encoded
+  without lexical overlap (e.g., the same question-answer mapping in a different
+  format). Detecting it requires model-behavioral or distributional signals rather than
+  string matching.
+\end{itemize}
+A second, orthogonal severity axis is \emph{what} is contaminated: input-only leakage
+inflates familiarity, whereas joint input--label leakage enables direct answer
+retrieval and is the most damaging to evaluation validity. Empirically, overlap between
+open-model training data and benchmarks such as GSM8K has been reported for models
+trained on largely undisclosed corpora~\cite{touvron2023llama}, motivating
+ground-truth-controlled study on models whose corpus is fully public.
+
+\subsection{Why memorization is a security and privacy problem}
+Memorization is not a benign curiosity. Over-parameterized models trained on
+web-scale scrapes retain and can regurgitate verbatim sequences, including personally
+identifiable information (PII) such as names, emails, and phone
+numbers~\cite{carlini2021extracting}. This has been formalized along several axes that
+we reuse as outcome variables:
+\begin{itemize}
+  \item \textbf{$k$-eidetic / extractable memorization.} A string is extractable if a
+  prefix makes the model regenerate it, and is $k$-eidetic if it occurs in at most $k$
+  training documents~\cite{carlini2021extracting}; the prefix-continuation form under
+  greedy decoding makes this directly measurable~\cite{carlini2023quantifying}.
+  \item \textbf{Exposure and example-level memorization.} Injecting a canary secret and
+  measuring its \emph{exposure}---its rank against random alternatives---quantifies
+  unintended memorization and its growth with occurrence count~\cite{carlini2019secret};
+  this requires control over the training process (canary insertion), which our
+  pretrained-checkpoint setting does not afford, so we use it for definitions rather than
+  as a measurement. Relatedly, memorization is concentrated on specific
+  examples~\cite{zhang2023counterfactual} rather than spread uniformly, which is what
+  makes per-item contamination scores meaningful predictors of per-item leakage.
+  \item \textbf{Extraction at scale.} Production models can be driven, via a divergence
+  attack, to emit memorized training data well above their nominal aligned rate,
+  recovering thousands of verbatim examples cheaply~\cite{nasr2025scalable}.
+  \item \textbf{PII leakage games.} Leakage of personally identifiable information
+  decomposes into extraction, reconstruction, and inference; data scrubbing and
+  differential privacy reduce but do not eliminate it~\cite{lukas2023pii}, models leak
+  PII through memorization more than through associative
+  inference~\cite{huang2022leaking}, and black-box probing tools can elicit a data
+  subject's PII directly from a deployed model~\cite{kim2023propile}.
+\end{itemize}
+The security framing follows directly: if contamination is a measurable proxy for
+memorization, and memorization is the vector for PII and proprietary-data exposure,
+then contamination is not only a metrics problem but a \emph{privacy vulnerability}.
+
+\subsection{The membership-inference lineage}
+\label{sec:mia-lineage}
+Deciding whether a specific record was in a model's training set is the canonical
+privacy attack, and contamination detection is an instance of it. The lineage we build
+on runs as follows. \emph{Shadow-model} attacks established the threat: by training
+reference models on data drawn from the same distribution, an adversary learns to
+distinguish members from non-members from the target model's
+outputs~\cite{shokri2017membership}. Yeom~et~al.\ tied attack success to overfitting and
+gave the simplest practical baseline---threshold the per-example loss---together with the
+\emph{membership advantage} (TPR${-}$FPR) figure of merit~\cite{yeom2018privacy}.
+Carlini~et~al.'s \emph{Likelihood Ratio Attack} (LiRA) then reframed MIA from first
+principles as a per-example hypothesis test calibrated with shadow models, and---central
+to our methodology---argued that average-case AUC is the wrong yardstick for a privacy
+threat: an attack matters if it identifies \emph{some} members with very few false
+accusations, so the right report is TPR at a low, fixed FPR on a log-scale ROC
+curve~\cite{carlini2022lira}. Shadow-model calibration, however, is infeasible at
+Pile/Pythia scale (it requires training many models on the training distribution), so we
+adopt LiRA's \emph{metric} but not its \emph{attack}.
+
+For pre-trained LLMs, the field moved to \emph{reference-free} likelihood signals that
+need no shadow models. Min-K\% Prob averages the log-probabilities of a sequence's
+lowest-probability $k\%$ of tokens, on the hypothesis that members lack
+high-surprise outlier tokens~\cite{shi2024detecting}; Min-K\%++ sharpens this by
+$z$-scoring each token against the \emph{full} next-token distribution before averaging,
+detecting that the target token sits at a local maximum of the modeled
+distribution~\cite{zhang2025minkpp}. A parallel reference-free line, neighbourhood
+comparison, calibrates a sample's score against synthetically generated neighbour texts
+instead of a reference model~\cite{mattern2023neighbourhood}; we treat it as a related
+approach we do not evaluate, since it needs many extra masked-LM forward passes per
+example and, in the regime below, underperforms. The reality check on this whole line is
+the MIMIR study: a large-scale audit on Pythia ($160$M--$12$B) and The Pile with
+controlled member/non-member splits finds that these attacks barely exceed chance
+(AUC~$\approx 0.5$--$0.6$), that LLMs see their corpus for too few epochs over too large
+a dataset to memorize in the way classical MIA assumes, and that apparent successes
+frequently reflect a temporal or topical \emph{distribution shift} between the splits
+rather than membership~\cite{duan2024mia}. This finding defines our honesty constraint:
+we do not claim to beat these numbers; we ask whether the weak signal that remains still
+predicts leakage.
+
+\subsection{Differential privacy as the defense direction}
+\label{sec:dp}
+The standard principled mitigation for training-data leakage is differential privacy.
+DP-SGD bounds any single example's influence on the trained model by clipping per-example
+gradients and adding calibrated noise, with privacy accounted via the moments
+accountant~\cite{abadi2016deep}. Applied to language models, DP fine-tuning can retain
+much of the utility of non-private training, particularly with large pre-trained
+backbones~\cite{li2022dpllm} and parameter-efficient adaptation~\cite{yu2022dpfinetuning}.
+DP bounds memorization and thereby the leakage we measure, but at a privacy--utility cost
+and---crucially for us---it must be applied \emph{at training time}; it is a defense for
+model producers, not a detector available to an auditor of an already-released model. We
+therefore position DP as the mitigation our threat model motivates, and do not implement
+it (we train no models).
+
+\subsection{Existing detection techniques}
+We describe the techniques we implement and compare; the comparative evaluation and
+the access requirements appear in Section~\ref{sec:eval}. All operate without any novel
+detector of our own---our contribution is their security-framed, ground-truth
+evaluation, not a new method.
+\begin{itemize}
+  \item \textbf{$n$-gram / substring overlap.} Flag a benchmark item that shares an
+  $N$-gram with the corpus~\cite{brown2020gpt3}. Requires corpus access; misses
+  paraphrased and semantic contamination.
+  \item \textbf{Loss / perplexity thresholding.} The mandatory membership-inference
+  baseline: members exhibit lower loss, with attack success tied to
+  overfitting~\cite{yeom2018privacy}.
+  \item \textbf{Min-K\% Prob.} Average the log-probabilities of the lowest-probability
+  $k\%$ of tokens; reference-free and logprob-only~\cite{shi2024detecting}.
+  \item \textbf{Min-K\%++.} Normalizes each token's log-probability against the full
+  next-token distribution before the bottom-$k\%$ average, the current state of the art
+  among reference-free detectors~\cite{zhang2025minkpp}.
+  \item \textbf{zlib-entropy ratio.} Calibrate model perplexity by the zlib-compressed
+  size of the text, controlling for intrinsic compressibility/frequency~\cite{carlini2021extracting}.
+  \item \textbf{Permutation / exchangeability test.} At the \emph{benchmark} level rather
+  than per item, score each ordering of a benchmark's examples by the log-likelihood of
+  their concatenation and compare the canonical (published) order against random
+  shufflings; a model trained on the benchmark in canonical order favours it beyond
+  chance, yielding a provable, FPR-controlled contamination
+  certificate~\cite{oren2024proving}.
+\end{itemize}
+We additionally note two techniques we describe but \emph{do not} evaluate, since our
+ground-truth, logit-access setting makes likelihood-based detectors stronger and cleaner:
+\emph{guided prompting}, which prompts a model with dataset metadata and a partial
+instance and tests for verbatim completion~\cite{golchin2024timetravel}, a black-box
+signal aimed at closed models; and the reference-free \emph{neighbourhood} and
+shadow-model \emph{reference} attacks discussed in
+Section~\ref{sec:mia-lineage}~\cite{mattern2023neighbourhood,shokri2017membership}.
+
+\subsection{Limitations of existing detection, and our positioning}
+Two limitations frame our contribution. First, \emph{detection is fragile to the
+transformation}: string-matching misses paraphrased and semantic
+contamination~\cite{ippolito2023verbatim}, and likelihood-based membership inference is
+known to barely exceed chance on pre-trained LLMs evaluated under controlled ground
+truth, because the corpora are seen for few epochs and member/non-member boundaries are
+fuzzy~\cite{duan2024mia}. Second, \emph{evaluation conventions matter}: average-case
+AUC or accuracy can mask whether an attack confidently identifies any members, so the
+security-appropriate report is true-positive rate at low false-positive rate with
+log-scale ROC~\cite{carlini2022lira}. We therefore do not claim a stronger detector.
+We ask a different, security-relevant question: \emph{even where contamination signal
+is weak, does it predict concrete privacy leakage?} We answer it with ground-truth
+membership on the Pythia suite~\cite{biderman2023pythia} trained on the public
+Pile~\cite{gao2020pile}, under the low-FPR protocol, with explicit controls for the
+frequency, duplication, and temporal confounds that prior work identifies.

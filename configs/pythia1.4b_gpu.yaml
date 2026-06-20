@@ -1,0 +1,20 @@
+# GPU scale-up config. Identical pipeline; only model + device change. Use for the
+# full-strength runs the preliminary 160m results motivate (Tables 1-2 scaling).
+model: EleutherAI/pythia-1.4b      # or EleutherAI/pythia-2.8b, pythia-6.9b
+revision: main
+device: cuda
+seed: 0
+
+n_per_class: 1000
+max_words: 100
+min_words: 25
+wikimia_length: 64
+
+extraction:
+  n_items: 1000
+  prefix_len: 50          # Carlini et al. 2023 use longer context; extraction rises with it
+  suffix_len: 50
+  min_tokens: 120
+correlation:
+  items: results/pile_items_pythia-1.4b.jsonl
+  n_boot: 2000

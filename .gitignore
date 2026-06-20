@@ -1,0 +1,16 @@
+__pycache__/
+*.pyc
+.pytest_cache/
+.venv/
+venv/
+env/
+results/
+figures/
+*.png
+data/
+*.lock
+.DS_Store
+# Hugging Face / torch caches
+.cache/
+hf_cache/
+requirements.lock.txt

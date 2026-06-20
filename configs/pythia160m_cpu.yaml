@@ -1,0 +1,23 @@
+# Milestone-1/2 config: smallest model, CPU, public ground truth. The numbers in
+# docs/results_table.md were produced with this config. Scale up by changing `model`
+# (and device) only -- no code change.
+model: EleutherAI/pythia-160m
+revision: main
+device: cpu
+seed: 0
+
+# membership separation (scripts/milestone1_pile.py, scripts/milestone1_wikimia.py)
+n_per_class: 300
+max_words: 100
+min_words: 25
+wikimia_length: 64
+
+# extraction + correlation (scripts/extraction_pile.py, scripts/correlation_160m.py)
+extraction:
+  n_items: 300
+  prefix_len: 32
+  suffix_len: 50
+  min_tokens: 80
+correlation:
+  items: results/pile_items_160m.jsonl
+  n_boot: 2000
