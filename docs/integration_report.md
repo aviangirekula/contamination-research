@@ -20,8 +20,12 @@ Full numbers in `docs/results_table.md`; figure `figures/correlation_pythia-160m
 - **The confound-clean control (R3).** WikiMIA's 0.52–0.56 collapses to chance (0.45–0.49) on the
   same-distribution Pile train-vs-val split. Directly pre-empts "your MIA is just distribution
   shift." Strong, reviewer-ready.
-- **The headline correlation with CIs (R4/R5).** Real, significant for 3/4 detectors, length- and
-  seed-controlled, bootstrap CIs.
+- **The R6 control result (negative, but robust and reportable).** The raw contamination↔leakage
+  correlation does NOT survive controlling for loss (partial ρ|loss: Min-K% −0.18, Min-K%++ −0.15
+  FDR-sig negative; zlib ≈0). The honest finding is the *divergence*: loss predicts leakage,
+  calibrated detectors do not. Pre-registered, robust to dedup, not a frequency/zero-inflation
+  artifact. See `docs/controls_report.md`. (The earlier "headline correlation" framing is
+  superseded — it was loss-driven.)
 - **Methods↔paper consistency.** All 8 evaluated methods (LOSS, Min-K%, Min-K%++, zlib, n-gram,
   Oren, extractable memorization, Enron PII) are implemented, tested (46/46), and run; everything
   else is framed in the paper as "related, not evaluated." Spine rule holds.

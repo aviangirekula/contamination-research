@@ -49,7 +49,12 @@ question: \emph{even where the membership signal is weak, does it still predict 
 leakage?} Answering it requires the evaluation discipline that security venues expect of
 a privacy attack---true-positive rate at a low, fixed false-positive rate, read off a
 log-scale ROC curve, rather than an average-case AUC that hides whether the attack ever
-fires confidently~\cite{carlini2022lira}.
+fires confidently~\cite{carlini2022lira}. It also exposes a question the
+membership-inference literature does not ask: detectors are tuned and ranked by how well
+they separate members from non-members, but leakage is a property of \emph{how much} the
+model memorized a specific item. We therefore evaluate each detector not only as a
+membership classifier but as a predictor of concrete leakage, and ask whether the two
+objectives coincide---finding that they do not.
 
 \paragraph{Contributions (and explicit non-contributions).}
 We are deliberate about what this paper is and is not. It is \emph{not} a new detector,
@@ -72,12 +77,21 @@ Carlini~et~al.~\cite{carlini2022lira}. Within that honest scope, our contributio
   confidence intervals, with explicit controls for the frequency, duplication, and
   temporal confounds that prior work
   identifies~\cite{biderman2023pythia,gao2020pile,duan2024mia}.
-  \item \textbf{An empirical contamination~$\rightarrow$~memorization~$\rightarrow$~
-  leakage link.} We correlate per-item contamination scores against an extraction
-  outcome---prefix-continuation extractable memorization under greedy
+  \item \textbf{A pre-registered measurement of \emph{which} contamination signal predicts
+  leakage---and which does not.} We correlate per-item contamination scores against an
+  extraction outcome---prefix-continuation extractable memorization under greedy
   decoding~\cite{carlini2023quantifying}---and, on the Enron Emails subset that already
-  sits inside the Pile, against regex-detected PII leakage~\cite{lukas2023pii},
-  quantifying whether weak contamination signal nonetheless predicts concrete exposure.
+  sits inside the Pile, against regex-detected PII leakage~\cite{lukas2023pii}. A
+  pre-registered partial-correlation control then isolates the role of raw loss. In our
+  ground-truth $160$M-parameter setting we find that the
+  contamination$\rightarrow$leakage association is carried \emph{entirely by per-item
+  loss}: once loss is held fixed, the calibrated reference-free detectors (Min-K\%,
+  Min-K\%++, zlib) add no predictive value, and Min-K\%/Min-K\%++ are if anything
+  inversely related to extraction. The calibrations that improve membership-detection AUC
+  thus discard the loss-magnitude signal that actually predicts leakage---a divergence
+  between membership detection and leakage prediction that we report as our central
+  empirical finding (robust to deduplication, and not explained by token frequency or the
+  zero-inflated outcome).
 \end{itemize}
 We do not propose internal-probe or other novel detectors as contributions, do not train
 or fine-tune models, and do not attack closed production systems for real third-party

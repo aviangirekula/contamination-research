@@ -62,7 +62,12 @@ true membership signal is near-zero at small scale. Whether scale (1.4B/2.8B) re
 clean split is the open scaling question (1.4B run in progress).
 Artifacts: `figures/pilemia_pythia-160m_dists.png`, `figures/pilemia_pythia-160m_logroc.png`.
 
-## Milestone 2 — HEADLINE: contamination/membership score ↔ extraction/leakage
+## Milestone 2 — contamination/membership score ↔ extraction/leakage
+> ⚠️ **SUPERSEDED by R6 control (docs/controls_report.md).** The raw ρ below are loss-driven and
+> do NOT survive controlling for loss (partial ρ|loss: Min-K% −0.18, Min-K%++ −0.15 FDR-sig
+> negative; zlib ≈0). Keep these raw numbers only as the pre-control record; the operative
+> finding is the loss/calibration divergence in the controls report.
+
 Real Pythia-160m, CPU. N=300 Pile MEMBERS (canonical set `results/pile_items_160m.jsonl`),
 prefix_len=32, suffix≤50, greedy extraction. Detector score (whole item) vs fractional
 extraction; Spearman ρ + bootstrap CI (n=2000, seed 0). Run: `scripts/correlation_160m.py
@@ -112,7 +117,7 @@ membership detector) the weakest/non-significant. Artifacts: `figures/correlatio
 | R3 | Temporal/topic shift (WikiMIA) | ✅ resolved | clean Pile train-vs-val collapses WikiMIA's 0.52–0.56 to chance 0.45–0.49; headline uses clean set |
 | R4 | No CIs / single-run | ✅ resolved | bootstrap CIs on all AUCs + headline ρ; significance via CI-excludes-0 |
 | R5 | Length confound | ✅ resolved | clean split length-matched (max_words); correlation set fixed window |
-| R6 | **Headline circularity (LOSS≈extraction)** | ❌ OPEN (top priority) | must add partial correlation controlling for raw LOSS; zlib/Min-K% retaining signal = non-trivial |
+| R6 | **Headline circularity (LOSS≈extraction)** | ⛔ RESOLVED — NEGATIVE (see docs/controls_report.md) | Partial ρ\|loss: Min-K% −0.178, Min-K%++ −0.148 (FDR-sig, NEGATIVE), zlib −0.04 (n.s.). Headline does NOT survive: positive signal was entirely LOSS; calibrated detectors add no independent leakage-prediction. Robust to dedup; not a frequency or zero-inflation artifact. Needs reframing. |
 | R7 | Zero-inflated outcome | ❌ open | ρ leans on few high-frac items; scale up + report Kendall τ |
 | R8 | Oren/n-gram power | ❌ open | Oren at sanity scale (10 ex); run on real benchmark orderings |
 | R9 | PII not yet shown | ❌ open | 0.0 verbatim PII leakage at 160m — do NOT claim PII leak until measured at scale |
