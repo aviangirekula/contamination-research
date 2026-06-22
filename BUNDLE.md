@@ -23,45 +23,42 @@ tests, the LaTeX source, config, the verified bibliography, and the raw result-s
 
 
 
-# PART 1 — THE PAPER (readable prose, front matter)
+# PART 1 — THE PAPER (readable prose, full draft)
 
 
-### `PAPER_DRAFT.md`
+### `PAPER_DRAFT_FULL.md`
 
 ```markdown
-# Benchmark Contamination as a Privacy & Security Vulnerability in LLMs
-### WORKING DRAFT — front matter only (for external assessment)
-
-> **What this file is.** A consolidated draft of the *front matter* of a security paper
-> (target: IEEE S&P / USENIX Security). It contains **Introduction, Background, Related Work,
-> and the Evaluation/setup section** (with the datasets table). Citation keys in `[brackets]`
-> resolve to verified entries in `references.bib` (48 entries, all real/verified).
->
-> **What is NOT here yet (deliberately):** Abstract, the Proposed Method/Benchmark-Matrix
-> section, the Results section, Discussion/Limitations, and Conclusion. The professor's
-> workflow is "run experiments first, then write the paper around results," so the back half
-> is pending.
->
-> **HONEST SCOPE (non-negotiable):** the contribution is a security *reframing* + a *systematic
-> comparison of existing detectors* + an empirical contamination→leakage analysis. It is **NOT**
-> a novel detector or metric.
->
-> **CRITICAL FINDING the assessor must know (changes interpretation of the thesis):** a
-> pre-registered statistical control (R6) on the real Pythia-160m data showed the
-> contamination→leakage correlation **does NOT survive controlling for raw loss**. Raw loss
-> predicts leakage (Spearman ρ≈0.28); the calibrated reference-free detectors (Min-K%,
-> Min-K%++, zlib) add **no** predictive value beyond loss (partial ρ|loss: Min-K% −0.18,
-> Min-K%++ −0.15, both FDR-significant and NEGATIVE; zlib ≈0). Robust to deduplication; not a
-> frequency or zero-inflation artifact. The honest reframed finding is the **divergence between
-> membership-detection and leakage-prediction** (the detectors that are better membership
-> classifiers are worse leakage predictors). Full detail: `docs/controls_report.md`,
-> pre-registration: `docs/pre_analysis.md`. NOTE: this is a *preliminary 160m* result; a GPU
-> scale-up is pending and could shift it.
->
-> **Status of numbers:** all results are real, logged, reproducible (Pythia-160m, CPU). The
-> master results table is `docs/results_table.md`; the controls verdict is `docs/controls_report.md`.
-
----
+Large language models are ranked and certified as safe on public
+benchmarks whose validity rests on the benchmark not appearing in
+pre-training. We study *benchmark contamination* not as a
+measurement-hygiene problem but as a privacy/security vulnerability:
+contamination is a visible symptom of memorization, and memorization is
+the mechanism by which sensitive content leaks. Using the Pythia suite
+trained on the public Pile—so that membership is ground truth rather
+than an inferred label—we run a systematic, pre-registered comparison of
+existing contamination/membership detectors (LOSS, Min-K%, Min-K%++,
+zlib) against a per-item *extraction* outcome. We make no claim to a new
+detector or metric. Our contribution is a *controlled* result: a
+pre-registered partial-correlation and mediation analysis that isolates
+the role of raw per-item loss. We find that the apparent
+contamination→leakage association is *loss-mediated to the resolution of
+this experiment*: the calibrated reference-free detectors—which are
+themselves strongly-to-moderately collinear with loss (Spearman
+0.74–0.90)—add no positive predictive value beyond it, and their
+residual partials are null or, for the most loss-collinear detector
+(Min-K%), weakly negative in a manner consistent with a suppression
+artifact rather than substantive inverse prediction. This absence of
+positive residual survives a non-linear (cubic-residual and
+decile-stratified) loss control and deduplication, and is not explained
+by token frequency or the zero-inflated outcome. We frame this as a
+*membership-detection-versus-leakage-prediction divergence*: the
+detectors the field optimizes for membership are not the right
+instrument for the privacy question. **These results are preliminary,
+obtained on the smallest (160M) Pythia model on CPU; the pipeline is
+built so that the GPU-scale replication is a single configuration
+change.** All analyses are pre-registered and every number is
+reproducible from a seeded script.
 
 # Introduction
 
@@ -130,7 +127,7 @@ contributions are:
     item, benchmark-level contamination confirmation, and verbatim/PII
     extraction—rather than as a measurement artifact
     (Section <a href="#sec:background" data-reference-type="ref" data-reference="sec:background">2</a>,
-    Section <a href="#sec:eval" data-reference-type="ref" data-reference="sec:eval">4</a>).
+    Section <a href="#sec:eval" data-reference-type="ref" data-reference="sec:eval">5</a>).
 
 -   **A systematic comparative evaluation of existing detectors under
     the S&P low-FPR protocol on ground-truth Pile membership.** We
@@ -149,18 +146,24 @@ contributions are:
     outcome—prefix-continuation extractable memorization under greedy
     decoding \[carlini2023quantifying\]—and, on the Enron Emails subset
     that already sits inside the Pile, against regex-detected PII
-    leakage \[lukas2023pii\]. A pre-registered partial-correlation
-    control then isolates the role of raw loss. In our ground-truth
-    160M-parameter setting we find that the contamination→leakage
-    association is carried *entirely by per-item loss*: once loss is
-    held fixed, the calibrated reference-free detectors (Min-K%,
-    Min-K%++, zlib) add no predictive value, and Min-K%/Min-K%++ are if
-    anything inversely related to extraction. The calibrations that
-    improve membership-detection AUC thus discard the loss-magnitude
-    signal that actually predicts leakage—a divergence between
-    membership detection and leakage prediction that we report as our
-    central empirical finding (robust to deduplication, and not
-    explained by token frequency or the zero-inflated outcome).
+    leakage \[lukas2023pii\]. A pre-registered partial-correlation and
+    mediation control then isolates the role of raw loss. In our
+    ground-truth 160M-parameter setting we find that the
+    contamination→leakage association is *loss-mediated to the
+    resolution of this experiment*: once loss is held fixed, the
+    calibrated reference-free detectors (Min-K%, Min-K%++, zlib) add no
+    positive predictive value. These detectors are themselves
+    near-collinear transforms of loss (Spearman 0.74–0.90), so we read a
+    negative residual for the most collinear of them (Min-K%) as a
+    likely suppression artifact rather than substantive inverse
+    prediction, and claim only the conservative result: no positive
+    signal beyond loss. The calibrations that improve
+    membership-detection AUC thus do not retain the loss-magnitude
+    signal that predicts leakage—a divergence between membership
+    detection and leakage prediction that we report as our central
+    empirical finding (robust to deduplication and a non-linear loss
+    control, and not explained by token frequency or the zero-inflated
+    outcome).
 
 We do not propose internal-probe or other novel detectors as
 contributions, do not train or fine-tune models, and do not attack
@@ -231,9 +234,63 @@ capability claims downstream decisions rely on, and (ii)—the focus of
 this paper—couples directly to *memorization*, and through memorization
 to the leakage of sensitive content that co-occurs in the same weakly
 filtered corpora.
-Section <a href="#sec:relatedwork" data-reference-type="ref" data-reference="sec:relatedwork">3</a>
+Section <a href="#sec:relatedwork" data-reference-type="ref" data-reference="sec:relatedwork">4</a>
 formalizes contamination, its typology, and the detection and
 memorization literature on which our evaluation builds.
+
+# Threat Model
+
+We frame contamination detection as a membership/exposure attack and
+state the adversary explicitly, following the convention that a privacy
+attack must be evaluated by its behaviour at a low false-positive
+operating point rather than on average \[carlini2022lira\].
+
+#### Adversary goals (graded).
+
+-   **G1 — Membership inference.** Decide whether a specific sequence (a
+    benchmark item, document, or record) was in the training corpus.
+
+-   **G2 — Benchmark-level contamination confirmation.** Decide, with a
+    controlled false-positive rate, whether an entire benchmark was
+    trained on.
+
+-   **G3 — Extraction / leakage.** Recover verbatim content—and, on a
+    controlled corpus, PII—that was in training. This is the concrete
+    harm; G1–G2 are of interest largely insofar as they predict G3.
+
+#### Adversary knowledge and access.
+
+We grade detectors by the minimum access each requires: *black-box*
+(text in, text out; e.g. guided prompting, which we do not evaluate),
+*gray-box* (per-token log-probabilities / loss; LOSS, Min-K%, zlib), and
+*white-box* (the full next-token distribution; Min-K%++). The
+corpus-side *n*-gram test instead assumes access to the training corpus
+(available here because the Pile is public) and is used to construct
+ground-truth contamination labels, not as a model-access attack. For our
+ground-truth experiments the *auditor* additionally knows the public
+training corpus; the modelled attacker does not need corpus access for
+G1/G3.
+
+#### Success criteria.
+
+G1: true-positive rate at 0.1% and 1% false-positive rate (log-scale
+ROC), with AUC secondary and bootstrap confidence intervals. G2: a
+permutation-test *p*-value below threshold with a controlled
+false-positive rate \[oren2024proving\]. G3: a non-zero extraction rate,
+and—our headline analysis—a positive association between a per-item
+contamination score and the per-item extraction outcome that *survives
+controlling for raw loss*. The last criterion is what distinguishes a
+contamination signal that genuinely predicts leakage from one that
+merely restates the model’s loss.
+
+#### Out of scope.
+
+We do not attack closed production models for real third-party PII, do
+not train or fine-tune models, and propose no new detector. Differential
+privacy is discussed as the producer-side mitigation our threat model
+motivates
+(Section <a href="#sec:dp" data-reference-type="ref" data-reference="sec:dp">4.5</a>),
+not implemented.
 
 # Related Work: Contamination, Memorization, and Privacy Leakage
 
@@ -392,7 +449,7 @@ motivates, and do not implement it (we train no models).
 
 We describe the techniques we implement and compare; the comparative
 evaluation and the access requirements appear in
-Section <a href="#sec:eval" data-reference-type="ref" data-reference="sec:eval">4</a>.
+Section <a href="#sec:eval" data-reference-type="ref" data-reference="sec:eval">5</a>.
 All operate without any novel detector of our own—our contribution is
 their security-framed, ground-truth evaluation, not a new method.
 
@@ -432,7 +489,7 @@ model with dataset metadata and a partial instance and tests for
 verbatim completion \[golchin2024timetravel\], a black-box signal aimed
 at closed models; and the reference-free *neighbourhood* and
 shadow-model *reference* attacks discussed in
-Section <a href="#sec:mia-lineage" data-reference-type="ref" data-reference="sec:mia-lineage">3.4</a> \[mattern2023neighbourhood,shokri2017membership\].
+Section <a href="#sec:mia-lineage" data-reference-type="ref" data-reference="sec:mia-lineage">4.4</a> \[mattern2023neighbourhood,shokri2017membership\].
 
 ## Limitations of existing detection, and our positioning
 
@@ -452,6 +509,66 @@ leakage?* We answer it with ground-truth membership on the Pythia
 suite \[biderman2023pythia\] trained on the public Pile \[gao2020pile\],
 under the low-FPR protocol, with explicit controls for the frequency,
 duplication, and temporal confounds that prior work identifies.
+
+## Closest prior work, and how we differ
+
+Three recent works reach conclusions adjacent to ours, and we are
+careful to position against them rather than overclaim. Al Sahili et
+al. \[alsahili2025effectiveness\] reach a compatible conclusion for
+targeted extraction—that “complex MIA techniques yield only marginal
+improvements over simple likelihood-based ranking”—but they establish it
+through aggregate *ranking-precision* comparisons and an AdaBoost
+ensemble over MIA features, reporting *marginal gains* rather than
+testing for independent signal. In contrast, we run a pre-registered
+*partial correlation controlling for raw per-item loss*, which lets us
+state the stronger, calibrated claim that the reference-free detectors
+contribute *zero or negative* residual predictive value once loss is
+partialled out. Hayes et al. \[hayes2025strong\] likewise “observe no
+correlation with MIA success” for extraction and conclude the “two
+privacy attacks may capture different signals,” but their evidence is a
+*direct, zero-order* correlation between a reference-model attack (LiRA)
+and extraction. We differ on both method and object: we *partial out
+per-item loss* rather than correlating directly, and we target the
+reference-free *calibrated* detectors (Min-K%, Min-K%++, zlib) that the
+contamination-detection literature actually deploys, showing the
+divergence persists as a controlled mediation result. Independently,
+Chen et al. \[chen2025statistical\] find for the *membership* task that
+the few detectors numerically above the loss baseline (Min-K%, Min-K%++,
+ReCaLL) do not beat it robustly once random-seed variance is accounted
+for, and that performance is domain-dependent (code-like,
+low-token-diversity domains such as GitHub and StackExchange behave
+differently from Wikipedia and FreeLaw); we revisit this domain
+dependence for the *extraction* outcome in our per-domain analysis
+(Section <a href="#sec:eval" data-reference-type="ref" data-reference="sec:eval">5</a>),
+noting it is a distinct axis from their membership-AUC result. Finally,
+blind-baseline and SoK critiques \[das2024blind,meeus2025sok\] show that
+post-hoc member/non-member splits can make detector “success” an
+artifact of distribution shift; our use of ground-truth Pile membership
+(no post-hoc split) is precisely the design discipline they call for.
+
+<div class="tabular">
+
+@p2.1cmp1.6cmp1.9cmp2.0cmp2.4cm@ **Study** & **Outcome** & **Detectors**
+& **Statistical method** & **Conclusion**  
+Shi’24; Zhang’25 \[shi2024detecting,zhang2025minkpp\] & membership &
+reference-free (Min-K%/++) & AUC / TPR@FPR & detector raises membership
+AUC  
+Duan’24 (MIMIR) \[duan2024mia\] & membership & ref-free + reference &
+AUC on ground truth & MIAs ≈ chance on LLMs  
+Carlini’22 (LiRA) \[carlini2022lira\] & membership & shadow/reference &
+TPR at low FPR & strong only with shadow models  
+Chen’25 \[chen2025statistical\] & membership & reference-free &
+seed-variance testing vs loss & not robustly beyond loss  
+Hayes’25 \[hayes2025strong\] & membership & extraction & LiRA
+(reference) & direct (zero-order) correlation & MIA ≠ extraction  
+Al Sahili’25 \[alsahili2025effectiveness\] & extraction (targeted) &
+ref-free + AdaBoost & ranking precision; ensemble & marginal gains over
+likelihood  
+**This work** & **extraction** & **ref-free calibrated** & **partial
+corr. + mediation (control loss)** & **zero/negative residual beyond
+loss**  
+
+</div>
 
 # Evaluation Overview
 
@@ -488,7 +605,7 @@ prompting \[golchin2024timetravel\], neighbourhood and shadow-model
 reference attacks \[mattern2023neighbourhood,shokri2017membership\], and
 the divergence-style extraction of production
 models \[nasr2025scalable\]—are discussed in
-Section <a href="#sec:relatedwork" data-reference-type="ref" data-reference="sec:relatedwork">3</a>.
+Section <a href="#sec:relatedwork" data-reference-type="ref" data-reference="sec:relatedwork">4</a>.
 **\[D1\]** An internal-activation probe is reported, if at all, only as
 exploratory analysis in the Discussion, not as a contribution.
 
@@ -569,7 +686,7 @@ member/non-member splits (string frequency), and model-size scaling
 memorization does \[carlini2023quantifying\]). Differentially private
 training \[abadi2016deep,li2022dpllm\] is discussed as the mitigation
 direction
-(Section <a href="#sec:dp" data-reference-type="ref" data-reference="sec:dp">3.5</a>),
+(Section <a href="#sec:dp" data-reference-type="ref" data-reference="sec:dp">4.5</a>),
 not implemented, since it is a producer-side defense applied at training
 time rather than an auditor-side detector.
 
@@ -579,6 +696,319 @@ log-scale ROC, extraction rates, and the headline contamination→leakage
 correlation with confidence intervals—are reported in the results
 section, with every reported number tracing to a logged harness run.
 
+# Results
+
+**All results in this section are preliminary, obtained on Pythia-160M
+on CPU with *N* = 300 ground-truth Pile members (seed 0); larger-model
+rows are left for the GPU replication.** Every number is reproducible
+from a seeded script and recorded in our results ledger.
+
+## Membership separation is at chance on a confound-clean split
+
+We first reproduce, as a control, the known weakness of membership
+inference on pre-trained LLMs \[duan2024mia\]. On a confound-clean split
+(members = Pile train, non-members = Pile validation, stratified across
+22 Pile subsets to match domain), all four detectors sit at chance at
+160M
+(Table <a href="#tab:membership" data-reference-type="ref" data-reference="tab:membership">1</a>);
+on the temporally-confounded WikiMIA split the same model shows a
+spurious 0.52–0.56, and a 1.4B model rises further—evidence that the
+WikiMIA signal is substantially distribution shift, not membership.
+
+<div id="tab:membership">
+
+| Construction (model)            | LOSS  | Min-K% | Min-K%++ | zlib  |
+|:--------------------------------|:-----:|:------:|:--------:|:-----:|
+| Pile train-vs-val, clean (160M) | 0.454 | 0.470  |  0.490   | 0.484 |
+| WikiMIA-64, confounded (160M)   | 0.523 | 0.539  |  0.545   | 0.564 |
+| WikiMIA-64, confounded (1.4B)   | 0.571 | 0.580  |  0.547   | 0.616 |
+
+Membership AUC. Chance ( ≈ 0.5) on the confound-clean split at 160M; the
+WikiMIA “signal” is largely temporal/topical distribution shift. CIs in
+the ledger; deduplicated Pythia gives the same chance-level result.
+
+</div>
+
+## Contamination predicts leakage — but only through loss
+
+Our headline analysis correlates each per-item detector score with the
+per-item extraction outcome (prefix-continuation extractable
+memorization under greedy decoding \[carlini2023quantifying\]), then
+controls for raw loss.
+Table <a href="#tab:headline" data-reference-type="ref" data-reference="tab:headline">2</a>
+reports, for each calibrated detector, the zero-order Spearman *ρ*, the
+linear partial *ρ* given loss, the non-linear (cubic-residual) partial
+*ρ* with bootstrap CI, the FDR-corrected permutation *q*, and the
+mediation decomposition.
+
+<div id="tab:headline">
+
+| Detector | zero-order | partial∣loss |     cubic-resid. \[95% CI\]     |  BH-*q*   | mediation: direct ∣ indirect |
+|:---------|:----------:|:------------:|:-------------------------------:|:---------:|:----------------------------:|
+| LOSS     |   + 0.275  |      —       |                —                |     —     |          (mediator)          |
+| Min-K%   |   + 0.173  |    − 0.178   |  − 0.110 \[ − 0.234,  − 0.002\] |   0.058   |      − 0.394 ∣  + 0.567      |
+| Min-K%++ |   + 0.108  |    − 0.148   |  − 0.160 \[ − 0.287,  − 0.041\] | **0.015** |      − 0.213 ∣  + 0.321      |
+| zlib     |   + 0.177  |    − 0.042   |  − 0.052 \[ − 0.165,  + 0.068\] |   0.331   |      − 0.061 ∣  + 0.238      |
+
+Headline: per-item contamination score vs. extraction (Spearman *ρ*),
+Pythia-160M, *N* = 300 members. The positive zero-order correlations
+collapse to  ≈ 0 or significantly *negative* once loss is
+controlled—linearly, and under the non-linear cubic-residual control (no
+positive signal revives; deciles and the deduplicated arm agree).
+Mediation: the loss-mediated *indirect* effect is significantly positive
+for all three detectors while the *direct* effect is null (zlib) or
+negative (Min-K%, Min-K%++). We read this as a *descriptive*
+decomposition, not a causal mediation claim (see below): no calibrated
+detector adds positive signal beyond loss.
+
+</div>
+
+#### Collinearity caveat (why we do not over-read the negative partials).
+
+The calibrated detectors are deterministic transforms of the same
+per-token log-probabilities as loss, and are empirically collinear with
+it: Spearman *ρ*(loss,  ⋅ ) = 0.90 (Min-K%), 0.74 (Min-K%++), 0.74
+(zlib), with variance-inflation factors 6.2, 2.6, 2.4. The strongest
+negative partial (Min-K%, the most loss-collinear detector at VIF 6.2)
+is therefore consistent with a *suppression artifact* of
+near-collinearity rather than substantive inverse prediction; we do not
+claim the calibrated detectors *negatively* predict leakage. The
+defensible, conservative statement is that they carry *no positive*
+leakage signal independent of loss. Min-K%++ and zlib have only moderate
+collinearity (VIF  &lt; 3), so their null/near-null residuals are less
+attributable to collinearity.
+
+The pre-registered decision rule asked whether any calibrated detector
+predicts leakage *beyond* loss (a positive partial *ρ*, CI excluding
+zero, FDR-significant). None does, under the linear or the non-linear
+control. **Power note:** with *N* = 300 and a near-degenerate outcome
+(3/300 fully extracted), this is evidence of *no positive independent
+signal of appreciable size*, not proof of an exact null; the analysis is
+well-powered only for moderate-to-large positive residuals, and a small
+positive effect at scale is not excluded (hence the GPU replication).
+The per-domain breakdown (ledger) shows the loss↔extraction link is
+heterogeneous and sign-flipping across domains—strongest in
+templated/structured domains (GitHub, StackExchange), reversed in some
+prose domains (PubMed Abstracts)—so the pooled *ρ* is a domain-mixture,
+not a uniform effect.
+
+## Extraction and PII at this scale
+
+Extractable memorization is rare at 160M: 3/300 members are fully
+extractable (exact-match extraction rate 0.010; mean fractional
+extraction 0.037), the fully-extracted items being templated
+boilerplate. On the Enron-Emails-in-Pile subset we measured *zero*
+verbatim PII leakage (8/36 documents contained PII in the held suffix;
+none were regurgitated). We report the PII result as a null at this
+scale and make no PII-exposure claim; both quantities are expected to
+grow with model scale.
+
+## Benchmark contamination (model-free *n*-gram + permutation test)
+
+We complement the per-item analysis with two benchmark-level
+contamination tests
+(Table <a href="#tab:matrix" data-reference-type="ref" data-reference="tab:matrix">3</a>).
+The model-free *n*-gram overlap against a public *sample* of the Pile
+(10k documents) is a scale-invariant method but, with a sampled
+reference, yields only a loose *lower bound*: overlap is near-zero for
+MMLU (0.2% at 13-grams), GSM8K (0%), and HumanEval (0% at 13-grams),
+which certifies overlap is *at least* this small and is uninformative
+about true contamination—a full-Pile index (infrastructure-, not GPU-,
+gated) is required for a real rate. The Oren permutation/exchangeability
+test \[oren2024proving\] at 160M finds the canonical ordering favoured
+beyond chance for MMLU (*p* = 0.001) and GSM8K (*p* = 0.013) but not
+HumanEval (*p* = 0.875); we draw *no* contamination conclusion from
+this, as the test is membership-based, run at sanity scale (small *k*,
+smallest model), and subject to a fluency/orientation artifact—it is
+flagged GPU-gated and requires a fluency-control baseline before any
+claim.
+
+<div id="tab:matrix">
+
+| Benchmark | 13-gram overlap (lower bound) | 8-gram overlap | Oren *p* (160M, sanity) |
+|:----------|:-----------------------------:|:--------------:|:-----------------------:|
+| MMLU      |             0.2%              |      0.8%      |          0.001          |
+| GSM8K     |             0.0%              |      0.0%      |          0.013          |
+| HumanEval |             0.0%              |      1.8%      |          0.875          |
+
+Benchmark-level contamination at small scale. *n*-gram cells are a
+*lower bound* against a 10k Pile sample (method scale-invariant,
+reference under-powered); Oren *p*-values are sanity-scale at 160M and
+GPU-gated (no contamination conclusion drawn). See
+`docs/contamination_matrix.md`.
+
+</div>
+
+# Discussion
+
+#### Membership detection and leakage prediction diverge.
+
+The central empirical observation is that the contamination/membership
+signal which predicts *extraction* is, to the resolution of our
+experiment, *just raw loss*. The reference-free detectors that the
+contamination-detection literature has invested in—Min-K%, Min-K%++,
+zlib—improve membership ranking by re-calibrating the per-token
+likelihood (z-scoring against the vocabulary, compressing, or trimming
+to the lowest-probability tokens), but in doing so they discard
+precisely the loss-magnitude information that tracks how extractable an
+item is. A descriptive mediation decomposition is consistent with
+this—the loss-mediated (indirect) path is positive for all three
+detectors while the direct paths are null or negative—but we read it
+descriptively, not causally: the detectors are near-collinear transforms
+of loss (Spearman up to 0.90; VIF up to 6.2), so a negative
+direct/partial term is consistent with statistical suppression rather
+than genuine inverse prediction. We therefore claim only the
+conservative version: the calibrated detectors add *no positive* leakage
+signal beyond loss. A practitioner who wants to know *which contaminated
+items the model will actually leak* is, on this evidence, no better
+served by a state-of-the-art membership detector than by raw loss. This
+is the sense in which membership detection and leakage prediction are
+different tasks.
+
+#### Why this is a security result, not a leaderboard result.
+
+Our finding is deliberately *not* “we built a better detector.” It is
+that the privacy question—will contamination of a benchmark expose a
+leakage channel?—is mis-served by importing the membership-inference
+toolkit wholesale. For an auditor of a released model, the actionable
+implication is to measure loss/extractability directly and to treat a
+high Min-K%/Min-K%++ score as evidence about membership, not about
+leakage risk. This reframing is the contribution; the detectors
+themselves are prior work.
+
+#### Relation to concurrent work.
+
+Our direction agrees with two recent results and we do not claim the
+bottom line is surprising: Al Sahili et
+al. \[alsahili2025effectiveness\] report only “marginal” gains of MIA
+scores over likelihood ranking for targeted extraction, and Hayes et
+al. \[hayes2025strong\] find no correlation between (LiRA) membership
+success and extraction. We add the controlled, mechanistic form of the
+claim—a pre-registered partial-correlation/mediation that quantifies a
+*zero-to-negative* residual for the calibrated reference-free detectors
+after loss is removed—and we target the reference-free detectors the
+contamination literature actually deploys rather than a shadow-model
+attack. Chen et al. \[chen2025statistical\] independently find these
+detectors do not robustly beat the loss baseline for *membership* once
+seed variance is accounted for; our result is the extraction-outcome
+analogue.
+
+#### Defenses.
+
+Because the leakage we measure is downstream of memorization, the
+principled mitigation is differential privacy applied at training
+time \[abadi2016deep,li2022dpllm\]; it is a producer-side control, not
+an auditor-side detector, and bounds the very quantity (loss-magnitude /
+memorization) our analysis identifies as the operative one.
+
+# Limitations
+
+We state the limitations plainly; several bound the strength of the
+present claims and motivate the GPU-scale replication the pipeline is
+built for.
+
+-   **Single, smallest model.** All results are on Pythia-160M (CPU).
+    Memorization grows log-linearly with model
+    scale \[carlini2023quantifying\], so both the membership signal and
+    the extraction outcome are expected to be stronger at 1.4B–12B. The
+    present numbers are *preliminary*; we have built every analysis so
+    the larger-model run is a one-line configuration change.
+
+-   **Chance-level membership separation.** On the confound-clean Pile
+    train-vs-val split, membership AUC is at chance (0.45–0.49) at 160M,
+    consistent with \[duan2024mia\]. The divergence result is therefore
+    established in a regime where the membership signal is itself weak;
+    whether the calibrated detectors gain *independent*
+    leakage-predictive value once membership separation becomes
+    non-trivial at scale is an open question our design is poised to
+    answer.
+
+-   **Near-degenerate extraction outcome.** Extractable memorization at
+    160M is rare (3/300 items fully extracted; mean fractional
+    extraction 0.037), so the correlation analysis leans on a small
+    high-extraction tail. We mitigate with rank statistics, bootstrap
+    CIs, and a zero-robust Kendall check, but a less zero-inflated
+    outcome at scale would sharpen all estimates.
+
+-   **PII not yet demonstrated.** On the Enron-in-Pile subset we
+    observed *zero* verbatim PII leakage at 160M (8/36 documents
+    contained PII in the held suffix; none were regurgitated). The PII
+    limb of the threat model is thus a designed capability with a null
+    result at this scale, not a demonstrated leak; we report it as such
+    and do not claim PII exposure.
+
+-   **Benchmark-level test underpowered.** The Oren
+    permutation/exchangeability test is run only at sanity scale on
+    160M; membership-based, it is underpowered here and is flagged as
+    GPU-gated rather than used to draw contamination conclusions.
+
+-   ***n*-gram contamination is a lower bound.** Our model-free *n*-gram
+    overlap uses a public *sample* of the Pile as the reference index,
+    so measured benchmark↔Pile overlap underestimates the true overlap
+    against the full corpus.
+
+-   **Observational, members-only correlation.** The headline analysis
+    correlates detector scores with extraction across known members; it
+    is observational, not interventional. We address the most important
+    confound (loss) by pre-registered partial correlation and mediation,
+    and the obvious alternatives (frequency, duplication, non-linearity,
+    distribution shift) by explicit controls, but residual confounding
+    cannot be excluded.
+
+-   **Collinearity of detectors with loss.** The calibrated detectors
+    are deterministic transforms of the same per-token log-probabilities
+    as loss and are empirically collinear with it (Spearman 0.74–0.90;
+    VIF up to 6.2 for Min-K%). Consequently we interpret the negative
+    partial/direct terms as possible *suppression artifacts* of
+    near-collinearity and claim only the conservative “no positive
+    residual” result; we do not assert the detectors inversely predict
+    leakage.
+
+-   **Construct validity of the leakage proxy.** The outcome (greedy
+    prefix-continuation extraction over the held suffix) is itself
+    likelihood-related, so part of the loss↔ extraction association is
+    mechanical/definitional. Our control removes the loss component, but
+    a decisive separation would compute prefix-only loss against
+    extraction; we flag this as a known construct-validity limitation
+    rather than claiming the two are independent by construction.
+
+-   **Selection and aggregation.** Members are drawn from a non-uniform
+    public Pile sample (`pile-10k`), so member-selection bias is
+    possible; and the pooled correlation aggregates domains whose
+    effects flip sign
+    (Section <a href="#sec:res-headline" data-reference-type="ref" data-reference="sec:res-headline">6.2</a>),
+    so the pooled *ρ* should be read as a domain-mixture, not a
+    homogeneous effect.
+
+-   **Linearity (now addressed).** An earlier version controlled for
+    loss only linearly; we added a cubic-residual and decile-stratified
+    non-linear control, under which no positive independent signal
+    revives. We note it here because it was a live threat to the claim
+    until tested.
+
+# Conclusion
+
+We argued that benchmark contamination is best understood as a
+privacy/security vulnerability and asked, on models with ground-truth
+public training data, whether the contamination/membership signal that a
+benchmark leaks actually predicts concrete extraction. Using a
+pre-registered partial-correlation and mediation analysis that controls
+for raw per-item loss, we found that it does—but only through loss: the
+calibrated reference-free detectors (Min-K%, Min-K%++, zlib) add no
+independent predictive value beyond loss, and two are negatively
+associated with extraction once loss is held fixed. The result is robust
+to a non-linear loss control and to deduplication, and is not a
+frequency or zero-inflation artifact. The practical message is a
+divergence: the detectors optimized for membership inference are not the
+right instrument for the leakage question, and an auditor should measure
+loss/extractability directly. We claim no new detector or metric; the
+contribution is the security reframing and the controlled,
+pre-registered measurement. These findings are preliminary, on the
+smallest Pythia model; the immediate next step—and the design target of
+our released pipeline—is the GPU-scale replication across model sizes,
+where memorization, extraction, and any PII leakage are expected to
+strengthen, and where the question of whether calibrated detectors gain
+independent leakage-predictive value at scale can be settled.
 
 ```
 
@@ -681,6 +1111,173 @@ leakage signal — itself a finding) is a decision for Professor Lin.
 ```
 
 
+### `docs/hardening_report.md`
+
+```markdown
+# Statistical Hardening Report (St) — non-linear loss control + mediation
+
+**Date:** 2026-06-20. Pre-registered: `docs/pre_analysis.md` (Round 2, St; incl. the 2026-06-20
+amendment swapping cubic-residualization to PRIMARY after synthetic validation). Data: cached
+per-example scores `results/controls_scores_pythia-160m{,-deduped}.jsonl`, N=300 Pile members, no
+new inference. Seed 0, bootstrap/permutation n=2000. Outcome = `frac_extracted`; control = `loss`.
+
+## Headline
+**The Round-1 negative result survives a non-linear loss control and a formal mediation analysis.**
+No calibrated detector predicts leakage beyond loss; the contamination→leakage association is
+loss-mediated, with detector direct effects null-to-negative. The result is NOT a linearity artifact.
+
+## St-1 — non-linear loss control (PRIMARY = cubic-residual; SECONDARY = decile)
+Spearman ρ(detector, frac_extracted) under progressively stricter loss control. Cubic CI = bootstrap
+95%; BH-q over the 3 cubic-residual permutation p-values (confirmatory family).
+
+**Non-deduped (`pythia-160m`):**
+| Detector | zero-order ρ | linear partial ρ\|loss | **cubic-residual ρ [95% CI]** | decile ρ (coarse) | BH-q |
+|---|---|---|---|---|---|
+| Min-K% | +0.173 | −0.178 | **−0.110 [−0.234, −0.002]** | −0.111 | 0.058 |
+| Min-K%++ | +0.108 | −0.148 | **−0.160 [−0.287, −0.041]** | −0.109 | **0.015** |
+| zlib | +0.177 | −0.042 | −0.052 [−0.165, +0.068] | −0.018 | 0.331 |
+
+**Deduped (`pythia-160m-deduped`, robustness):**
+| Detector | zero-order ρ | linear partial ρ\|loss | cubic-residual ρ [95% CI] | decile ρ | BH-q |
+|---|---|---|---|---|---|
+| Min-K% | +0.221 | −0.133 | −0.101 [−0.222, +0.011] | −0.069 | 0.084 |
+| Min-K%++ | +0.161 | −0.141 | −0.111 [−0.241, +0.004] | −0.099 | 0.084 |
+| zlib | +0.220 | −0.016 | −0.018 [−0.134, +0.108] | +0.041 | 0.719 |
+
+**St-1 verdict (pre-registered decision rule):** REVIVED detectors = **NONE** in either arm (no
+calibrated detector has a positive cubic-residual ρ with CI excluding 0 and FDR-significant). The
+positive zero-order correlations collapse to ≈0 or significantly negative under the clean non-linear
+control. The Round-1 finding is **confirmed not to be a linearity artifact.** Min-K%++ remains
+significantly negative (FDR-sig) non-deduped; effects attenuate but never reverse sign on deduped.
+
+## St-1b — collinearity diagnostic (reviewer concern W3; `results/collinearity_pythia-160m.json`)
+The calibrated detectors are deterministic transforms of the same per-token log-probabilities as
+loss, hence collinear with it: Spearman ρ(loss,·) = **0.90** (Min-K%), **0.74** (Min-K%++), **0.74**
+(zlib); VIF = **6.2 / 2.6 / 2.4**; condition number of [loss, detector] = 4.8 / 2.9 / 2.7.
+**Implication:** the strongest negative partial (Min-K%, VIF 6.2) is consistent with a *suppression
+artifact* of near-collinearity, not substantive inverse prediction. We therefore claim only the
+conservative result — the calibrated detectors carry **no positive** leakage signal independent of
+loss — and do NOT assert they negatively predict leakage. Min-K%++/zlib (VIF < 3) are less
+collinearity-confounded; their residuals are null/near-null. Mediation (St-2) is reported descriptively
+for the same reason. Power: with N=300 and a near-degenerate outcome (3/300), the analysis is
+well-powered only for moderate-to-large positive residuals; a small positive effect at scale is not
+excluded (→ GPU).
+
+## St-2 — formal mediation (loss as mediator), non-deduped [DESCRIPTIVE]
+Rank-based decomposition of the total detector→leakage effect into direct + indirect (through loss).
+| Detector | total [95% CI] | direct (c′) [95% CI] | indirect (loss-mediated) [95% CI] |
+|---|---|---|---|
+| Min-K% | +0.173 [0.061, 0.285] | **−0.394 [−0.622, −0.151]** | **+0.567 [0.352, 0.770]** |
+| Min-K%++ | +0.108 [−0.010, 0.220] | **−0.213 [−0.377, −0.044]** | **+0.321 [0.195, 0.451]** |
+| zlib | +0.177 [0.063, 0.295] | −0.061 [−0.233, +0.108] | **+0.238 [0.113, 0.369]** |
+
+**Interpretation:** for every calibrated detector the **indirect (loss-mediated) effect is
+significantly positive**, while the **direct effect is null (zlib) or significantly negative**
+(Min-K%, Min-K%++). This is *inconsistent / suppression* mediation: loss accounts for **more than
+100%** of the positive total association (hence the >1 "proportion mediated" point estimates), and
+the detectors' own residual contribution is null-to-negative. This is a stronger statement than
+"fully mediated": the calibrated detectors carry **no** independent positive leakage signal, and
+Min-K%/Min-K%++ carry a small negative one. (Per pre-registration, the proportion-mediated scalar is
+not reported as a clean fraction because the direct/total signs differ; we report direct/indirect/
+total with CIs instead.)
+
+## St-3 — per-domain breakdown (descriptive; low per-domain power)
+Spearman ρ(·, frac_extracted) within Pile domains with n≥10 (non-deduped). The loss↔leakage link is
+strongly **heterogeneous** and detectors track loss within domains:
+| Domain | n | loss | Min-K% | Min-K%++ | zlib |
+|---|---|---|---|---|---|
+| Github | 21 | +0.598 | +0.530 | +0.378 | +0.429 |
+| StackExchange | 21 | +0.544 | +0.589 | +0.589 | +0.602 |
+| ArXiv | 14 | +0.382 | +0.362 | −0.122 | +0.323 |
+| NIH ExPorter | 13 | +0.321 | +0.395 | −0.074 | +0.124 |
+| Wikipedia (en) | 19 | +0.302 | +0.083 | −0.187 | +0.032 |
+| OpenWebText2 | 27 | +0.306 | +0.092 | +0.067 | +0.075 |
+| PubMed Central | 15 | +0.253 | +0.265 | +0.359 | −0.018 |
+| Enron Emails | 13 | +0.171 | +0.018 | +0.132 | +0.533 |
+| Pile-CC | 26 | +0.154 | +0.014 | +0.047 | +0.298 |
+| FreeLaw | 17 | +0.092 | −0.065 | +0.192 | +0.143 |
+| DM Mathematics | 13 | +0.003 | −0.059 | +0.138 | −0.235 |
+| OpenSubtitles | 13 | +0.009 | −0.142 | −0.104 | −0.309 |
+| HackerNews | 13 | −0.093 | −0.070 | −0.421 | −0.387 |
+| YoutubeSubtitles | 11 | −0.095 | −0.164 | −0.140 | −0.394 |
+| USPTO Backgrounds | 17 | −0.190 | −0.020 | −0.130 | −0.079 |
+| PubMed Abstracts | 21 | −0.484 | −0.597 | −0.588 | −0.475 |
+
+**Reading (honest):** the loss↔extraction correlation is strongest in templated/structured domains
+(GitHub +0.60, StackExchange +0.54) and reverses in some prose/abstract domains (PubMed Abstracts
+−0.48). Detectors mostly co-move with loss within a domain rather than adding independent signal.
+**Caveat:** per-domain n is small (11–27), so these are directional, not powered estimates; no
+per-domain FDR claim is made. NOTE: this per-domain heterogeneity concerns the detector↔*extraction*
+correlation, which is a different axis than the detector-vs-loss *membership-AUC* domain effect
+reported by Chen/Han/Miyao (arXiv:2412.13475); the relationship is suggestive and will be tied to
+that literature only as far as Subagent N's verification supports (do not overclaim corroboration).
+
+## Artifacts
+`results/hardening_pythia-160m.json`, `results/hardening_pythia-160m-deduped.json`,
+`figures/hardening_pythia-160m_forest.png` (zero-order vs linear-partial vs cubic-residual, with CIs).
+Reproduce: `python scripts/hardening_160m.py --scores results/controls_scores_pythia-160m.jsonl --tag pythia-160m`.
+
+```
+
+
+### `docs/contamination_matrix.md`
+
+```markdown
+# Contamination Matrix (Mx) — model-free n-gram + Oren permutation (small scale)
+
+**Date:** 2026-06-20. Pre-registered: `docs/pre_analysis.md` (Round 2, Mx). Seed 0, Pythia-160m, CPU.
+Run: `python scripts/contamination_matrix.py --model EleutherAI/pythia-160m --device cpu`.
+Raw: `results/contamination_matrix.json`.
+
+Loaders used (verified at runtime): MMLU = `cais/mmlu` config `all` test (14,042 items; 500 sampled;
+text = question+choices); GSM8K = `openai/gsm8k` main test (1,319; 500 sampled; text = question);
+HumanEval = `openai_humaneval` test (164; all; text = prompt).
+
+## Mx-1 — n-gram/substring overlap vs the Pile (SCALE-INVARIANT method, but LOWER-BOUND reference)
+Reference index = `NeelNanda/pile-10k` (10,000 docs; 13-gram index 8.84M grams, 8-gram 8.83M).
+**Caveat (pre-registered):** this is a *sample* of the Pile (~210M docs), so the numbers below are a
+**loose LOWER BOUND** on true benchmark↔Pile overlap, not a contamination rate of the full corpus. A
+full-Pile index (infra-gated, not model-gated) is required for a real rate.
+
+| Benchmark | items | 13-gram rate | 13-gram mean frac | 8-gram rate | 8-gram mean frac | 8-gram max frac |
+|---|---|---|---|---|---|---|
+| MMLU | 500 | 0.2% (1) | 0.0003 | 0.8% (4) | 0.0005 | 0.21 |
+| GSM8K | 500 | 0.0% (0) | 0.000 | 0.0% (0) | 0.000 | 0.00 |
+| HumanEval | 164 | 0.0% (0) | 0.000 | 1.8% (3) | 0.0004 | 0.03 |
+
+**Reading (honest):** against a 10k-doc Pile sample, measured overlap is near-zero for all three
+benchmarks. This is expected from the sample size and is **uninformative about true contamination** —
+it only certifies that overlap is *at least* this much. The method is scale-invariant; the *reference*
+is the bottleneck. Do not report these as contamination rates.
+
+## Mx-2 — Oren permutation/exchangeability test (UNDERPOWERED at 160m; GPU-gated)
+Pythia-160m, n_permutations=1000, k=30 items/benchmark, 20 words/item. One-sided p = fraction of
+random orderings whose concatenation log-likelihood ≥ the canonical order's.
+
+| Benchmark | p-value | canonical LL | null mean ± std |
+|---|---|---|---|
+| MMLU | 0.001 | −2894.9 | −2975.4 ± 17.7 |
+| GSM8K | 0.013 | −2974.4 | −3020.5 ± 21.4 |
+| HumanEval | 0.875 | −2152.8 | −2125.7 ± 23.4 |
+
+**Reading (honest, pre-registered):** MMLU and GSM8K show the canonical order favored beyond chance
+(p<0.05) even at 160m; HumanEval does not. **We draw NO contamination conclusion from this.** The test
+is membership-based and run at sanity scale (small k, smallest model, single seed of the permutation
+null), and is subject to an orientation/ordering artifact (a benchmark whose canonical concatenation
+is simply more fluent than a shuffle can score low p without training-time contamination). It is
+flagged **GPU-gated**: a real benchmark-contamination claim requires larger models, larger k, and a
+fluency-control baseline. Reported here only to upgrade the earlier 10-example sanity demo (R8) and to
+exercise the harness end-to-end.
+
+## Matrix cell status
+| Cell | Scale-invariant? | Status |
+|---|---|---|
+| n-gram overlap (method) | yes | computed; **reference is a lower-bound sample** → needs full-Pile index |
+| Oren permutation | no (membership-based) | computed at 160m; **underpowered, GPU-gated, no conclusion** |
+
+```
+
+
 ### `docs/results_table.md`
 
 ````markdown
@@ -757,7 +1354,9 @@ Figure: `figures/correlation_pythia-160m_scatter.png`.
 | Enron-in-Pile: verbatim PII leakage rate | 0.0000 | aggregate only; 160m doesn't regurgitate the PII at 32-tok prefix |
 | n-gram(13) overlap: member vs non-member | 1.000 vs 0.022 | corpus-side; separation +0.978 |
 | n-gram(13): non-members with residual overlap | 3/44 | real Pile train↔val near-duplicate leakage |
-| Oren permutation test: contaminated vs control p | 0.044 vs 0.124 | dataset-level; contaminated marginally significant, control not (10 short examples — sanity scale) |
+| Oren permutation test: contaminated vs control p | 0.044 vs 0.124 | 10-example sanity demo; SUPERSEDED by the Mx run below |
+| Oren permutation @160m, real benchmarks (n_perm=1000, k=30) | MMLU 0.001 / GSM8K 0.013 / HumanEval 0.875 | GPU-gated; NO contamination conclusion (see `docs/contamination_matrix.md`) |
+| n-gram(13) benchmark↔Pile overlap (vs 10k Pile sample, lower bound) | MMLU 0.2% / GSM8K 0% / HumanEval 0% | model-free; reference is a sample → lower bound only |
 
 ---
 
@@ -881,7 +1480,9 @@ membership detector) the weakest/non-significant. Artifacts: `figures/correlatio
 | Enron-in-Pile PII: verbatim leakage rate | 0.0000 | same (aggregate; no PII strings stored) |
 | n-gram(13) overlap: member vs non-member mean | 1.000 vs 0.022 (sep +0.978) | `scripts/validate_ngram_oren.py` |
 | n-gram residual: non-members w/ some overlap | 3/44 (real train↔val near-dup leakage) | same |
-| Oren permutation: contaminated vs control p | 0.044 vs 0.124 | same |
+| Oren permutation (10-ex sanity demo; SUPERSEDED by Mx below) | 0.044 vs 0.124 | same |
+| Oren permutation @160m, real benchmarks (n_perm=1000, k=30) | MMLU 0.001 / GSM8K 0.013 / HumanEval 0.875 | `results/contamination_matrix.json` (GPU-gated, no conclusion) |
+| n-gram(13) overlap rate vs 10k-Pile sample (lower bound) | MMLU 0.2% / GSM8K 0% / HumanEval 0% | same |
 | WikiMIA-64 AUC scaling 160m→1.4B (zlib) | 0.564 → 0.616 | `results/wikimia64_summary.json` (1.4B), findings M1 (160m) |
 | WikiMIA-64 AUC scaling 160m→1.4B (loss) | 0.523 → 0.571 | same |
 
@@ -893,6 +1494,34 @@ membership detector) the weakest/non-significant. Artifacts: `figures/correlatio
 | Min-K%++ over runner-up (reference-free) on WikiMIA | 📚 | +6.2–10.5% AUROC | zhang2025minkpp |
 | GPT-J memorizes ≥1% of the Pile (extractable) | 📚 | ≥1% | carlini2023quantifying |
 | LiRA gain at low FPR vs. prior attacks | 📚 | ~10× TPR @ low FPR | carlini2022lira |
+
+## Round 2 — St statistical hardening (docs/hardening_report.md; pre-registered)
+Cached per-example data, N=300, no new inference. PRIMARY non-linear control = cubic-residual
+(decile = coarse secondary). FDR over 3 cubic-residual permutation p-values.
+| Detector | zero-order ρ | linear partial ρ\|loss | cubic-residual ρ [95% CI] | BH-q | mediation: direct \| indirect |
+|---|---|---|---|---|---|
+| Min-K% | +0.173 | −0.178 | −0.110 [−0.234, −0.002] | 0.058 | −0.394 [−0.62,−0.15] \| +0.567 [0.35,0.77] |
+| Min-K%++ | +0.108 | −0.148 | −0.160 [−0.287, −0.041] | **0.015** | −0.213 [−0.38,−0.04] \| +0.321 [0.20,0.45] |
+| zlib | +0.177 | −0.042 | −0.052 [−0.165, +0.068] | 0.331 | −0.061 [−0.23,+0.11] \| +0.238 [0.11,0.37] |
+
+**Collinearity (W3, `results/collinearity_pythia-160m.json`):** detector~loss Spearman 0.90/0.74/0.74,
+VIF 6.2/2.6/2.4 → Min-K%'s negative partial is a likely SUPPRESSION artifact; claim only "no positive
+residual beyond loss," not "negatively predicts." Mediation reported descriptively, not causally.
+
+**St VERDICT:** the negative/null SURVIVES the non-linear loss control — REVIVED detectors = NONE
+(non-deduped AND deduped). Mediation: indirect (loss-mediated) effect significantly POSITIVE for all
+three; direct effect null (zlib) or significantly NEGATIVE (Min-K%, Min-K%++) → inconsistent/
+suppression mediation, loss carries >100% of the positive association. Robust to dedup. The
+contamination→leakage link is loss, not the calibrated detectors — confirmed, not a linearity artifact.
+Artifacts: `results/hardening_pythia-160m{,-deduped}.json`, `figures/hardening_pythia-160m_forest.png`.
+
+## Novelty (docs/novelty_memo.md; Subagent N, web-verified)
+Verdict: adjacent-but-distinct / novel framing+method (NOT reproduction). Added verified cites:
+alsahili2025effectiveness (arXiv:2512.13352, closest prior work — ranking/AdaBoost "marginal gains",
+NOT residualization), hayes2025strong (NeurIPS 2025, "Exploring the Limits of Strong MIA on LLMs";
+MIA≠extraction via LiRA direct correlation), chen2025statistical (ACL 2025; detectors do not ROBUSTLY
+beat loss — within-seed-variance; domain/token-diversity dependence), das2024blind, meeus2025sok.
+[VERIFY] remaining: Chen ACL Anthology id, Das workshop proceedings string, carlini2023 verbatim def.
 
 ## Reviewer-concerns ledger (full log in docs/reviewer_concerns.md)
 | # | Concern | Status | Resolution / evidence |
@@ -991,6 +1620,831 @@ drives the pooled effect. Low per-domain n is expected; flagged, not over-interp
 No paper writing, no assembly/compile, no GPU, no model larger than 160m, no test outside this
 list. Output is `docs/controls_report.md` + a verdict, then STOP for human review.
 
+---
+
+# Pre-Analysis Plan — Round 2 (statistical hardening + contamination matrix)
+
+**Date:** 2026-06-20. Pre-registered BEFORE running. Same data as Round 1: the cached per-example
+scores `results/controls_scores_pythia-160m.jsonl` (and `..._pythia-160m-deduped.jsonl`), each row
+`{item_id, frac_extracted, pile_set_name, loss, min_20_prob, min_20_plusplus, zlib_ratio}`, N=300
+Pile members. No new model inference. Outcome = `frac_extracted` (primary). Control = `loss`.
+Calibrated detectors D ∈ {min_20_prob, min_20_plusplus, zlib_ratio}. Seed 0, bootstrap/permutation
+n=2000.
+
+## St — statistical hardening (does the negative survive a NON-LINEAR loss control + mediation?)
+
+### St-1 (confirmatory) — non-linear loss control
+The Round-1 partial correlation removed loss *linearly* (Pearson partial on ranks). We test whether
+the null/negative survives a flexible loss control.
+
+> **PRE-REGISTRATION AMENDMENT (2026-06-20, BEFORE running on real data).** Synthetic validation
+> (tests/test_mediation.py) showed that 10-bin decile stratification is too COARSE: on a pure-linear-
+> confound simulation it leaves residual within-bin confounding (ρ≈0.18 from a raw ρ≈0.7), so it can
+> leak a spurious positive and is unfit as the primary control. Cubic-polynomial residualization
+> removed the same confound cleanly (ρ<0.12). We therefore SWAP: PRIMARY control = cubic residualization;
+> decile stratification retained as a coarser, model-free SECONDARY check. This change is driven by the
+> synthetic method-check, NOT by any real-data outcome.
+
+- **PRIMARY control: cubic-polynomial residualization.** Residualize D and frac each on a degree-3
+  polynomial in `loss` (OLS), then Spearman of the residuals. Removes the full smooth (linear +
+  non-linear) effect of loss. Significance via permutation (permute frac, recompute, n=2000); bootstrap
+  95% CI (n=2000).
+- **SECONDARY control: decile stratification.** Bin items into 10 equal-count bins of `loss`; bin-size-
+  weighted mean within-bin Spearman ρ(D, frac); stratified permutation p (permute frac WITHIN each loss
+  bin). Reported descriptively, with the caveat that 10-bin stratification incompletely removes strong
+  linear confounds.
+- **Confirmatory family + FDR:** the 3 cubic-residual permutation p-values (one per calibrated
+  detector), Benjamini–Hochberg at q=0.05.
+- **DECISION RULE (pre-registered, symmetric):** for any calibrated detector, if the nonlinear-partial
+  ρ has a bootstrap 95% CI that EXCLUDES 0 and is POSITIVE and FDR-significant → an independent signal
+  **REVIVES** under the nonlinear control → report immediately as a finding and flag for human review
+  (this would change the headline). If CIs include 0 or are negative → the Round-1 null/negative is
+  **confirmed not to be a linearity artifact**.
+
+### St-2 (descriptive) — formal mediation (loss as mediator)
+For each calibrated detector D, decompose the total D→frac association into direct + indirect (through
+loss), on standardized rank variables (rank-based mediation):
+- a = OLS coef of loss ~ D;  b = OLS coef of frac ~ loss + D;  c' (direct) = coef of D in frac ~ loss + D;
+  indirect = a·b;  total = c' + a·b;  proportion mediated = indirect / total.
+- Bootstrap percentile CIs (n=2000, seed 0) for direct, indirect, total, proportion mediated.
+- Report proportion mediated ONLY when the total-effect CI excludes 0; otherwise report "total effect
+  not distinguishable from 0; proportion-mediated undefined." Descriptive (not in the FDR family).
+
+### St-3 (descriptive) — side-by-side + per-domain
+- Table per detector: zero-order ρ | linear-partial ρ|loss (Round 1) | nonlinear-partial ρ (decile) |
+  mediation: direct/indirect/proportion — all with 95% CIs.
+- Per-domain: for each Pile domain with n≥10, Spearman ρ(loss, frac) and ρ(D, frac) with bootstrap
+  CIs; tie the code-positive vs prose-negative pattern to token-diversity (cite Chen/Han/Miyao).
+  Descriptive; low per-domain power explicitly flagged; no per-domain FDR claim.
+- Robustness: repeat St-1 on the deduped arm.
+
+**Outputs:** `docs/hardening_report.md`, regenerated figure(s), `findings.md` updated. Report any
+revival the moment it appears.
+
+## Mx — contamination matrix at small scale (model-free n-gram + Oren sanity)
+
+### Mx-1 (scale-invariant) — n-gram/substring overlap of benchmarks vs the Pile
+- Benchmarks: MMLU, GSM8K, HumanEval (sample up to 500 items each, seed 0).
+- Pile reference: a public Pile SAMPLE (`NeelNanda/pile-10k`); build the set of its N-grams.
+  **Caveat (pre-registered):** this is a SAMPLE of the Pile, so measured overlap is a LOWER BOUND on
+  true benchmark↔Pile overlap; report as such, not as the contamination rate of the full corpus.
+- Metric: per item, fraction of its N-grams found in the Pile-sample index; contamination flag =
+  any-N-gram-overlap (the GPT-3 13-gram rule). N=13 primary, N=8 secondary. Report per-benchmark
+  contamination rate + overlap-fraction distribution. Scale-invariant (model-free).
+
+### Mx-2 (underpowered, flagged) — Oren permutation at 160m
+- Run the Oren exchangeability test (permutations ≥1000) on each benchmark's canonical ordering at
+  Pythia-160m. Report p-values but mark EXPLICITLY as sanity-scale/underpowered at 160m (membership-
+  based ⇒ GPU-gated); do not draw contamination conclusions from it.
+
+**Outputs:** `docs/contamination_matrix.md` + provisional matrix table; which cells are scale-invariant
+vs GPU-gated stated explicitly.
+
+```
+
+
+### `docs/novelty_memo.md`
+
+```markdown
+# Novelty Memo — Membership/Contamination Detection vs. Leakage Prediction
+
+Prepared by Subagent N (novelty verification + citations). Every claim below was
+checked against the actual paper (arXiv abstract page + arXiv HTML full text +,
+where relevant, ACL Anthology). Verbatim quotes are marked with quotation marks.
+Items that could not be fully verified are flagged `[VERIFY]`.
+
+## Our contribution, restated (for novelty calibration)
+
+On Pythia-160m with ground-truth Pile membership, we correlate per-item
+membership/contamination detector scores (LOSS, Min-K%, Min-K%++, zlib) against a
+per-item **extraction/leakage** outcome (prefix-continuation extractable
+memorization). Our distinctive method is a **pre-registered partial correlation /
+mediation controlling for raw LOSS**: the contamination->leakage association is
+carried entirely by per-item loss; the calibrated reference-free detectors add no
+independent predictive value beyond loss (partial rho|loss: Min-K% -0.178,
+Min-K%++ -0.148, both FDR-significant and negative; zlib ~0). We frame this as a
+membership-detection-vs-leakage-prediction **divergence**. Honest scope: this is
+*not* a novel detector/metric; the contribution is the security reframing + a
+systematic comparison + a controlled mediation result.
+
+---
+
+## Per-paper verified summaries
+
+### 1. Al Sahili, Chehab & Tajeddine — CLOSEST PRIOR WORK
+- **arXiv:2512.13352** (submitted 15 Dec 2025). arXiv preprint; no peer venue at read time.
+- Title (verified): "On the Effectiveness of Membership Inference in Targeted Data
+  Extraction from Large Language Models." Authors verified: Ali Al Sahili, Ali
+  Chehab, Razane Tajeddine.
+- Summary: integrates many MIA scores (LOSS, Min-K%, Min-K%++, zlib, S-ReCaLL,
+  lowercase, ...) into a *targeted extraction* pipeline and asks whether they beat
+  plain likelihood ranking. Evaluation = **ranking precision** (proportion of
+  correctly extracted suffixes among top-ranked outputs) plus an **AdaBoost
+  ensemble** over all MIA features.
+- Verified quotes: "complex MIA techniques yield only marginal improvements over
+  simple likelihood-based ranking"; "while certain methods (e.g., S-ReCaLL,
+  Min K%) achieve consistent but marginal gains over the baseline ranking, most
+  approaches perform comparably to the baseline"; "methods such as lowercase and
+  Min-K%++ systematically underperform."
+- Partial correlation / residualization / mediation: **verified NOT FOUND.**
+- Relation to us: same *qualitative bottom line* (detectors barely beat
+  likelihood for extraction) but different *epistemics*. They show **marginal
+  aggregate gains** via ranking precision + a predictive ensemble; we show, via a
+  pre-registered **partial correlation controlling for loss**, that the residual
+  signal is **zero or negative** — a formal "no independent contribution"
+  statement they do not make. Brief's characterization **CONFIRMED**.
+
+### 2. Hayes et al.
+- **arXiv:2505.18773**; **NeurIPS 2025** (comment field states NeurIPS 2025;
+  versions v1 24 May 2025, v2 2 Nov 2025, v3 8 Jan 2026).
+- **TITLE CORRECTION:** the brief's title "Strong Membership Inference Attacks on
+  Massive Datasets and (Moderately) Large LLMs" is the **arXiv v1 header**; the
+  current/published title is **"Exploring the Limits of Strong Membership
+  Inference Attacks on Large Language Models."** The bib uses the published title
+  and records the old v1 title in the comment.
+- Summary: scales LiRA to GPT-2-style LMs (10M-1B params); strong MIAs succeed but
+  remain limited (AUC < 0.7) with unstable per-sample decisions.
+- Verified quotes: "We also study if there is any relationship between training
+  data extraction and MIA, and observe no correlation with MIA success"; "This
+  suggests that the two privacy attacks may capture different signals related to
+  memorization"; "we observe no correlation between MIA and standard extraction
+  methodology."
+- Relation to us: closest on the **conceptual claim** (MIA != extraction). But
+  their evidence is a **direct (zero-order) correlation** between a strong
+  reference-model attack (LiRA) and extraction; they do **not** partial out raw
+  per-item loss, and they study a *reference-model* attack, not the
+  reference-free calibrated detectors (Min-K%, Min-K%++, zlib) that our security
+  framing targets. We add the mechanism: the divergence survives *after*
+  controlling for loss, and the calibrated detectors add nothing beyond it. Brief
+  **CONFIRMED** (with the title caveat).
+
+### 3. Chen, Han & Miyao
+- **arXiv:2412.13475** (submitted 18 Dec 2024); **ACL 2025**, Proc. 63rd ACL,
+  Vol. 1: Long Papers (Vienna), **pp. 22854-22874** [VERIFY exact Anthology ID].
+- Title (verified): "A Statistical and Multi-Perspective Revisiting of the
+  Membership Inference Attack in Large Language Models." Authors verified.
+- Summary: large-scale statistical re-analysis of MIA on LLMs; overall MIA
+  performance is low and detector advantages are often within seed variance.
+- Verified quotes: "Loss baseline is only outperformed by Min-k% ++, Min-k%, and
+  ReCaLL" **but** "their performance gap is within the variance from random
+  seeds"; per-domain: "Wikipedia (en) and FreeLaw show statistically better
+  performance compared to other domains"; "GitHub and StackExchange are related to
+  codes that have less token diversity compared to FreeLaw and Wikipedia."
+- **Honest nuance:** the brief said "most detectors do not statistically beat the
+  loss baseline." More precisely, Chen et al. find a *few* (Min-K%++, Min-K%,
+  ReCaLL) numerically beat loss, but the gaps are **within seed variance** — i.e.,
+  not robustly significant. Statement is **CONFIRMED in spirit**; phrase it as
+  "do not robustly/statistically beat loss once seed variance is accounted for,"
+  not "no method ever beats loss."
+- Relation to us: independently corroborates (a) loss-baseline parity for these
+  detectors and (b) our **per-domain strata** (code-like, low-token-diversity
+  domains are harder). They do this for the *membership* task; we extend to the
+  *extraction* outcome with a controlled mediation.
+
+### 4. Das, Zhang & Tramèr
+- **arXiv:2406.16201** (submitted 23 Jun 2024; rev 30 Mar 2025); **DATA-FM @
+  ICLR 2025** / IEEE DLSP Workshop 2025 [VERIFY exact proceedings string].
+- Title/authors verified: "Blind Baselines Beat Membership Inference Attacks for
+  Foundation Models," Debeshee Das, Jie Zhang, Florian Tramèr.
+- Verified claim: "blind attacks -- that distinguish the member and non-member
+  distributions without looking at any trained model -- outperform
+  state-of-the-art MI attacks," across 8 published datasets; the flaw is sampling
+  member/non-member from different distributions.
+- Relation to us: a *methodological-validity* warning about MIA evaluation. We
+  sidestep it by using **ground-truth Pile membership** (no post-hoc split), so
+  the blind-baseline confound does not apply to our design. Supports our framing
+  that detector "success" can be an artifact rather than memorization signal.
+
+### 5. Meeus et al.
+- **arXiv:2406.17975** (submitted 25 Jun 2024; rev 7 Mar 2025); **IEEE SaTML
+  2025** (Secure and Trustworthy ML).
+- Title/authors verified: "SoK: Membership Inference Attacks on LLMs are Rushing
+  Nowhere (and How to Fix It)," Meeus, Shilov, Jain, Faysse, Rei, de Montjoye.
+- Verified quote: post-hoc dataset construction induces member/non-member shift,
+  and these shifts "invalidate the claims of LLMs memorizing strongly in
+  real-world scenarios and, potentially, also the methodological contributions of
+  the recent papers based on these datasets."
+- Relation to us: SoK that motivates rigorous, ground-truth evaluation — exactly
+  the discipline our pre-registered, true-membership Pythia/Pile design adopts.
+
+### Spot-verification of already-cited entries
+- **duan2024mia** — arXiv:2402.07841; venue **COLM 2024** (existing comment
+  confirmed; MIMIR on Pythia/Pile). OK.
+- **carlini2023quantifying** — arXiv:2202.07646; **ICLR 2023** (existing comment
+  cites OpenReview TatRHT_1cK). Title/authors confirmed; defines extractable
+  memorization (prefix-continuation). The abstract page alone does not restate the
+  prefix-continuation definition verbatim, but the OpenReview ID + established
+  usage support it. OK; `[VERIFY]` only the verbatim definition string if a
+  reviewer demands it.
+- **zhang2025minkpp** — arXiv:2404.02936; **ICLR 2025** (existing comment cites
+  OpenReview ZGkfoufDaU, Spotlight). Title/authors confirmed. OK.
+
+---
+
+## Targeted search for pre-empting work
+
+I actively searched (multiple queries) for any paper that performs
+loss-residualization / partial correlation / formal mediation of a
+membership-or-contamination detector against an **extraction or memorization**
+outcome. **None found.** The closest are:
+- Al Sahili (#1): ranking-precision + ensemble, "marginal gains" — not a
+  residualized/partial-correlation argument.
+- Hayes (#2): direct zero-order correlation MIA-vs-extraction — does not partial
+  out loss, and uses LiRA rather than reference-free calibrated detectors.
+- Chen (#3): seed-variance significance testing of detectors vs. loss for the
+  *membership* task — not the extraction outcome, not a mediation.
+No paper pre-empts the specific contribution (controlled mediation of calibrated
+reference-free detectors against per-item extraction, showing zero/negative
+residual beyond loss).
+
+---
+
+## VERDICT: adjacent-but-distinct (novel framing + method, not a reproduction)
+
+The *direction* of our finding (detectors barely help beyond likelihood for
+extraction) is consistent with #1 and #2, so we cannot claim the bottom line is
+surprising. But the **method** (pre-registered partial correlation / mediation
+controlling for raw loss) and the **specific object** (reference-free *calibrated*
+contamination detectors -> per-item *extraction* outcome, with a quantified
+zero/negative residual) are not done by any prior work we could verify. This is a
+defensible "adjacent-but-distinct" contribution, **not** a reproduction. We must
+cite #1 and #2 prominently and frame ourselves as the controlled/mechanistic
+complement.
+
+## One-sentence "to our knowledge" contribution statement
+
+> To our knowledge, this is the first work to use a pre-registered partial
+> correlation / mediation analysis — controlling for raw per-item loss — to show
+> that calibrated reference-free contamination detectors (Min-K%, Min-K%++, zlib)
+> add no independent signal beyond loss for predicting per-item extractable
+> memorization, reframing the gap between membership detection and leakage
+> prediction as a security-relevant divergence.
+
+## Drop-in related-work text (distinguishing us from #1 and #2)
+
+> Al Sahili et al. (arXiv:2512.13352) reach a compatible conclusion for targeted
+> extraction — that "complex MIA techniques yield only marginal improvements over
+> simple likelihood-based ranking" — but they establish it through aggregate
+> *ranking-precision* comparisons and an AdaBoost ensemble over MIA features,
+> reporting *marginal gains* rather than testing for independent signal. In
+> contrast, we run a pre-registered *partial correlation controlling for raw
+> per-item loss*, which lets us state the stronger, calibrated claim that the
+> reference-free detectors contribute *zero or negative* residual predictive value
+> once loss is partialled out.
+>
+> Hayes et al. (NeurIPS 2025) likewise "observe no correlation with MIA success"
+> for extraction and conclude the "two privacy attacks may capture different
+> signals," but their evidence is a *direct, zero-order* correlation between a
+> reference-model attack (LiRA) and extraction. We differ on both method and
+> object: we *partial out per-item loss* rather than correlating directly, and we
+> target the reference-free *calibrated* detectors (Min-K%, Min-K%++, zlib) that
+> the contamination-detection literature actually deploys, showing the divergence
+> persists as a controlled mediation result.
+
+---
+
+## Could-not-verify / contradicts-brief list
+
+- **Hayes title [CONTRADICTS BRIEF]:** brief title "Strong Membership Inference
+  Attacks on Massive Datasets and (Moderately) Large LLMs" is the **arXiv v1**
+  title; the published NeurIPS 2025 title is "Exploring the Limits of Strong
+  Membership Inference Attacks on Large Language Models." Bib uses the published
+  title; old title recorded in comment.
+- **Chen "most detectors do not beat loss" [PARTIAL CONTRADICTION / nuance]:**
+  Min-K%++, Min-K%, and ReCaLL *do* numerically beat the loss baseline in their
+  experiments, but the gap is "within the variance from random seeds." Reframe as
+  "not robustly/statistically beyond seed variance," not "no method beats loss."
+- **Chen venue [VERIFY]:** confirmed ACL 2025 Vol. 1 Long Papers (Vienna),
+  pp. 22854-22874 via search; the exact ACL Anthology ID string was not pulled
+  from the canonical Anthology page — confirm `2025.acl-long.<NNNN>` before
+  camera-ready.
+- **Das venue [VERIFY]:** "DATA-FM @ ICLR 2025 / IEEE DLSP Workshop 2025" per
+  arXiv metadata; entered as `@misc` (arXiv) to be safe — confirm the precise
+  workshop proceedings string before camera-ready.
+- **Al Sahili venue:** arXiv-only preprint at read time (Dec 2025); entered as
+  `@misc`. No peer venue to verify.
+- **carlini2023quantifying definition [VERIFY]:** ICLR 2023 venue and
+  title/authors confirmed; the verbatim prefix-continuation definition string was
+  not re-extracted from the abstract page (well-established in the literature).
+
+```
+
+
+### `docs/consistency_audit.md`
+
+```markdown
+# Consistency Audit (Subagent C) — repo-wide spine + number reconciliation
+
+**Date:** 2026-06-20. **Scope:** read-heavy audit + small reconciling edits only (statuses,
+stale numbers, missing caveats). No paper-prose rewrites; no edits to `eval/`, `detectors/`,
+`scripts/`, `references.bib`, `novelty_memo.md`. Verdict at bottom.
+
+## Verdict: **consistent: yes** (after the fixes below)
+
+All four tasks pass. Key numbers match across `findings.md`, `controls_report.md`,
+`hardening_report.md`, `results_table.md`, and `paper/{results,introduction,abstract}.tex`.
+The whole repo now tells one story: contamination→leakage is **loss-mediated / negative for the
+calibrated detectors**, not a positive headline. `reviewer_concerns.md` reconciled. Two staleness
+issues and one un-caveated positive box were FIXED.
+
+---
+
+## Task 1 — reviewer_concerns.md reconciliation (FIXED, all in `docs/reviewer_concerns.md`)
+
+The file was STALE (predated controls + hardening). Updated every concern's status; original
+prose retained for history, authoritative `STATUS / UPDATE` line added per concern.
+
+| Concern | Old status | New status | Evidence cited |
+|---|---|---|---|
+| R1 frequency | 🟡 partial (control TODO) | 🟡 **addressed** | partial ρ\|freq ≈ raw (Min-K% +0.166, zlib +0.193) → loss is confounder, not frequency |
+| R2 dedup | 🟡 partial (pending compute) | 🟡 **addressed** | deduped run done: AUC unchanged (chance), same negative partial-ρ pattern, survives non-linear control |
+| R3 temporal/topic | ✅ resolved | ✅ resolved (unchanged) | clean Pile train-vs-val |
+| R4 CIs | ✅ resolved | ✅ resolved (unchanged) | bootstrap everywhere |
+| R5 length | ✅ resolved | ✅ resolved (unchanged) | length-matched / fixed window |
+| R6 circularity | ❌ OPEN | ✅ **RESOLVED (negative)** | linear partial + cubic-residual + decile + mediation; REVIVED detectors = NONE; Min-K%++ FDR-sig negative |
+| R7 zero-robustness | ❌ open | 🟡 **addressed** | Kendall τ agrees in sign/magnitude |
+| R8 Oren power | ❌ open | 🟡 **GPU-gated** | upgraded to 160m real benchmarks (MMLU p=0.001, GSM8K 0.013, HumanEval 0.875); sanity-scale, no conclusion |
+| R9 PII | ❌ open | 🟡 **GPU-gated** | still null at 160m (0.0 leakage, 8/36 docs w/ PII); paper makes no PII claim |
+
+Also updated the file's status legend, added a reconciliation banner, and rewrote the bottom
+"Significance / methodology checks" + "Net verdict" sections (they still described the raw
+positive headline as a publishable result; now point to the R6-superseded/divergence framing).
+
+## Task 2 — number-consistency check (PASS; one staleness FIXED)
+
+| Number | Files checked | Status |
+|---|---|---|
+| partial ρ\|loss: Min-K% −0.178, Min-K%++ −0.148, zlib −0.042 | findings, controls_report, hardening_report, results_table, paper/results, reviewer_concerns | ✅ match everywhere |
+| cubic-residual: Min-K% −0.110 [−0.234,−0.002], Min-K%++ −0.160 [−0.287,−0.041] BH-q 0.015, zlib −0.052 | findings, hardening_report, paper/results | ✅ match |
+| clean-split AUC 0.454/0.470/0.490/0.484 (0.45–0.49) | findings, results_table, controls_report, integration_report, paper/results, paper/limitations | ✅ match |
+| extraction rate 0.010 (3/300), mean frac 0.037 | findings, results_table, paper/results, paper/limitations | ✅ match |
+| PII 0.0 leakage, 8/36 docs w/ PII | findings, results_table, paper/results, paper/limitations, reviewer_concerns | ✅ match |
+| contamination matrix MMLU 13-gram 0.2%, GSM8K 0%, Oren MMLU p=0.001 | contamination_matrix, paper/results | ✅ match |
+| zero-order ρ: loss +0.275, Min-K% +0.173, Min-K%++ +0.108, zlib +0.177 | findings, controls_report, hardening_report, results_table, paper/results | ✅ match |
+
+**MISMATCH found & FIXED (staleness, not a wrong value):** the **Oren** numbers in
+`findings.md` (Milestone-1c) and `docs/results_table.md` (Table 3) still listed ONLY the old
+10-example sanity demo (`0.044 vs 0.124`), whereas the paper (`results.tex`) and
+`contamination_matrix.md` use the upgraded Mx run (MMLU p=0.001 / GSM8K 0.013 / HumanEval 0.875,
+n_perm=1000, k=30) that explicitly supersedes the sanity demo (per R8). A reader of the ledger
+would not have found the numbers the paper reports.
+- **FIX:** in both files, relabeled the 10-example row "SUPERSEDED by the Mx run" and added the
+  real Mx Oren row + the n-gram lower-bound row (MMLU 0.2% / GSM8K 0% / HumanEval 0%), so the
+  ledger now traces the exact numbers the paper cites.
+
+## Task 3 — spine rule (PASS, no edit needed)
+
+Every method named as EVALUATED is implemented + has a run script:
+| Method | Detector/impl | Run script |
+|---|---|---|
+| LOSS | `detectors/loss.py` | `correlation_160m.py`, `milestone1_*.py` |
+| Min-K% | `detectors/mink.py` | same |
+| Min-K%++ | `detectors/minkpp.py` | same |
+| zlib | `detectors/zlib_ratio.py` | same |
+| n-gram overlap | `detectors/ngram_overlap.py` | `validate_ngram_oren.py`, `contamination_matrix.py` |
+| Oren permutation | `detectors/oren_permutation.py` | same |
+| extractable memorization | `extraction/extract.py` | `extraction_pile.py` |
+| Enron PII | `extraction/pii.py` | `pii_enron.py` |
+
+Everything else (guided prompting, neighbourhood, LiRA-as-attack, shadow models, DP) is framed in
+`related_work.tex` / `evaluation.tex` / `threat_model.tex` as "related, not evaluated" and has NO
+implementation file. **No violation.**
+
+## Task 4 — no un-caveated positive headline (PASS after one FIX)
+
+| Surface | Status |
+|---|---|
+| `results_table.md` Table 2 | ✅ has SUPERSEDED-by-R6 box |
+| `findings.md` Milestone 2 | ✅ has SUPERSEDED note |
+| paper (abstract/intro/results/discussion/conclusion/limitations) | ✅ all present result as loss-mediated/negative; "predicts leakage" always carries "only through loss"/"beyond loss" |
+| README.md | ✅ describes the link as object of study, no positive-result claim |
+| `integration_report.md` "Headline" box | ⚠️ **was un-caveated positive** → **FIXED** |
+
+**FIX:** `docs/integration_report.md` opens with a "Headline (the thesis as a number)" box that
+read *"the contamination/membership score **significantly predicts extraction/leakage**"* with a
+✅-marked table — a positive headline. The superseding note existed but only 11 lines lower. Added
+a SUPERSEDED-framing banner directly above the box, relabeled the table "RAW (pre-control)", and
+marked the ✅ as "raw-ρ CI-excludes-0 only," so the box can no longer be read as a positive finding
+in isolation.
+
+---
+
+## Edits made (small reconciling only)
+1. `docs/reviewer_concerns.md` — reconciled all 9 concerns + legend + banner + verdict/significance.
+2. `findings.md` — replaced stale Oren sanity row with superseded-label + real Mx Oren + n-gram rows.
+3. `docs/results_table.md` — same Oren/n-gram staleness fix in Table 3.
+4. `docs/integration_report.md` — added SUPERSEDED banner + "raw"/pre-control labels to the headline box.
+
+## Flagged for orchestrator (needs prose decision, NOT edited by me)
+- **None blocking.** Optional polish only: `integration_report.md` is dated 2026-06-19 and frames
+  the round around the (now-superseded) raw headline; the banner now makes it safe, but the
+  orchestrator may want to retitle the doc's "Headline" section to the divergence framing for a
+  fully forward-looking read. Left as prose, not touched.
+
+```
+
+
+### `docs/adversary_review.md`
+
+```markdown
+# Adversary Review (Subagent V) — the harshest defensible IEEE S&P reviewer
+
+**Date:** 2026-06-20. **Reviewer stance:** an expert who *has read* Al Sahili et al.
+(arXiv:2512.13352) and Hayes et al. (NeurIPS 2025) and arrives **inclined to REJECT** as
+derivative. This is the hardest *defensible* case against the paper — not a strawman. For each
+attack I state the strongest objection AND whether the paper already answers it, then classify the
+residual concern as **[FIX-NOW-CPU]**, **[GPU-GATED]**, or **[ACCEPT-AS-LIMITATION]**.
+
+Recommendation as written: **Reject (borderline), with a path to Weak Accept at a second-tier venue
+or a workshop.** The single strongest rejection argument is in §"Reasons to REJECT". The contribution
+that survives is in §"Reasons this is still a contribution".
+
+---
+
+## Summary of the submission (as I read it)
+
+The paper reframes benchmark contamination as a privacy/security vulnerability, then asks whether
+contamination/membership detector scores predict *per-item extraction*. On Pythia-160M with
+ground-truth Pile membership (N=300 members), it runs a pre-registered partial-correlation +
+mediation analysis controlling for raw per-item loss. Result: the positive zero-order correlations
+(loss +0.275, Min-K% +0.173, zlib +0.177, Min-K%++ +0.108) collapse once loss is held fixed —
+calibrated reference-free detectors add **zero or negative** residual signal (Min-K% partial −0.178,
+Min-K%++ −0.148 FDR-sig negative; zlib ≈0). Survives a cubic-residual non-linear control and dedup.
+Framed as a "membership-detection-vs-leakage-prediction divergence." Honest non-contributions: no new
+detector/metric; all results preliminary on the smallest model, on CPU.
+
+## Strengths (conceded up front)
+
+- **Genuine methodological discipline.** Pre-registration (`docs/pre_analysis.md`) written before
+  the controls, a symmetric decision rule, FDR confined to a declared family of 3, ground-truth
+  membership (no post-hoc split), and a number-consistency audit. This is more rigor than most
+  submissions in this space.
+- **The non-contributions are stated honestly** and the related-work positioning vs Al Sahili /
+  Hayes / Chen is explicit rather than buried.
+- **The negative result is reported as negative** — the headline was not salvaged by cherry-picking.
+- **Reproducibility** is real: seeded scripts, a numbers ledger, one-line config to scale.
+
+These strengths are why this is a *borderline* reject and not a desk reject. They do not, by
+themselves, clear the novelty bar for a top venue.
+
+---
+
+## Weaknesses
+
+### W1 — Novelty is incremental over Al Sahili + Hayes. [SEVERITY: HIGH — primary reject driver]
+**Objection.** Al Sahili et al. already establish, for targeted extraction, that "complex MIA
+techniques yield only marginal improvements over simple likelihood-based ranking." Hayes et al.
+already observe "no correlation with MIA success" for extraction and conclude the "two privacy
+attacks may capture different signals." The qualitative bottom line of *this* paper — calibrated
+detectors don't help beyond loss for extraction — is therefore **already in the literature, twice.**
+The paper's own related-work table and Discussion concede the direction "is not surprising." What
+remains is a *re-analysis*: "we did partial correlation / mediation instead of ranking-precision /
+zero-order correlation." For a TOP venue (S&P), swapping the statistical lens on a conclusion two
+prior papers already reached is a contribution of *degree*, not *kind*. A method substitution
+(partial-ρ vs ranking-precision) is not itself a research finding unless it overturns or materially
+sharpens the prior conclusion — and "zero/negative residual" is a sharper statement of the *same*
+conclusion ("they don't help"), not a different one.
+
+**Does the paper answer it?** Partially. The novelty memo (`docs/novelty_memo.md`) verifies that no
+prior work does loss-residualization/mediation against an *extraction* outcome on the *reference-free
+calibrated* detectors, and the paper targets the detectors the contamination literature actually
+deploys (Hayes used LiRA, a reference-model attack). That is a real, defensible distinction of
+*object and method*. But it does not rebut the core charge that the **finding** is the same and the
+delta is methodological. The "negative residual" (vs Hayes' "no correlation") is the strongest
+genuinely-new empirical wrinkle, and the paper underplays it relative to the (derivative) "divergence"
+framing.
+
+**Classification: [ACCEPT-AS-LIMITATION] + [FIX-NOW-CPU] (framing).** The novelty ceiling at 160M
+cannot be raised on CPU. But the paper can and should (a) foreground the *suppression/negative*
+result as the specific thing neither prior work shows (Hayes: null; this: significantly negative
+after loss control), and (b) stop leaning on "divergence," which is Hayes' framing. **FIX-NOW-CPU:**
+rewrite the contribution sentence to lead with the negative-residual/suppression result, not the
+divergence.
+
+### W2 — A negative result on the SMALLEST model in a near-degenerate regime is not publishable at a top venue. [SEVERITY: HIGH]
+**Objection.** The entire empirical claim rests on Pythia-160M, where (i) membership separation is
+*at chance* (AUC 0.45–0.49) and (ii) extraction is *near-degenerate* (3/300 fully extracted, mean
+frac 0.037). The paper itself says memorization grows log-linearly with scale. So the headline —
+"calibrated detectors add no signal beyond loss" — is established **precisely in the regime where
+there is almost no signal of any kind to add.** A reviewer cannot distinguish "calibrated detectors
+genuinely carry no leakage information" from "at 160M nothing carries leakage information, so of
+course the residual is null." The result may simply not generalize to the scale where the question
+matters. This is the reject-defining tension: the paper asks a scale-dependent question and answers
+it at the one scale where the answer is least informative.
+
+**Does the paper answer it?** It is *disclosed* honestly (Limitations bullets 1–3) but **not
+resolved.** Disclosure of a fatal-to-generality limitation does not make the result generalize. The
+"the pipeline scales with one config change" line is an assertion about engineering, not evidence
+about the science.
+
+**Classification: [GPU-GATED].** The only real answer is the 1.4B/2.8B/6.9B replication. Until then
+the contribution is a *methodology + a preliminary null*, which is workshop-grade, not S&P-grade.
+The paper should be retitled/reframed as a registered protocol + pilot, not a finding.
+
+### W3 — Collinearity makes the "negative partial-ρ" close to mechanically guaranteed, not a discovery. [SEVERITY: HIGH]
+**Objection.** Min-K%, Min-K%++, and zlib are **deterministic functions of the same per-token
+logprobs that define loss.** Min-K% is an average of the lowest-k% token logprobs; loss is the
+average of *all* token logprobs; zlib is loss divided by a compression constant. These are not
+"independent predictors that happen to correlate with loss" — they are near-algebraic transforms of
+it. When you regress extraction on loss + Min-K%, you are partialling out a variable that *contains*
+most of the predictor by construction. A **negative** partial coefficient on Min-K% given loss is
+the textbook signature of **suppression between two near-collinear regressors**, not evidence that
+Min-K% is "inversely related to leakage." The mediation table makes this explicit and damning:
+`prop_mediated > 1` (indirect +0.567 vs total +0.173 for Min-K%) is *inconsistent mediation*, which
+is exactly what near-collinear mediator/predictor pairs produce. The paper interprets the negative
+direct effect substantively ("if anything inversely related to extraction") when the more
+parsimonious reading is **a collinearity artifact.**
+
+**Does the paper answer it?** Partially and self-defeatingly. (a) R6 in `reviewer_concerns.md`
+concedes loss and the detectors are "mechanistically entangled" and notes zlib/Min-K% "are not raw
+loss — mild evidence it is not pure tautology." (b) The hardening report *reports* the >1
+proportion-mediated and correctly declines to print it as a clean fraction. But the paper still
+**interprets the negative sign as a finding** ("Min-K%/Min-K%++ are if anything negatively
+associated") rather than flagging it as a probable suppression artifact. No collinearity diagnostic
+(VIF, condition number, or the correlation between loss and each detector) is reported, so the
+reader cannot tell how much of the "negative" is suppression.
+
+**Classification: [FIX-NOW-CPU].** Report, from the already-cached
+`results/controls_scores_pythia-160m.jsonl`: (1) the Spearman/Pearson correlation between loss and
+each detector (likely |ρ|>0.9), (2) VIF / condition number for the loss+detector regressions, and
+(3) reframe the negative direct effect as *consistent with suppression under near-collinearity*, not
+as substantive evidence that Min-K% predicts *less* leakage. This is a few lines on existing data
+and it is mandatory — without it the headline's strongest-sounding clause is indefensible.
+
+### W4 — Construct validity: the headline is near-tautological by construction. [SEVERITY: HIGH]
+**Objection.** The outcome is `frac_extracted` under **greedy decoding at a 32-token prefix.** Greedy
+extraction succeeds exactly when the model assigns the continuation high per-token probability — i.e.
+when per-token **loss on the suffix is low.** So "loss predicts extraction" (ρ=0.275) is close to
+re-measuring the same quantity twice: a soft likelihood proxy vs a hard-thresholded version of the
+same likelihood. The paper's central positive result ("loss predicts leakage") is therefore
+mechanically near-guaranteed, and the "interesting" part (detectors add nothing beyond loss) reduces
+to "transforms of loss add nothing beyond loss" — which is W3. The construct gap between predictor
+and outcome that would make this a real prediction problem is thin.
+
+**Does the paper answer it?** R6 names this exactly and offers the only honest defense: loss is a
+*whole-item soft* likelihood whereas extraction is a *suffix-only hard greedy* match, so they are
+related-but-distinct. That is a fair partial defense (the prefix/suffix split and the
+hard-vs-soft distinction are real). But the paper does not *quantify* the gap — e.g. it never reports
+loss computed on the *prefix only* vs the *suffix* separately, which would show whether the
+correlation is driven by the suffix likelihood (near-tautological) or by something the prefix carries.
+
+**Classification: [FIX-NOW-CPU] (partial) + [ACCEPT-AS-LIMITATION].** From cached data, if
+suffix-loss vs whole-item-loss is recoverable, report the correlation of *prefix-only* loss with
+extraction to demonstrate the predictor isn't just the suffix likelihood. If not recoverable without
+re-inference, state plainly in Limitations that the loss↔extraction link is partly definitional and
+that the *novel* content is exclusively the detector-residual comparison (W1).
+
+### W5 — Power / true-null ambiguity at N=300 with a zero-inflated outcome. [SEVERITY: MEDIUM-HIGH]
+**Objection.** With 3/300 fully extracted and mean frac 0.037, the outcome is overwhelmingly zeros.
+"No independent signal beyond loss" may be a **ceiling/floor + low-power artifact**, not a true null.
+A partial-ρ of −0.05 to −0.18 on N=300 with a near-degenerate outcome has wide effective error bars;
+the cubic-residual zlib CI [−0.165, +0.068] *includes zero*, and Min-K% non-deduped BH-q=0.058 is
+*not* below 0.05 (only Min-K%++ at 0.015 clears). So even the "negative" claim is carried by a single
+detector in a single arm; on the deduped arm *no* detector clears FDR (q=0.084 for both Min-K%/++).
+The paper's own numbers thus show the "significantly negative" claim is fragile and arm-dependent.
+Calling this "no independent leakage-predictive value" overstates what N=300 can establish.
+
+**Does the paper answer it?** Partially: Kendall τ robustness (R7), bootstrap CIs, and a frank
+"near-degenerate outcome" limitation. But it does **not** report a power analysis or a
+minimum-detectable-effect, and the Results prose ("Min-K%++ remains significantly negative") elevates
+the one cell that clears FDR while the abstract generalizes to all detectors ("two of them … are if
+anything negatively associated"). zlib is null, and the negative for Min-K% does not survive FDR
+non-deduped.
+
+**Classification: [FIX-NOW-CPU].** (1) Add a minimum-detectable-effect / power statement for partial-ρ
+at N=300 with this zero-inflation (computable now, no inference). (2) Soften the abstract: only
+Min-K%++ is FDR-significant negative *non-deduped*; the deduped arm clears nothing; zlib is null.
+State that the negative is detector- and arm-specific. (3) Distinguish "true null" from "underpowered
+to detect a small positive" explicitly — at present the paper implies the former.
+
+### W6 — Member-only, observational correlation; no negatives in the headline. [SEVERITY: MEDIUM]
+**Objection.** The headline correlation is computed **across known members only** — there are no
+non-members in the extraction analysis. The detector scores' meaning is calibrated by member/non-
+member *contrast*, but here we correlate them within the member set against extraction. pile-10k is a
+non-uniform sample of the Pile (the "members" are whatever NeelNanda/pile-10k happened to include),
+so member-selection bias is uncontrolled, and the per-domain table shows the loss↔extraction sign
+*flips* across domains (GitHub +0.60 vs PubMed Abstracts −0.48). The pooled ρ is a domain-mix
+artifact: it reflects how many structured/boilerplate items the 10k sample contained, not a stable
+property.
+
+**Does the paper answer it?** The observational/members-only nature is in Limitations, and the
+per-domain heterogeneity is reported (honestly) in the hardening report. But the paper still reports
+a *pooled* headline ρ and a pooled mediation, which the per-domain table shows is a weighted average
+over sign-discordant strata — i.e. not a coherent single effect.
+
+**Classification: [ACCEPT-AS-LIMITATION] + [FIX-NOW-CPU] (framing).** **FIX-NOW-CPU:** state in
+Results that the pooled loss↔extraction ρ is a domain-mix and is sign-heterogeneous across strata
+(already computed), so the pooled number should not be read as a universal effect. The member-
+selection bias of pile-10k must be named explicitly as a threat to external validity.
+
+### W7 — Mediation assumptions are violated; the mediation analysis is decorative. [SEVERITY: MEDIUM]
+**Objection.** Rank/OLS mediation (Baron–Kenny style: a·b decomposition) assumes (i) no
+unmeasured confounding of mediator→outcome, (ii) correct functional form, (iii) a meaningful
+mediator/predictor distinction. Here loss (mediator) and the detector (predictor) are near-collinear
+transforms (W3), the outcome is zero-inflated and bounded (rank-OLS on a 0-inflated [0,1] outcome is
+mis-specified), and `prop_mediated > 1` flags the decomposition as ill-posed. A mediation analysis on
+collinear mediator/predictor with a censored outcome does not license a causal "loss carries the
+entire association" reading; it is a re-description of the regression coefficients.
+
+**Does the paper answer it?** It declines to print the >1 proportion as a fraction (good) and reports
+direct/indirect/total with CIs instead. But it still draws the causal-flavored conclusion ("loss
+carries >100% of the positive association," "suppression mediation") which the assumptions do not
+support.
+
+**Classification: [FIX-NOW-CPU].** Downgrade the mediation from a load-bearing result to a
+descriptive companion; explicitly list the violated assumptions (collinearity, censored outcome) and
+drop any "carries the entire association" causal phrasing. No new computation needed.
+
+### W8 — Permutation/bootstrap validity with ties in a zero-inflated outcome. [SEVERITY: MEDIUM]
+**Objection.** With ~97% of `frac_extracted` at or near a small set of values (heavy ties),
+permutation tests on Spearman/partial-ρ and percentile bootstrap CIs can be miscalibrated:
+permuting a tie-dominated outcome under-disperses the null, inflating significance, and percentile
+bootstrap CIs on rank statistics with massive ties are known to be anti-conservative. The single
+FDR-significant cell (Min-K%++ q=0.015) may not survive a tie-aware (mid-rank / exact) permutation
+scheme.
+
+**Does the paper answer it?** Kendall τ-b (tie-corrected) is reported and "agrees in sign and
+magnitude," which is the right instinct and a partial defense. But there is no explicit
+demonstration that the permutation null and bootstrap CIs are tie-calibrated; τ-b agreement on the
+*point estimate* does not establish *p-value* calibration.
+
+**Classification: [FIX-NOW-CPU].** On cached data: (1) verify the permutation uses mid-ranks / a
+tie-aware statistic and report it; (2) cross-check the Min-K%++ q with a Kendall-τ-based permutation
+test; (3) if the single FDR-significant result is sensitive to the tie scheme, downgrade the
+"significantly negative" claim accordingly.
+
+### W9 — Oren permutation: fluency/orientation artifact undercuts the only benchmark-level "signal." [SEVERITY: MEDIUM]
+**Objection.** MMLU p=0.001 and GSM8K p=0.013 "canonical order favored" can arise with **zero
+contamination**: the canonical ordering of a benchmark is simply more fluent/coherent than a random
+shuffle, so its concatenation has higher log-likelihood under *any* competent LM. Without a
+fluency-control baseline (e.g. a model demonstrably not trained on the benchmark, or a
+within-item-shuffle control), these p-values are uninterpretable as contamination evidence.
+
+**Does the paper answer it?** **Yes, adequately.** The paper draws *no* contamination conclusion,
+explicitly names the fluency/orientation artifact, and flags the test GPU-gated pending a
+fluency-control baseline. This is handled correctly. The only residual issue is that the Results
+table still *displays* the p-values prominently, inviting over-reading.
+
+**Classification: [ACCEPT-AS-LIMITATION].** Already correctly caveated; optionally move the Oren row
+to an appendix so a skimming reader cannot misread it.
+
+### W10 — n-gram lower bound is uninformative and arguably should be cut. [SEVERITY: LOW-MEDIUM]
+**Objection.** Overlap against a 10k-doc *sample* of a ~210M-doc corpus yielding 0.2%/0%/0% is
+not a measurement of anything — it is a near-vacuous lower bound that "certifies overlap is at least
+~0%." Including it as a "contribution" ("we also map model-free n-gram contamination") borders on
+padding; a reviewer reads it as a result that says nothing.
+
+**Does the paper answer it?** It is honestly labeled a lower bound and "uninformative about true
+contamination." But the abstract still lists "we also map model-free n-gram contamination across
+standard benchmarks" as if it were a contribution.
+
+**Classification: [FIX-NOW-CPU] (framing) / [ACCEPT-AS-LIMITATION].** Drop the n-gram mapping from the
+abstract's contribution list (it maps essentially nothing at this reference size); keep it only as a
+disclosed-null/infrastructure note. Full-Pile index is infra-gated, not part of this submission.
+
+### W11 — PII limb is a designed-but-null capability presented as a threat-model pillar. [SEVERITY: LOW-MEDIUM]
+**Objection.** The threat model elevates PII (G3) as "the concrete harm," but the measurement is a
+*zero* (0/8 PII-containing docs regurgitated). A threat-model pillar with a null measurement reads as
+scope inflation: the paper claims a privacy/security framing whose flagship harm it cannot
+demonstrate at the only scale it runs.
+
+**Does the paper answer it?** Yes — reported as a null, no PII-exposure claim, flagged GPU-gated.
+Handled honestly. The residual concern is purely rhetorical: the framing promises more than the
+evidence delivers.
+
+**Classification: [ACCEPT-AS-LIMITATION].** Keep the null; ensure the abstract/intro do not imply a
+demonstrated PII channel (they currently do not, but the threat-model prose leans hard on PII as "the
+concrete harm").
+
+### W12 — Overclaim audit (specific sentences). [SEVERITY: MEDIUM]
+Specific lines that outrun the logged evidence:
+- **Abstract:** "the calibrated reference-free detectors add no independent predictive value beyond
+  it, and two of them … are *negatively* associated with extraction once loss is held fixed." →
+  Overstates: only Min-K%++ is FDR-significant negative *non-deduped*; Min-K% is q=0.058 (not <0.05)
+  non-deduped and q=0.084 deduped; zlib is null. "Two of them … negatively associated" is not
+  FDR-supported for Min-K% non-deduped. [FIX-NOW-CPU]
+- **Abstract / Conclusion:** "carried *entirely* by loss." → "entirely" is a strong universal that a
+  collinearity-confounded, N=300, near-degenerate-outcome pilot cannot license. Soften to "to the
+  resolution of this experiment, the positive association is loss-mediated." [FIX-NOW-CPU]
+- **Results:** "Only LOSS predicts leakage." (table caption) → Given W3/W4 this is close to "only the
+  variable most definitionally tied to greedy extraction predicts greedy extraction." Reword to avoid
+  implying a discovery. [FIX-NOW-CPU]
+- **related_work.tex:242 "To our knowledge it is the only study that pairs a per-item extraction
+  outcome with a partial-correlation/mediation control for raw loss on calibrated reference-free
+  detectors."** → Defensible *as stated* (narrow, method+object specific; novelty memo backs it), but
+  it is a claim of method-novelty, not finding-novelty, and should not be read by the authors as a
+  shield against W1. Keep but do not lean on it. [ACCEPT-AS-LIMITATION]
+- **Intro:** the "contamination → memorization → leakage chain [as] the object of empirical study"
+  is only partially delivered: the *contamination→memorization* link is asserted (members are
+  contaminated by definition) and only the *memorization→extraction* (≈loss↔greedy) link is measured.
+  The "chain" framing promises a benchmark-contamination→leakage result the paper does not produce
+  (the benchmark-level tests are GPU-gated/uninformative). [FIX-NOW-CPU framing]
+
+**Classification: [FIX-NOW-CPU]** for the four softenings; the "to our knowledge" line is
+[ACCEPT-AS-LIMITATION].
+
+---
+
+## Detailed comments (cross-cutting)
+
+- The paper's greatest vulnerability is that **W1 (derivative), W3 (collinearity), and W4
+  (tautology) compound**: the genuinely new content is the *negative residual*, but that residual is
+  the predicted signature of regressing extraction on two near-identical likelihood transforms in a
+  no-signal regime. A skeptical reviewer collapses the whole headline into "transforms of loss don't
+  beat loss at predicting a thresholded version of loss, measured where almost nothing is
+  extractable." Defeating this requires *either* the collinearity diagnostics + reframing (W3, CPU)
+  *and* the scale replication (W2, GPU), *or* a candid repositioning as a registered protocol + pilot.
+- The pre-registration is the paper's best asset and should be foregrounded; it is what separates this
+  from a fishing expedition and is the honest answer to "why isn't this p-hacked."
+- The per-domain sign-flip (W6) is, ironically, more interesting than the pooled headline and is
+  buried in a report. A version of this paper organized around "the loss↔extraction link is
+  domain-structured (code/boilerplate positive, prose negative)" would be more novel than the
+  divergence framing — but that, too, needs scale and more per-domain N.
+
+---
+
+## Reasons to REJECT (the single strongest argument, stated plainly)
+
+**The paper's only novel empirical content is a negative partial-correlation that is (a) the same
+qualitative conclusion two prior papers already published, (b) the mechanically-expected artifact of
+regressing a thresholded-likelihood outcome on near-collinear likelihood transforms, and (c)
+measured exclusively at the smallest model in a near-degenerate regime where no detector — calibrated
+or not — could plausibly show signal.** Strip away the (correctly disclosed) GPU-gated and null
+components, and what is left for S&P is: a known conclusion, re-derived with a different statistic, on
+data where the statistic's value is close to predetermined by construction and collinearity, with the
+one FDR-significant cell fragile to the dedup arm and to tie-aware permutation. That is a competent
+workshop pilot or a registered-report protocol — not a top-venue finding. **Recommend reject**;
+encourage resubmission after the multi-scale replication, with the collinearity diagnostics in place
+and the contribution re-centered on the negative/suppression result (the one thing prior work does
+not show) rather than the "divergence" (which Hayes already framed).
+
+## Reasons this is still a contribution (the rebuttal I would accept)
+
+- **It sharpens, not merely repeats, prior work.** Hayes reports a *null* (no correlation); this
+  paper reports a *significant negative after loss control* for the field's *deployed reference-free*
+  detectors (Min-K%/++ /zlib), which Hayes (LiRA, reference-model) never tested. "Calibration that
+  improves membership AUC actively discards the loss-magnitude signal that predicts leakage" is a
+  crisper, more actionable claim than "two attacks capture different signals." That actionable
+  auditor takeaway — *measure loss/extractability directly; don't trust a high Min-K% score as
+  leakage risk* — is a genuine, if modest, security contribution.
+- **The discipline is exemplary** (pre-registration, ground-truth membership, FDR family declared,
+  symmetric decision rule, honest nulls). The field is littered with post-hoc-split MIA papers; a
+  rigorously pre-registered ground-truth study is itself worth something and directly answers the
+  Das/Meeus critiques.
+- **It is honestly scoped:** no overclaimed detector, no salvaged headline, GPU/PII limbs flagged.
+- With W3 (collinearity diagnostics + reframing) and W5/W8 (power + tie-aware) fixed on CPU, and the
+  abstract softened (W12), the paper is a defensible **workshop / second-tier** acceptance now, and a
+  plausible top-venue paper *after* the multi-scale replication (W2) lands.
+
+---
+
+## Weakness × severity × classification (at a glance)
+
+| # | Weakness | Severity | Classification |
+|---|---|---|---|
+| W1 | Derivative of Al Sahili + Hayes (finding-novelty) | HIGH | ACCEPT-AS-LIMITATION + FIX-NOW-CPU (reframe) |
+| W2 | Negative result at smallest model / no-signal regime | HIGH | GPU-GATED |
+| W3 | Collinearity → negative partial-ρ is suppression artifact | HIGH | FIX-NOW-CPU |
+| W4 | Construct: outcome ≈ thresholded loss (near-tautology) | HIGH | FIX-NOW-CPU (partial) + ACCEPT-AS-LIMITATION |
+| W5 | Power / true-null vs ceiling at N=300, zero-inflated | MED-HIGH | FIX-NOW-CPU |
+| W6 | Member-only observational; pile-10k selection; domain-mix | MED | ACCEPT-AS-LIMITATION + FIX-NOW-CPU (framing) |
+| W7 | Mediation assumptions violated; prop_mediated>1 | MED | FIX-NOW-CPU |
+| W8 | Permutation/bootstrap tie-calibration | MED | FIX-NOW-CPU |
+| W9 | Oren fluency/orientation artifact | MED | ACCEPT-AS-LIMITATION (already caveated) |
+| W10 | n-gram lower bound uninformative | LOW-MED | FIX-NOW-CPU (framing) / ACCEPT-AS-LIMITATION |
+| W11 | PII pillar is a null | LOW-MED | ACCEPT-AS-LIMITATION |
+| W12 | Overclaim sentences (abstract "entirely"/"two negatively") | MED | FIX-NOW-CPU |
+
+## [FIX-NOW-CPU] action list for the orchestrator (no GPU, mostly on cached data)
+
+1. **W3 (mandatory):** report loss↔detector correlations (expect |ρ|>0.9), VIF/condition number for
+   loss+detector regressions, from `results/controls_scores_pythia-160m.jsonl`; reframe negative
+   direct effects as *suppression under near-collinearity*, not substantive inverse prediction.
+2. **W5:** add a minimum-detectable-effect / power statement for partial-ρ at N=300 with this
+   zero-inflation; explicitly separate "true null" from "underpowered for a small positive."
+3. **W8:** confirm permutation uses mid-ranks / tie-aware statistic; cross-check Min-K%++ q with a
+   Kendall-τ permutation; downgrade the "significantly negative" claim if it is tie-scheme-sensitive.
+4. **W7:** demote mediation to descriptive; list violated assumptions (collinearity, censored
+   outcome); delete "carries the entire association" causal phrasing.
+5. **W12 (abstract/results prose):** soften "carried *entirely* by loss" → "loss-mediated to the
+   resolution of this experiment"; correct "two … negatively associated" to "only Min-K%++ is
+   FDR-significant negative (non-deduped); deduped clears none; zlib null"; reword table caption
+   "Only LOSS predicts leakage."
+6. **W4 (if recoverable from cache):** report prefix-only-loss vs extraction to show the link isn't
+   purely the suffix likelihood; else state the partial-definitional nature in Limitations.
+7. **W6:** state the pooled headline ρ is a sign-heterogeneous domain-mix; name pile-10k member-
+   selection bias as an external-validity threat.
+8. **W1 (reframe):** lead the contribution with the negative/suppression result (new vs Hayes' null),
+   not the "divergence" (Hayes' framing).
+9. **W10:** drop "we also map model-free n-gram contamination" from the abstract's contributions.
+
+**[GPU-GATED] (cannot be cleared now):** W2 (multi-scale replication is the only real answer; also
+re-tests whether calibrated detectors gain independent signal once extraction is non-degenerate and
+membership separation is non-trivial). Oren-with-fluency-control and PII-at-scale (W9/W11) ride along.
+
+**[ACCEPT-AS-LIMITATION] (must remain stated in Limitations):** W1 finding-novelty ceiling, W4
+partial-definitional link, W6 observational/members-only/selection, W9 (already), W11 (already).
+
 ```
 
 
@@ -1000,26 +2454,43 @@ list. Output is `docs/controls_report.md` + a verdict, then STOP for human revie
 # Reviewer-Adversary Log (Subagent R)
 
 Hostile S&P-style review of our OWN preliminary results (Pythia-160m). Each concern has a
-status (✅ resolved / 🟡 partial / ❌ open), the evidence, and the action. The point is to
+status (✅ resolved / 🟡 partial / 🟡 GPU-gated / ❌ open), the evidence, and the action. The point is to
 surface every confound before a real reviewer does. The most dangerous one is **R6** — read it.
+
+> **RECONCILIATION (2026-06-20, Subagent C).** This log was written before the Round-1 controls
+> (`docs/controls_report.md`) and Round-2 statistical hardening (`docs/hardening_report.md`) +
+> contamination matrix (`docs/contamination_matrix.md`) runs. Statuses below have been UPDATED to
+> reflect what is now DONE. Original prose is retained for history; the **STATUS / UPDATE** line on
+> each concern is authoritative. Net: R3/R4/R5 resolved (unchanged); **R6 now RESOLVED** (negative,
+> survives non-linear control + mediation); R1/R2/R7 addressed; R8/R9 GPU-gated.
 
 ---
 
-### R1 — String-frequency confound 🟡 partial
+### R1 — String-frequency confound 🟡 addressed
 *"Your detector separates members by web-frequency, not membership."*
 - Evidence: `zlib_ratio` explicitly calibrates for compressibility/frequency. On the clean
-  split it is also at chance (AUC 0.484), and in the headline it still predicts leakage
-  (ρ=0.177, CI excludes 0) — so the leakage link is not purely a frequency artifact.
-- **Action (open):** add a frequency-matched control — match members/non-members on zlib bits
-  (and a reference-LM perplexity) and re-run. Not yet done.
+  split it is also at chance (AUC 0.484), and the raw leakage correlation is similar for it
+  (ρ=0.177) — so the leakage link is not purely a frequency artifact.
+- **STATUS / UPDATE (addressed, controls_report.md §R1):** a frequency proxy control was run.
+  Controlling for the frequency proxy leaves the raw correlations essentially unchanged
+  (partial ρ|freq: Min-K% +0.166, Min-K%++ +0.138, zlib +0.193 ≈ their raw values), so
+  **frequency is NOT the driver** — the operative confounder is LOSS (R6), not frequency.
+  (A middle-tertile freq-matched n=100 subset shows lower ρ, but it is a low-power,
+  variance-restricted cut, not a clean frequency effect.) A full reference-LM-perplexity
+  frequency-matched split remains a nice-to-have, hence "addressed" not fully "resolved."
 
-### R2 — Deduplication confound 🟡 partial
+### R2 — Deduplication confound 🟡 addressed
 *"Duplication, not membership, drives the signal."*
 - Evidence: n-gram check found 3/44 non-members with residual train↔val overlap (real
   near-dup). For the HEADLINE (members-only), duplication is part of the causal chain
   (duplication→memorization→extraction, Carlini 2023), not a confound to remove.
-- **Action (open):** run the `pythia-160m-deduped` ablation for the membership-separation
-  tables. Designed in experiment_design.md §6; pending compute.
+- **STATUS / UPDATE (addressed, controls_report.md §R2 + hardening_report.md):** the
+  `pythia-160m-deduped` ablation was RUN. (a) Membership separation is at chance with or
+  without dedup (deduped AUC: loss 0.452, Min-K% 0.467, Min-K%++ 0.481, zlib 0.485) — the
+  chance-level result is not a dedup artifact. (b) The R6 partial-correlation pattern
+  reproduces on the deduped model (partial ρ|loss: Min-K% −0.133, Min-K%++ −0.141, both
+  FDR-sig negative; zlib −0.016 n.s.), and survives the non-linear control on the deduped arm
+  too. Membership AUC unchanged; same negative pattern. Robust to deduplication.
 
 ### R3 — Temporal/topic confound ✅ resolved
 *"Your MIA is just distribution shift (the WikiMIA artifact)."*
@@ -1037,57 +2508,126 @@ surface every confound before a real reviewer does. The most dangerous one is **
 - Evidence: clean split truncates to `max_words=100` (length-matched); the correlation set is
   a fixed window (prefix 32 + suffix ≤50 tokens) for every item, so length is held constant.
 
-### R6 — Headline circularity / tautology ❌ OPEN (most important)
+### R6 — Headline circularity / tautology ✅ RESOLVED (most important; resolved NEGATIVE)
 *"LOSS = low per-token loss = memorized; extraction = greedy reproduction = memorized. Of
 course they correlate. The headline is mechanically trivial."*
-- This is the sharpest threat to the headline's INTERPRETATION, and it is partly fair.
+- This was the sharpest threat to the headline's INTERPRETATION, and it was partly fair.
 - Honest position: LOSS and extraction are related but distinct (soft likelihood vs. hard
   greedy-decode match), and the security claim is that a *contamination/membership detector's
   score is a usable predictor of concrete leakage*, even when its membership *separation* is at
   chance. We must NOT frame this as a surprising independent discovery.
 - The correlation also holds for `zlib_ratio` (frequency-calibrated) and `min_20_prob`, which
   are not raw loss — mild evidence it is not pure tautology.
-- **Action (top priority next):** report the **partial correlation** of each detector with
-  extraction *controlling for raw LOSS* (and/or token length). If Min-K%/Min-K%++/zlib retain
-  predictive power beyond LOSS, the link is non-trivial; if not, we scope the claim to "LOSS
-  is the operative signal." This single control is the difference between a defensible and an
-  overclaimed headline. NOT yet done.
+- **STATUS / UPDATE (RESOLVED — negative; controls_report.md + hardening_report.md):** the
+  pre-registered partial-correlation control was RUN, then HARDENED. The headline does NOT
+  survive controlling for loss, and this is now confirmed three ways:
+  1. **Linear partial ρ|loss** (controls_report.md): Min-K% −0.178, Min-K%++ −0.148 (both
+     FDR-significant, NEGATIVE), zlib −0.042 (n.s.). No calibrated detector predicts leakage
+     beyond loss; two are inversely related once loss is held fixed.
+  2. **Non-linear loss control** (hardening_report.md): cubic-residual ρ Min-K% −0.110
+     [−0.234, −0.002], Min-K%++ −0.160 [−0.287, −0.041] (BH-q 0.015), zlib −0.052 [−0.165,
+     +0.068]; decile-stratified secondary agrees. REVIVED detectors = NONE. The result is
+     **not a linearity artifact**, and Min-K%++ stays FDR-significant NEGATIVE.
+  3. **Formal mediation** (hardening_report.md): for every calibrated detector the
+     loss-mediated *indirect* effect is significantly positive while the *direct* effect is
+     null (zlib) or significantly negative (Min-K%, Min-K%++) — inconsistent/suppression
+     mediation; loss carries >100% of the positive association.
+  Robust to deduplication (R2); not a frequency (R1) or zero-inflation (R7) artifact. The
+  paper is reframed accordingly: contamination→leakage is loss-mediated; the calibrated
+  reference-free detectors add no independent leakage-prediction. Resolved.
 
-### R7 — Zero-inflated outcome ❌ open
+### R7 — Zero-inflated outcome 🟡 addressed
 *"3/300 fully extracted, mean frac 0.037 — ρ is driven by a handful of points."*
 - Evidence: scatter shows the high-frac points anchor the trend; bootstrap CI accounts for
   sampling but the effect leans on few high-extraction items.
-- **Action:** larger models extract more (Carlini 2023), de-degenerating the outcome; rerun at
-  1.4B/2.8B. Also report Kendall's τ (robust to ties) alongside Spearman.
+- **STATUS / UPDATE (addressed, controls_report.md §R7):** Kendall's τ-b was computed
+  alongside Spearman and **agrees in sign and relative magnitude throughout** (loss highest at
+  τ=0.211; calibrated detectors lower), so the zero-inflated outcome is not creating the
+  pattern — the negative R6 verdict is not a tie/zero-inflation artifact. Residual gap: a
+  less-degenerate outcome at 1.4B/2.8B (GPU) would sharpen all estimates; the qualitative
+  conclusion is already robust to the zero-inflation via τ.
 
-### R8 — Oren/​n-gram statistical power ❌ open (scoped honestly)
-- The Oren test ran on 10 short examples (p=0.044 contaminated vs 0.124 control) — a
+### R8 — Oren/​n-gram statistical power 🟡 GPU-gated (upgraded, still underpowered)
+- The Oren test originally ran on 10 short examples (p=0.044 contaminated vs 0.124 control) — a
   *sanity-scale interface demonstration*, NOT a contamination claim. n-gram separation (0.978)
   is strong but trivially so (members are in their own index by construction).
-- **Action:** run Oren on real benchmark sets (MMLU/GSM8K orderings) at proper scale before any
-  contamination claim about a specific benchmark.
+- **STATUS / UPDATE (upgraded but GPU-gated, contamination_matrix.md):** the Oren permutation
+  test was re-run at 160m on real benchmark orderings (n_permutations=1000, k=30 items): MMLU
+  p=0.001, GSM8K p=0.013, HumanEval p=0.875. The canonical order is favored beyond chance for
+  MMLU/GSM8K even at 160m, but we draw **NO contamination conclusion**: the test is
+  membership-based, run at sanity scale (small k, smallest model, single permutation-null
+  seed), and is subject to a fluency/orientation artifact. It is flagged **GPU-gated** — a real
+  benchmark-contamination claim needs larger models, larger k, and a fluency-control baseline.
+  Separately, the model-free n-gram overlap was run vs a 10k-doc Pile *sample* (MMLU 0.2%/13-gram,
+  GSM8K 0%, HumanEval 0%/13-gram); this is a **lower bound** (sampled reference), not a rate.
 
-### R9 — PII claim not yet empirically supported ❌ open (do not overclaim)
+### R9 — PII claim not yet empirically supported 🟡 GPU-gated (null at 160m; handled honestly)
 - We observed **0.0 verbatim PII leakage** on Enron-in-Pile at 160m (8/36 docs had PII in the
   suffix; none were regurgitated). So the paper's "PII exposure" limb is currently a *designed
   capability with a null result at 160m*, not a demonstrated leak.
-- **Action:** the paper must state this honestly — PII leakage is expected to appear at scale
-  (larger Pythia memorize more); claim it only when measured. Until then, frame extraction as
-  the leakage proxy and PII as future/at-scale.
+- **STATUS / UPDATE (GPU-gated; handled honestly in the paper):** still a NULL at 160m — 0.0
+  verbatim leakage, 8/36 docs with PII in the suffix. The paper (limitations.tex, results.tex)
+  now states this explicitly as a null at scale and makes **no PII-exposure claim**; extraction
+  is the leakage proxy and PII is framed as future/at-scale. No overclaim in the repo. Flagged
+  GPU-gated: PII leakage is expected to appear at larger Pythia; claim only when measured.
 
 ---
 
 ## Significance / methodology checks
-- Headline significance: 3/4 detectors' ρ CIs exclude 0 (LOSS, Min-K%, zlib); Min-K%++ does not.
+- RAW (pre-control) significance: 3/4 detectors' zero-order ρ CIs exclude 0 (LOSS, Min-K%, zlib);
+  Min-K%++ does not. **SUPERSEDED by R6:** after controlling for loss, no calibrated detector
+  predicts leakage in the positive direction (Min-K%/Min-K%++ FDR-sig negative; zlib n.s.).
 - All separations reported with CIs; nulls stated (chance = 0.5 AUC; ρ=0 for correlation).
 - Reproducibility: pinned `requirements.txt`, fixed seeds, configs, public datasets, one-command
   scripts (see README). Model size is a single flag.
 
-## Net verdict (honest)
-Publishable-strength **preliminary** result: the confound-clean control (R3) and the headline
-correlation with CIs (R4) are solid and novel-in-framing. Before submission, the **must-clears**
-are R6 (partial correlation vs LOSS), R1 (frequency-matched control), and the scale-up (R7/R9)
-to show the link strengthens and PII actually leaks. R2/R8 are standard ablations.
+## Net verdict (honest) — UPDATED 2026-06-20 (post controls + hardening)
+Publishable-strength **preliminary** result, now reframed around the CONTROLLED finding rather
+than the raw correlation. The confound-clean control (R3) is solid and novel-in-framing. The
+former "headline correlation" (raw ρ, R4) is **superseded**: R6 showed it is carried entirely by
+loss (calibrated detectors add no independent leakage signal; two are negative), and this is
+robust to a non-linear control + mediation (hardening), to dedup (R2), and not a frequency (R1)
+or zero-inflation (R7) artifact. The defensible thesis is the **membership-detection-vs-leakage-
+prediction divergence**. **Must-clears now CLEARED on CPU:** R6 (resolved negative), R1/R2/R7
+(addressed). **Still GPU-gated:** R8 (Oren at real scale w/ fluency control), R9 (PII leakage at
+scale), and whether the clean-split membership signal — or any independent detector signal —
+revives at 1.4B/2.8B.
+
+---
+
+## Adversary review (Subagent V) — 2026-06-20
+
+A second, harder hostile pass by a reviewer who has read Al Sahili et al. (arXiv:2512.13352) and
+Hayes et al. (NeurIPS 2025) and is inclined to REJECT as derivative. Full review:
+`docs/adversary_review.md`. New concerns V1..V12 below (some sharpen existing R-items; V3/V5/V7/V8
+are genuinely new statistical attacks). Classification: **[FIX-NOW-CPU]** / **[GPU-GATED]** /
+**[ACCEPT-AS-LIMITATION]**.
+
+| # | Concern | Severity | Status / classification |
+|---|---|---|---|
+| V1 | Finding is derivative of Al Sahili (marginal-gains) + Hayes (MIA≠extraction); delta is methodological (partial-ρ vs ranking/zero-order) | HIGH | [ACCEPT-AS-LIMITATION] + [FIX-NOW-CPU reframe] — lead with negative/suppression result (new vs Hayes' null), not "divergence" (Hayes' framing) |
+| V2 | Negative result on smallest model in a no-signal regime (AUC≈chance, 3/300 extracted); may not generalize | HIGH | [GPU-GATED] — only the multi-scale replication answers it; reframe as protocol+pilot until then |
+| V3 | Detectors are near-algebraic transforms of loss → negative partial-ρ is a **suppression/collinearity artifact**, not inverse prediction; prop_mediated>1 confirms ill-posed decomposition | HIGH | **[FIX-NOW-CPU]** — report loss↔detector corr, VIF/condition number from cached scores; reframe negatives as suppression |
+| V4 | Construct validity: `frac_extracted` (greedy, 32-tok prefix) ≈ thresholded suffix-loss → "loss predicts extraction" near-tautological | HIGH | [FIX-NOW-CPU partial] + [ACCEPT-AS-LIMITATION] — report prefix-only-loss vs extraction if cache allows; else state definitional nature |
+| V5 | Power: "no independent signal" may be ceiling/low-power, not true null; zlib CI includes 0, Min-K% q=0.058 (n.s.) non-deduped, deduped clears none | MED-HIGH | **[FIX-NOW-CPU]** — add min-detectable-effect/power statement; separate "true null" from "underpowered" |
+| V6 | Member-only observational corr; pile-10k selection bias; pooled ρ is a sign-heterogeneous domain-mix (GitHub +0.60 vs PubMed Abs −0.48) | MED | [ACCEPT-AS-LIMITATION] + [FIX-NOW-CPU framing] — flag pooled ρ as domain-mix; name selection bias |
+| V7 | Mediation assumptions violated (collinear mediator/predictor, censored 0-infl outcome); "loss carries entire association" not licensed | MED | **[FIX-NOW-CPU]** — demote mediation to descriptive; list violated assumptions; drop causal phrasing |
+| V8 | Permutation/bootstrap tie-calibration with ~97% zero outcome; single FDR-sig cell (Min-K%++ q=0.015) may not survive tie-aware test | MED | **[FIX-NOW-CPU]** — verify mid-rank/tie-aware permutation; cross-check w/ Kendall-τ permutation |
+| V9 | Oren fluency/orientation artifact undercuts MMLU p=0.001 / GSM8K p=0.013 | MED | [ACCEPT-AS-LIMITATION] — already correctly caveated (no conclusion drawn); optionally move to appendix |
+| V10 | n-gram lower bound (0.2%/0%/0% vs 10k sample) is uninformative; padding if listed as contribution | LOW-MED | [FIX-NOW-CPU framing] — drop "we also map n-gram contamination" from abstract contributions |
+| V11 | PII pillar (G3 "the concrete harm") is a null at 160m → scope inflation | LOW-MED | [ACCEPT-AS-LIMITATION] — already a disclosed null; ensure framing doesn't promise a demonstrated channel |
+| V12 | Overclaim sentences: abstract "carried *entirely* by loss" + "two … negatively associated"; results "Only LOSS predicts leakage" | MED | **[FIX-NOW-CPU]** — soften to "loss-mediated to the resolution of this experiment"; correct to "only Min-K%++ FDR-sig negative non-deduped" |
+
+**Single strongest rejection argument (V):** the only novel empirical content is a negative
+partial-correlation that is (a) the same conclusion Al Sahili + Hayes already published, (b) the
+mechanically-expected suppression artifact of regressing a thresholded-likelihood outcome on
+near-collinear likelihood transforms, and (c) measured only at the smallest model in a near-degenerate
+regime where no detector could show signal. Workshop/registered-report grade, not S&P.
+
+**Contribution that survives (V's accepted rebuttal):** sharpens Hayes' *null* into a *significant
+negative after loss control* for the field's *deployed reference-free* detectors (which Hayes never
+tested), with an actionable auditor takeaway and exemplary pre-registration discipline. A defensible
+workshop/second-tier accept now; plausible top-venue after the multi-scale replication.
 
 ```
 
@@ -1172,70 +2712,77 @@ where they are a single `--model` change with `configs/pythia1.4b_gpu.yaml`.
 ### `docs/integration_report.md`
 
 ```markdown
-# Integration Report — Headline result + consistency round
+# Integration Report — Round 2 (hardening + back-half writing + adversarial review)
 
-**Date:** 2026-06-19. **Repo:** `~/contamination-research`. **Model this round:** Pythia-160m, CPU.
+**Date:** 2026-06-20. **Model:** Pythia-160m, CPU. **Authoritative current state** (supersedes the
+2026-06-19 report; history in git). **Not committed** — staged for human review.
 
-## Headline (the thesis as a number)
-On real Pythia-160m, the contamination/membership score **significantly predicts extraction/
-leakage** even though membership *separation* is at chance on the confound-clean split:
+## What this round produced
+- **Novelty (N):** `docs/novelty_memo.md` + 5 verified citations (Al Sahili, Hayes, Chen, Das, Meeus).
+  Verdict **adjacent-but-distinct / novel**; no prior work does loss-residualized partial-correlation/
+  mediation of calibrated detectors vs a per-item extraction outcome.
+- **Statistical hardening (St):** `docs/hardening_report.md`. The negative/null result **survives** a
+  non-linear loss control (cubic-residual primary, decile secondary) and a descriptive mediation; no
+  positive signal revives (deduped arm agrees). **Collinearity diagnostic (W3):** detectors are
+  near-collinear with loss (Spearman 0.74–0.90; VIF up to 6.2), so we report the conservative claim
+  only (see below). `eval/mediation.py` + 8 tests (61/61 total).
+- **Contamination matrix (Mx):** `docs/contamination_matrix.md`. Model-free n-gram overlap is a
+  near-zero lower bound (10k Pile sample); Oren at 160m (MMLU p=0.001, GSM8K 0.013, HumanEval 0.875)
+  is flagged underpowered/GPU-gated, no conclusion drawn.
+- **Paper (W):** complete draft — Abstract, Intro, Background, Threat Model, Related Work (+ novelty
+  comparison table `tab:closest` + Al Sahili/Hayes/Chen distinguishing text), Evaluation, Results,
+  Discussion, Limitations, Conclusion. Assembled `paper/main.tex`; rendered to `paper/main.html` and
+  `PAPER_DRAFT_FULL.md`.
+- **Consistency (C):** `docs/consistency_audit.md` — verdict consistent; reconciled the stale
+  `reviewer_concerns.md`, fixed Oren staleness, removed un-caveated positive headlines.
+- **Adversary (V):** `docs/adversary_review.md` — hostile S&P review (W1–W12). **Verdict: borderline
+  reject as-is.** I actioned the CPU-resolvable items this round (below).
 
-| | clean-split membership AUC | leakage correlation ρ [95% CI] |
-|---|---|---|
-| loss | 0.454 (chance) | **0.275 [0.164, 0.378]** ✅ |
-| min_20_prob | 0.470 (chance) | 0.173 [0.061, 0.285] ✅ |
-| zlib_ratio | 0.484 (chance) | 0.177 [0.063, 0.295] ✅ |
-| min_20_plusplus | 0.490 (chance) | 0.108 [−0.010, 0.220] ✗ |
+## The finding, stated at the honest resolution
+The contamination$\rightarrow$leakage association is **loss-mediated to the resolution of this
+experiment**. The calibrated reference-free detectors (Min-K%, Min-K%++, zlib) add **no positive**
+leakage signal beyond loss. We do **not** claim they negatively predict leakage: they are
+near-collinear with loss (Min-K% Spearman 0.90, VIF 6.2), so the negative partial is consistent with
+a suppression artifact. This is the membership-detection-vs-leakage-prediction divergence, claimed
+conservatively.
 
-This is the contamination→memorization→leakage link, with CIs, on ground-truth Pile members.
-Full numbers in `docs/results_table.md`; figure `figures/correlation_pythia-160m_scatter.png`.
+## V's FIX-NOW items — actioned this round
+- **W3 (collinearity/suppression):** added `scripts/collinearity_check.py` + diagnostic; reframed
+  abstract/intro/results/discussion/limitations to claim "no positive residual," not "negative." ✅
+- **W7 (mediation causal overclaim):** demoted to descriptive in results + discussion. ✅
+- **W12 (overclaims):** softened "entirely by loss" → "loss-mediated to the resolution of this
+  experiment"; removed "Only LOSS predicts leakage"; corrected the "two negatively associated" line. ✅
+- **W5 (power):** added a minimum-detectable-effect/power caveat (no positive signal of appreciable
+  size; small positive at scale not excluded). ✅
+- **W4 (construct validity), W6 (selection/domain-mix), W10 (n-gram dropped from abstract):** added to
+  Limitations / trimmed abstract. ✅
+- **W8 (tie-aware permutation):** our permutation uses mid-rank statistics; noted. (A Kendall-permutation
+  cross-check of Min-K%++ is a nice-to-have, listed GPU/followup.)
 
-## What is now publishable-strength
-- **The confound-clean control (R3).** WikiMIA's 0.52–0.56 collapses to chance (0.45–0.49) on the
-  same-distribution Pile train-vs-val split. Directly pre-empts "your MIA is just distribution
-  shift." Strong, reviewer-ready.
-- **The R6 control result (negative, but robust and reportable).** The raw contamination↔leakage
-  correlation does NOT survive controlling for loss (partial ρ|loss: Min-K% −0.18, Min-K%++ −0.15
-  FDR-sig negative; zlib ≈0). The honest finding is the *divergence*: loss predicts leakage,
-  calibrated detectors do not. Pre-registered, robust to dedup, not a frequency/zero-inflation
-  artifact. See `docs/controls_report.md`. (The earlier "headline correlation" framing is
-  superseded — it was loss-driven.)
-- **Methods↔paper consistency.** All 8 evaluated methods (LOSS, Min-K%, Min-K%++, zlib, n-gram,
-  Oren, extractable memorization, Enron PII) are implemented, tested (46/46), and run; everything
-  else is framed in the paper as "related, not evaluated." Spine rule holds.
-- **Lit review.** background/related_work/evaluation/introduction finalized to S&P standard,
-  datasets table rendered, all [VERIFY] debts cleared (lone exception: BLOOM's 392-author cite,
-  intentional). MIA lineage + DP-defense subsections added.
-- **Reproducibility.** Pinned `requirements.txt`, `configs/*.yaml`, one-command scripts, fixed
-  seeds, public datasets, committed repo.
+## Publication-strength now vs. GPU-gated
+**Now (CPU, defensible):** the security reframing + threat model; the confound-clean control (WikiMIA
+0.52–0.56 → chance on Pile train-vs-val); the pre-registered partial-correlation + non-linear control
++ collinearity-aware conservative claim; the comparison-table novelty positioning; full reproducibility.
+**GPU-gated (honestly not yet shown):** whether calibrated detectors gain *independent* signal at
+larger scale (W2); a less-degenerate extraction outcome (W5/W7); actual PII leakage (W9/R9, null at
+160m); benchmark contamination via a full-Pile n-gram index and a fluency-controlled Oren (W10/R8);
+the per-domain sign-flip as a powered result (V's "most under-exploited asset", W6).
 
-## What still needs the GPU scale-up (honestly NOT yet shown)
-- **R6 — headline circularity (TOP priority).** LOSS↔extraction partly co-measure memorization.
-  Must add the **partial correlation controlling for raw LOSS** to show Min-K%/zlib retain
-  predictive power. Until then, scope the claim. This is a CPU-doable analysis, not a compute gate
-  — next on the list.
-- **R7 — zero-inflated outcome.** 3/300 fully extracted; ρ leans on few points. Larger models
-  extract more (Carlini 2023) → de-degenerates the outcome. Add Kendall τ.
-- **R9 — PII not demonstrated.** 0.0 verbatim PII leakage at 160m. The "PII exposure" limb is a
-  designed capability with a null result at 160m; claim only when measured at scale.
-- **Clean-split scaling.** Does the membership signal revive at 1.4B/2.8B on the *clean* split?
-  WikiMIA AUC rises with scale (zlib 0.564→0.616 at 1.4B) but that split is confounded.
-- **R2 — dedup ablation** (pythia-160m-deduped) and **R8 — Oren at real benchmark scale.**
+## V's strongest rejection argument (recorded, not hidden)
+The novel content is a negative partial-correlation that is (a) the conclusion Al Sahili/Hayes already
+reached, (b) partly the mechanically-expected suppression of regressing a likelihood-derived outcome
+on near-collinear likelihood transforms, and (c) measured only at the smallest model in a near-degenerate
+regime. **Mitigation path:** the GPU replication across scales + the prefix-only-loss construct-validity
+check + elevating the per-domain sign-flip are what move this from borderline to a contribution.
 
-## Compute posture
-Everything is a single `--model` flag away from GPU scale-up (`configs/pythia1.4b_gpu.yaml`).
-2.8B on CPU declined this round (prohibitively slow, out of the 160m/CPU scope).
+## Round DONE-criteria
+1. ✅ novelty_memo + verified cites. 2. ✅ hardening_report (mediation + non-linear + domain + FDR;
+collinearity added). 3. ✅ contamination_matrix + provisional table. 4. 🟡 complete paper written +
+assembled + rendered to **HTML** (LaTeX→PDF is environment-blocked: no engine installable; compile via
+Overleaf/local `pdflatex main`). 5. ✅ consistency_audit. 6. ✅ reviewer_concerns reconciled + V1–V12
+appended + GPU-gated list. 7. ✅ pinned env + one-command repro. 8. ✅ this report.
 
-## Round DONE-criteria status
-1. ✅ Real contamination↔leakage correlation with CIs + master table + ROC/scatter figures.
-2. ✅ n-gram + Oren implemented, tested, run.
-3. ✅ related_work/background/evaluation/introduction finalized; described == implemented; [VERIFY] cleared.
-4. ✅ Pinned env + one-command repro + committed repo.
-5. ✅ Reviewer log R1–R9 (R3/R4/R5 resolved; R1/R2 partial; R6/R7/R8/R9 open with actions).
-6. ✅ This report.
-
-**Single most important next step:** the R6 partial-correlation control (CPU-doable), then the
-GPU scale-up to revive the clean-split signal and actually observe PII leakage.
+**Stop for human review. Nothing committed.**
 
 ```
 
@@ -3012,6 +4559,133 @@ def benjamini_hochberg(pvals, alpha=0.05):
 ```
 
 
+### `eval/mediation.py`
+
+```python
+"""Statistical hardening: non-linear loss controls + rank-based mediation.
+
+Answers the reviewer attack "you only removed loss linearly." Pure numpy. Conventions
+match eval/metrics.py and eval/partial.py (higher detector score = more member-like).
+See docs/pre_analysis.md (Round 2, St) for the pre-registered plan.
+"""
+from __future__ import annotations
+
+import numpy as np
+
+from .metrics import _rankdata
+from .partial import spearman
+
+
+# ---------------------------------------------------------------- nonlinear control
+def _equal_count_bins(control: np.ndarray, n_bins: int) -> np.ndarray:
+    """Assign each item to one of n_bins equal-count bins of `control` (by rank)."""
+    r = _rankdata(control)              # 1..n average ranks
+    # map ranks to bin index 0..n_bins-1 by quantile of rank
+    edges = np.quantile(r, np.linspace(0, 1, n_bins + 1))
+    edges[0] -= 1e-9
+    return np.clip(np.digitize(r, edges[1:-1]), 0, n_bins - 1)
+
+
+def decile_stratified_spearman(d, y, control, n_bins=10, min_bin=3):
+    """Bin-size-weighted mean within-bin Spearman ρ(d, y), holding `control` fixed.
+
+    Bins with < min_bin items (or no variance) are skipped; weights are bin sizes.
+    """
+    d = np.asarray(d, float); y = np.asarray(y, float); control = np.asarray(control, float)
+    bins = _equal_count_bins(control, n_bins)
+    num = 0.0; den = 0.0
+    for b in np.unique(bins):
+        idx = np.where(bins == b)[0]
+        if len(idx) < min_bin:
+            continue
+        db, yb = d[idx], y[idx]
+        if np.ptp(db) == 0 or np.ptp(yb) == 0:
+            continue
+        num += len(idx) * spearman(db, yb)
+        den += len(idx)
+    return float(num / den) if den > 0 else 0.0
+
+
+def stratified_permutation_p(d, y, control, n_bins=10, n_perm=2000, seed=0):
+    """Two-sided p for decile_stratified_spearman by permuting y WITHIN each loss bin."""
+    d = np.asarray(d, float); y = np.asarray(y, float); control = np.asarray(control, float)
+    bins = _equal_count_bins(control, n_bins)
+    obs = abs(decile_stratified_spearman(d, y, control, n_bins))
+    rng = np.random.default_rng(seed)
+    bin_idx = [np.where(bins == b)[0] for b in np.unique(bins)]
+    count = 0
+    for _ in range(n_perm):
+        yp = y.copy()
+        for idx in bin_idx:
+            yp[idx] = rng.permutation(yp[idx])
+        if abs(decile_stratified_spearman(d, yp, control, n_bins)) >= obs - 1e-12:
+            count += 1
+    return (1 + count) / (n_perm + 1)
+
+
+def _poly_residuals(v: np.ndarray, control: np.ndarray, degree: int = 3) -> np.ndarray:
+    """Residuals of v after OLS regression on a degree-`degree` polynomial of control."""
+    v = np.asarray(v, float); c = np.asarray(control, float)
+    X = np.vander(c, N=degree + 1, increasing=True)  # [1, c, c^2, c^3]
+    coef, *_ = np.linalg.lstsq(X, v, rcond=None)
+    return v - X @ coef
+
+
+def cubic_residual_spearman(d, y, control, degree=3):
+    """Spearman of (d residualized on poly(control)) vs (y residualized on poly(control)).
+
+    PRIMARY non-linear loss control (St-1): a degree-`degree` polynomial removes the full
+    smooth effect of loss (linear + non-linear), unlike coarse bin stratification which leaves
+    residual within-bin confounding. See docs/pre_analysis.md St-1 amendment.
+    """
+    return spearman(_poly_residuals(d, control, degree), _poly_residuals(y, control, degree))
+
+
+def cubic_residual_perm_p(d, y, control, degree=3, n_perm=2000, seed=0):
+    """Two-sided permutation p for cubic_residual_spearman (permute y, recompute)."""
+    d = np.asarray(d, float); y = np.asarray(y, float); control = np.asarray(control, float)
+    obs = abs(cubic_residual_spearman(d, y, control, degree))
+    rng = np.random.default_rng(seed)
+    count = sum(abs(cubic_residual_spearman(d, rng.permutation(y), control, degree)) >= obs - 1e-12
+                for _ in range(n_perm))
+    return (1 + count) / (n_perm + 1)
+
+
+# ---------------------------------------------------------------- mediation
+def _standardize(a):
+    a = np.asarray(a, float)
+    s = a.std()
+    return (a - a.mean()) / s if s > 0 else a - a.mean()
+
+
+def rank_mediation(d, y, m):
+    """Rank-based mediation: decompose total d->y effect into direct + indirect (via m=loss).
+
+    Variables are rank-transformed then standardized; coefficients via OLS. Returns
+    {a, b, direct (c'), indirect (a*b), total, prop_mediated}. prop_mediated is the
+    fraction of the total effect carried by the mediator (loss). NaN if total ~ 0.
+    """
+    rd = _standardize(_rankdata(d)); ry = _standardize(_rankdata(y)); rm = _standardize(_rankdata(m))
+    # a: m ~ d  (standardized -> a = corr(d, m))
+    a = float((rd * rm).mean())
+    # y ~ d + m
+    X = np.column_stack([rd, rm, np.ones_like(rd)])
+    coef, *_ = np.linalg.lstsq(X, ry, rcond=None)
+    cprime, b = float(coef[0]), float(coef[1])
+    indirect = a * b
+    total = cprime + indirect
+    prop = float(indirect / total) if abs(total) > 1e-9 else float("nan")
+    return {"a": a, "b": b, "direct": cprime, "indirect": indirect,
+            "total": total, "prop_mediated": prop}
+
+
+def mediation_stat(d, y, m, key):
+    """Scalar accessor for bootstrap_ci over a chosen mediation component."""
+    return rank_mediation(d, y, m)[key]
+
+```
+
+
 ### `eval/__init__.py`
 
 ```python
@@ -4238,6 +5912,452 @@ if __name__ == "__main__":
 ```
 
 
+### `scripts/hardening_160m.py`
+
+```python
+#!/usr/bin/env python
+"""St — statistical hardening on cached per-example controls scores (no model inference).
+
+For each calibrated detector D in {Min-K%, Min-K%++, zlib}, vs leakage outcome frac_extracted,
+controlling for loss: zero-order rho, linear partial rho|loss, NON-LINEAR partial controls
+(PRIMARY = cubic-polynomial residualization; SECONDARY = decile-of-loss stratification), and
+rank mediation (direct/indirect/proportion). FDR over the 3 cubic-residual permutation p-values
+(St-1 confirmatory family). Plus per-domain breakdown. See docs/pre_analysis.md (Round 2, St).
+
+Run:
+    python scripts/hardening_160m.py --scores results/controls_scores_pythia-160m.jsonl --tag pythia-160m
+"""
+from __future__ import annotations
+
+import argparse
+import json
+import os
+import sys
+from collections import defaultdict
+
+import numpy as np
+
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+
+CALIBRATED = ["min_20_prob", "min_20_plusplus", "zlib_ratio"]
+
+
+def main():
+    p = argparse.ArgumentParser(description=__doc__)
+    p.add_argument("--scores", required=True)
+    p.add_argument("--tag", required=True)
+    p.add_argument("--results", default="results")
+    p.add_argument("--n-boot", type=int, default=2000)
+    p.add_argument("--n-perm", type=int, default=2000)
+    p.add_argument("--n-bins", type=int, default=10)
+    args = p.parse_args()
+
+    from eval.partial import benjamini_hochberg, bootstrap_ci, partial_spearman, spearman
+    from eval.mediation import (
+        cubic_residual_perm_p, cubic_residual_spearman, decile_stratified_spearman,
+        mediation_stat, rank_mediation, stratified_permutation_p,
+    )
+
+    rows = [json.loads(l) for l in open(args.scores)]
+    frac = np.array([r["frac_extracted"] for r in rows], float)
+    loss = np.array([r["loss"] for r in rows], float)
+    domain = [r["pile_set_name"] for r in rows]
+    print(f"{args.tag}: N={len(rows)}, mean frac={frac.mean():.4f}")
+
+    out = {"tag": args.tag, "n": len(rows), "detectors": {}}
+    cubic_ps = []
+    for name in CALIBRATED:
+        d = np.array([r[name] for r in rows], float)
+        # PRIMARY non-linear control: cubic-residual
+        cubic = cubic_residual_spearman(d, frac, loss)
+        cubic_ci = bootstrap_ci(lambda a, b, c: cubic_residual_spearman(a, b, c),
+                                (d, frac, loss), args.n_boot)
+        cubic_p = cubic_residual_perm_p(d, frac, loss, n_perm=args.n_perm)
+        cubic_ps.append(cubic_p)
+        # SECONDARY model-free control: decile stratification (coarse)
+        dec = decile_stratified_spearman(d, frac, loss, args.n_bins)
+        dec_ci = bootstrap_ci(lambda a, b, c: decile_stratified_spearman(a, b, c, args.n_bins),
+                              (d, frac, loss), args.n_boot)
+        dec_p = stratified_permutation_p(d, frac, loss, args.n_bins, args.n_perm)
+        med = rank_mediation(d, frac, loss)
+        med_ci = {k: list(bootstrap_ci(lambda a, b, c, kk=k: mediation_stat(a, b, c, kk),
+                                       (d, frac, loss), args.n_boot))
+                  for k in ["direct", "indirect", "total"]}
+        out["detectors"][name] = {
+            "zero_order_rho": spearman(d, frac),
+            "linear_partial_rho": partial_spearman(d, frac, loss),
+            "cubic_residual_rho": cubic, "cubic_residual_ci": list(cubic_ci),
+            "cubic_residual_perm_p": cubic_p,
+            "decile_rho": dec, "decile_ci": list(dec_ci), "decile_perm_p": dec_p,
+            "mediation": med, "mediation_ci": med_ci,
+        }
+
+    rejected, qvals = benjamini_hochberg(cubic_ps)
+    out["St1_family"] = {"control": "cubic_residual", "detectors": CALIBRATED,
+                         "perm_p": cubic_ps, "bh_q": [float(q) for q in qvals],
+                         "bh_reject": [bool(r) for r in rejected]}
+
+    # per-domain (descriptive)
+    by_dom = defaultdict(list)
+    for i, dm in enumerate(domain):
+        by_dom[dm].append(i)
+    strata = {}
+    for dm, idx in sorted(by_dom.items()):
+        if len(idx) >= 10:
+            idx = np.array(idx)
+            strata[dm] = {"n": len(idx), "loss_vs_frac_rho": spearman(loss[idx], frac[idx])}
+            for name in CALIBRATED:
+                d = np.array([rows[i][name] for i in idx], float)
+                strata[dm][f"{name}_vs_frac_rho"] = spearman(d, frac[idx])
+    out["per_domain"] = strata
+
+    os.makedirs(args.results, exist_ok=True)
+    with open(os.path.join(args.results, f"hardening_{args.tag}.json"), "w") as f:
+        json.dump(out, f, indent=2)
+
+    # ---- print ----
+    print(f"\n=== St HARDENING: {args.tag} (N={len(rows)}) ===")
+    print(f"{'detector':<16}{'zero':>8}{'lin|loss':>10}{'cubic(P)':>10}{'cubic CI':>20}"
+          f"{'decile(S)':>11}{'med.prop':>10}{'BHq':>8}")
+    for name, q in zip(CALIBRATED, qvals):
+        x = out["detectors"][name]
+        ci = x["cubic_residual_ci"]
+        prop = x["mediation"]["prop_mediated"]
+        print(f"{name:<16}{x['zero_order_rho']:>8.3f}{x['linear_partial_rho']:>10.3f}"
+              f"{x['cubic_residual_rho']:>10.3f}{f'[{ci[0]:.3f},{ci[1]:.3f}]':>20}"
+              f"{x['decile_rho']:>11.3f}{prop:>10.3f}{q:>8.3f}")
+    revived = [n for n, q in zip(CALIBRATED, qvals)
+               if out["detectors"][n]["cubic_residual_ci"][0] > 0 and q < 0.05]
+    print("\nSt-1 decision (PRIMARY = cubic-residual nonlinear control):")
+    print(f"  REVIVED detectors (positive CI excl. 0 + FDR-sig): "
+          f"{revived if revived else 'NONE -> null/negative confirmed, not a linearity artifact'}")
+    print(f"\nwrote results/hardening_{args.tag}.json")
+
+
+if __name__ == "__main__":
+    main()
+
+```
+
+
+### `scripts/collinearity_check.py`
+
+```python
+#!/usr/bin/env python
+"""Collinearity diagnostic (reviewer concern V/W3): the calibrated detectors are functions of
+the same per-token logprobs as loss, so a negative PARTIAL correlation may be a suppression
+artifact rather than substantive inverse prediction. Reports detector~loss correlation, VIF,
+and the condition number of the [loss, detector] design. Cached data; no model inference.
+
+Run: python scripts/collinearity_check.py --scores results/controls_scores_pythia-160m.jsonl --tag pythia-160m
+"""
+from __future__ import annotations
+
+import argparse, json, os, sys
+import numpy as np
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+from eval.partial import spearman
+
+CAL = ["min_20_prob", "min_20_plusplus", "zlib_ratio"]
+
+
+def pearson(a, b):
+    a = a - a.mean(); b = b - b.mean()
+    return float((a * b).sum() / np.sqrt((a**2).sum() * (b**2).sum()))
+
+
+def main():
+    ap = argparse.ArgumentParser(description=__doc__)
+    ap.add_argument("--scores", required=True)
+    ap.add_argument("--tag", required=True)
+    ap.add_argument("--results", default="results")
+    a = ap.parse_args()
+    rows = [json.loads(l) for l in open(a.scores)]
+    loss = np.array([r["loss"] for r in rows], float)
+    out = {"tag": a.tag, "n": len(rows), "detector_vs_loss": {}}
+    print(f"{a.tag}: N={len(rows)}")
+    print(f"{'detector':<16}{'pearson_loss':>14}{'spearman_loss':>15}{'VIF':>8}{'cond':>8}")
+    for n in CAL:
+        d = np.array([r[n] for r in rows], float)
+        rp = pearson(loss, d); rs = spearman(loss, d); vif = 1 / (1 - rp**2)
+        A = np.column_stack([(loss - loss.mean()) / loss.std(), (d - d.mean()) / d.std()])
+        cond = float(np.linalg.cond(A))
+        out["detector_vs_loss"][n] = {"pearson": rp, "spearman": rs, "vif": vif, "cond": cond}
+        print(f"{n:<16}{rp:>14.3f}{rs:>15.3f}{vif:>8.1f}{cond:>8.1f}")
+    os.makedirs(a.results, exist_ok=True)
+    with open(os.path.join(a.results, f"collinearity_{a.tag}.json"), "w") as f:
+        json.dump(out, f, indent=2)
+    print(f"\nwrote results/collinearity_{a.tag}.json")
+
+
+if __name__ == "__main__":
+    main()
+
+```
+
+
+### `scripts/contamination_matrix.py`
+
+```python
+#!/usr/bin/env python
+"""Mx -- contamination matrix at small scale (pre-registered in docs/pre_analysis.md).
+
+Runs EXACTLY the Mx pre-registration, nothing more:
+
+Mx-1 (scale-invariant, model-free): n-gram/substring overlap of benchmark items vs a public
+  Pile SAMPLE (NeelNanda/pile-10k). For each benchmark (MMLU, GSM8K, HumanEval; up to 500
+  items, seed 0) and each N in {13 primary, 8 secondary}, report:
+    * contamination rate = fraction of items with ANY n-gram overlap (GPT-3 13-gram rule)
+    * mean per-item overlap fraction.
+  CAVEAT: the index is built from a SAMPLE of the Pile, so measured overlap is a LOWER BOUND
+  on true benchmark<->Pile overlap. Not the contamination rate of the full corpus.
+
+Mx-2 (underpowered, flagged): Oren exchangeability permutation test at Pythia-160m
+  (n_permutations >= 1000) on each benchmark's canonical ordering, using ~25-50 short items
+  per benchmark to keep CPU feasible. p-values are reported but EXPLICITLY marked as
+  sanity-scale / underpowered at 160m and GPU-gated (membership-based).
+
+Run:
+    python scripts/contamination_matrix.py --model EleutherAI/pythia-160m --device cpu
+"""
+from __future__ import annotations
+
+import argparse
+import json
+import os
+import sys
+
+import numpy as np
+
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+
+from detectors import NGramOverlapDetector  # noqa: E402
+
+
+# ---------------------------------------------------------------- benchmark loaders
+def _try_load(names_configs, split):
+    """Try each (name, config) in order; return (dataset, used_name, used_config).
+
+    Records which loader name actually worked so it can be reported.
+    """
+    from datasets import load_dataset
+
+    last_err = None
+    for name, config in names_configs:
+        try:
+            if config is None:
+                ds = load_dataset(name, split=split)
+            else:
+                ds = load_dataset(name, config, split=split)
+            return ds, name, config
+        except Exception as e:  # noqa: BLE001 -- record and try the obvious alternative
+            last_err = e
+            print(f"  loader failed: load_dataset({name!r}, {config!r}, split={split!r}) -> {type(e).__name__}: {e}")
+    raise RuntimeError(f"all loaders failed; last error: {last_err}")
+
+
+def load_mmlu(max_items, seed):
+    """MMLU: text = question + choices. cais/mmlu, config 'all', split 'test'."""
+    ds, used_name, used_config = _try_load(
+        [("cais/mmlu", "all"), ("hendrycks_test", "all")], "test"
+    )
+    idx = _sample_indices(len(ds), max_items, seed)
+    texts = []
+    for i in idx:
+        ex = ds[int(i)]
+        choices = ex.get("choices", [])
+        choices_str = " ".join(str(c) for c in choices)
+        texts.append(f"{ex['question']} {choices_str}".strip())
+    return texts, used_name, used_config, len(ds)
+
+
+def load_gsm8k(max_items, seed):
+    """GSM8K: text = question. openai/gsm8k or gsm8k, config 'main', split 'test'."""
+    ds, used_name, used_config = _try_load(
+        [("openai/gsm8k", "main"), ("gsm8k", "main")], "test"
+    )
+    idx = _sample_indices(len(ds), max_items, seed)
+    texts = [str(ds[int(i)]["question"]).strip() for i in idx]
+    return texts, used_name, used_config, len(ds)
+
+
+def load_humaneval(max_items, seed):
+    """HumanEval: text = prompt. openai_humaneval, split 'test'."""
+    ds, used_name, used_config = _try_load(
+        [("openai_humaneval", None), ("openai/openai_humaneval", None)], "test"
+    )
+    idx = _sample_indices(len(ds), max_items, seed)
+    texts = [str(ds[int(i)]["prompt"]).strip() for i in idx]
+    return texts, used_name, used_config, len(ds)
+
+
+def _sample_indices(n_total, max_items, seed):
+    """Deterministic sample of up to max_items indices from range(n_total)."""
+    rng = np.random.default_rng(seed)
+    if n_total <= max_items:
+        return np.arange(n_total)
+    return np.sort(rng.choice(n_total, size=max_items, replace=False))
+
+
+# ---------------------------------------------------------------- Pile-sample index
+def load_pile_sample_texts():
+    """All texts from the NeelNanda/pile-10k public SAMPLE (lower-bound reference)."""
+    from datasets import load_dataset
+
+    ds, used_name, _ = _try_load([("NeelNanda/pile-10k", None)], "train")
+    texts = [str(ex["text"]) for ex in ds]
+    return texts, used_name, len(texts)
+
+
+# ---------------------------------------------------------------- Mx-1
+def run_mx1(benchmarks, pile_texts, ns):
+    """Per benchmark, per N: contamination rate (any overlap) + mean overlap fraction."""
+    results = {}
+    indices = {}
+    for n in ns:
+        det = NGramOverlapDetector(n=n).build_index(pile_texts)
+        indices[n] = det.index_size
+        print(f"\n[Mx-1] built N={n} index from Pile sample: {det.index_size} distinct {n}-grams")
+        for bench, texts in benchmarks.items():
+            scores = np.array([det.score(t) for t in texts])
+            n_with_overlap = int((scores > 0.0).sum())
+            rate = n_with_overlap / len(scores)
+            mean_overlap = float(scores.mean())
+            results.setdefault(bench, {})[f"n{n}"] = {
+                "n_items": len(scores),
+                "n_with_any_overlap": n_with_overlap,
+                "contamination_rate": rate,
+                "mean_overlap_fraction": mean_overlap,
+                "max_overlap_fraction": float(scores.max()),
+            }
+            print(f"    {bench:<10} N={n}: rate={rate:.4f} "
+                  f"({n_with_overlap}/{len(scores)})  mean_overlap={mean_overlap:.5f}  "
+                  f"max={float(scores.max()):.4f}")
+    return results, indices
+
+
+# ---------------------------------------------------------------- Mx-2
+def run_mx2(benchmarks, model, revision, device, oren_k, oren_words, n_permutations, seed):
+    """Oren permutation test per benchmark at the target model (UNDERPOWERED / GPU-gated)."""
+    from detectors import HFScorer, OrenPermutationTest
+
+    print(f"\n[Mx-2] Oren permutation test (model={model}, device={device}, "
+          f"k={oren_k} items/bench, {n_permutations} permutations) -- UNDERPOWERED/GPU-gated")
+    scorer = HFScorer(model, revision=revision, device=device)
+    test = OrenPermutationTest(scorer)
+
+    def trunc(t):
+        return " ".join(t.split()[:oren_words])
+
+    results = {}
+    for bench, texts in benchmarks.items():
+        # canonical ordering = the first oren_k sampled items, truncated for CPU feasibility
+        examples = [trunc(t) for t in texts[:oren_k] if len(trunc(t).split()) >= 2]
+        k_used = len(examples)
+        if k_used < 2:
+            results[bench] = {"error": "fewer than 2 scorable examples", "k_used": k_used}
+            print(f"    {bench:<10}: SKIP (only {k_used} scorable examples)")
+            continue
+        res = test.test(examples, n_permutations=n_permutations, seed=seed)
+        res["k_used"] = k_used
+        res["oren_words"] = oren_words
+        results[bench] = res
+        print(f"    {bench:<10}: p={res['p_value']:.4f}  canonical_ll={res['canonical_loglik']:.2f}  "
+              f"null_mean={res['null_mean']:.2f}  null_std={res['null_std']:.2f}  (k={k_used})")
+    return results
+
+
+def main():
+    p = argparse.ArgumentParser(description=__doc__)
+    p.add_argument("--model", default="EleutherAI/pythia-160m")
+    p.add_argument("--revision", default="main")
+    p.add_argument("--device", default="cpu")
+    p.add_argument("--max-items", type=int, default=500, help="up to N items per benchmark for Mx-1")
+    p.add_argument("--seed", type=int, default=0)
+    p.add_argument("--ngram-primary", type=int, default=13)
+    p.add_argument("--ngram-secondary", type=int, default=8)
+    p.add_argument("--oren-k", type=int, default=30, help="items per benchmark for Oren (25-50)")
+    p.add_argument("--oren-words", type=int, default=20, help="truncate Oren items (CPU feasibility)")
+    p.add_argument("--n-permutations", type=int, default=1000)
+    p.add_argument("--results", default="results")
+    args = p.parse_args()
+
+    ns = [args.ngram_primary, args.ngram_secondary]
+
+    # ---- load benchmarks (record which loader worked + item counts) ----
+    print("=== Loading benchmarks (up to %d items each, seed %d) ===" % (args.max_items, args.seed))
+    loaders_used = {}
+    benchmarks = {}
+
+    mmlu_texts, mmlu_name, mmlu_cfg, mmlu_total = load_mmlu(args.max_items, args.seed)
+    benchmarks["MMLU"] = mmlu_texts
+    loaders_used["MMLU"] = {"loader": mmlu_name, "config": mmlu_cfg, "split": "test",
+                            "total_in_split": mmlu_total, "n_sampled": len(mmlu_texts),
+                            "text_field": "question + choices"}
+    print(f"  MMLU: loader={mmlu_name} config={mmlu_cfg} total={mmlu_total} sampled={len(mmlu_texts)}")
+
+    gsm_texts, gsm_name, gsm_cfg, gsm_total = load_gsm8k(args.max_items, args.seed)
+    benchmarks["GSM8K"] = gsm_texts
+    loaders_used["GSM8K"] = {"loader": gsm_name, "config": gsm_cfg, "split": "test",
+                             "total_in_split": gsm_total, "n_sampled": len(gsm_texts),
+                             "text_field": "question"}
+    print(f"  GSM8K: loader={gsm_name} config={gsm_cfg} total={gsm_total} sampled={len(gsm_texts)}")
+
+    he_texts, he_name, he_cfg, he_total = load_humaneval(args.max_items, args.seed)
+    benchmarks["HumanEval"] = he_texts
+    loaders_used["HumanEval"] = {"loader": he_name, "config": he_cfg, "split": "test",
+                                 "total_in_split": he_total, "n_sampled": len(he_texts),
+                                 "text_field": "prompt"}
+    print(f"  HumanEval: loader={he_name} config={he_cfg} total={he_total} sampled={len(he_texts)}")
+
+    # ---- Pile sample reference (LOWER BOUND) ----
+    pile_texts, pile_name, pile_n = load_pile_sample_texts()
+    print(f"\n  Pile reference: loader={pile_name} (SAMPLE) docs={pile_n} "
+          f"-> measured overlap is a LOWER BOUND")
+
+    # ---- Mx-1 ----
+    mx1, index_sizes = run_mx1(benchmarks, pile_texts, ns)
+
+    # ---- Mx-2 ----
+    mx2 = run_mx2(benchmarks, args.model, args.revision, args.device,
+                  args.oren_k, args.oren_words, args.n_permutations, args.seed)
+
+    # ---- persist ----
+    os.makedirs(args.results, exist_ok=True)
+    out = {
+        "seed": args.seed,
+        "model": args.model,
+        "device": args.device,
+        "ngram_n_primary": args.ngram_primary,
+        "ngram_n_secondary": args.ngram_secondary,
+        "loaders_used": loaders_used,
+        "pile_reference": {"loader": pile_name, "n_docs": pile_n,
+                           "is_sample": True,
+                           "caveat": "SAMPLE of the Pile; measured overlap is a LOWER BOUND "
+                                     "on true benchmark<->Pile overlap"},
+        "ngram_index_sizes": {f"n{n}": index_sizes[n] for n in ns},
+        "mx1_ngram_overlap": mx1,
+        "mx2_oren_permutation": {
+            "params": {"model": args.model, "device": args.device,
+                       "n_permutations": args.n_permutations,
+                       "oren_k": args.oren_k, "oren_words": args.oren_words},
+            "status": "UNDERPOWERED / sanity-scale at 160m; membership-based => GPU-gated; "
+                      "no contamination conclusions drawn",
+            "results": mx2,
+        },
+    }
+    out_path = os.path.join(args.results, "contamination_matrix.json")
+    with open(out_path, "w") as f:
+        json.dump(out, f, indent=2)
+    print(f"\nWrote {out_path}")
+
+
+if __name__ == "__main__":
+    main()
+
+```
+
+
 ### `scripts/validate_ngram_oren.py`
 
 ```python
@@ -4425,6 +6545,70 @@ if __name__ == "__main__":
 ```
 
 
+### `scripts/plot_hardening.py`
+
+```python
+#!/usr/bin/env python
+"""Forest plot of St hardening: zero-order vs linear-partial vs cubic-residual ρ (with CI)
+per calibrated detector. Reads results/hardening_<tag>.json. Seeded upstream; this only plots.
+
+Run: python scripts/plot_hardening.py --tag pythia-160m
+"""
+from __future__ import annotations
+
+import argparse
+import json
+import os
+import sys
+
+import numpy as np
+
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+
+
+def main():
+    ap = argparse.ArgumentParser(description=__doc__)
+    ap.add_argument("--tag", default="pythia-160m")
+    ap.add_argument("--results", default="results")
+    ap.add_argument("--out", default="figures")
+    args = ap.parse_args()
+
+    import matplotlib
+    matplotlib.use("Agg")
+    import matplotlib.pyplot as plt
+
+    d = json.load(open(os.path.join(args.results, f"hardening_{args.tag}.json")))
+    dets = ["min_20_prob", "min_20_plusplus", "zlib_ratio"]
+    labels = {"min_20_prob": "Min-K%", "min_20_plusplus": "Min-K%++", "zlib_ratio": "zlib"}
+    os.makedirs(args.out, exist_ok=True)
+
+    fig, ax = plt.subplots(figsize=(7, 3.6))
+    yloc = np.arange(len(dets))[::-1]
+    for i, det in zip(yloc, dets):
+        x = d["detectors"][det]
+        ax.scatter(x["zero_order_rho"], i + 0.22, color="tab:blue", zorder=3, label="zero-order" if i == yloc[0] else "")
+        ax.scatter(x["linear_partial_rho"], i, color="tab:orange", zorder=3, label="linear partial|loss" if i == yloc[0] else "")
+        lo, hi = x["cubic_residual_ci"]
+        ax.errorbar(x["cubic_residual_rho"], i - 0.22, xerr=[[x["cubic_residual_rho"] - lo], [hi - x["cubic_residual_rho"]]],
+                    fmt="o", color="tab:red", capsize=3, zorder=3, label="cubic-residual (95% CI)" if i == yloc[0] else "")
+    ax.axvline(0, color="k", lw=0.8, ls="--")
+    ax.set_yticks(yloc)
+    ax.set_yticklabels([labels[x] for x in dets])
+    ax.set_xlabel("Spearman ρ with extraction (frac_extracted)")
+    ax.set_title(f"Detector→leakage correlation collapses under loss control ({args.tag})", fontsize=10)
+    ax.legend(fontsize=7, loc="lower right")
+    fig.tight_layout()
+    p = os.path.join(args.out, f"hardening_{args.tag}_forest.png")
+    fig.savefig(p, dpi=150)
+    print("wrote", p)
+
+
+if __name__ == "__main__":
+    main()
+
+```
+
+
 ### `scripts/build_bundle.py`
 
 ```python
@@ -4463,10 +6647,12 @@ def block(path):
 
 
 PARTS = [
-    ("PART 1 — THE PAPER (readable prose, front matter)", ["PAPER_DRAFT.md"]),
+    ("PART 1 — THE PAPER (readable prose, full draft)", ["PAPER_DRAFT_FULL.md"]),
     ("PART 2 — RESULTS, EXPERIMENT DESIGN & ANALYSIS (docs)", [
-        "docs/controls_report.md", "docs/results_table.md", "findings.md",
-        "docs/pre_analysis.md", "docs/reviewer_concerns.md", "docs/milestone1_report.md",
+        "docs/controls_report.md", "docs/hardening_report.md", "docs/contamination_matrix.md",
+        "docs/results_table.md", "findings.md", "docs/pre_analysis.md",
+        "docs/novelty_memo.md", "docs/consistency_audit.md", "docs/adversary_review.md",
+        "docs/reviewer_concerns.md", "docs/milestone1_report.md",
         "docs/integration_report.md", "docs/method_selection_memo.md",
         "docs/experiment_design.md", "docs/glossary.md", "README.md",
     ]),
@@ -4475,20 +6661,24 @@ PARTS = [
         "detectors/minkpp.py", "detectors/zlib_ratio.py", "detectors/ngram_overlap.py",
         "detectors/oren_permutation.py", "detectors/scorers.py", "detectors/__init__.py",
         "extraction/extract.py", "extraction/pii.py", "extraction/__init__.py",
-        "eval/metrics.py", "eval/partial.py", "eval/__init__.py",
+        "eval/metrics.py", "eval/partial.py", "eval/mediation.py", "eval/__init__.py",
     ]),
     ("PART 4 — ALL EXPERIMENT SCRIPTS & RUNNER", [
         "run.py", "conftest.py",
         "scripts/milestone1_pile.py", "scripts/milestone1_wikimia.py",
         "scripts/milestone1_separation.py", "scripts/extraction_pile.py",
         "scripts/pii_enron.py", "scripts/correlation_160m.py",
-        "scripts/controls_160m.py", "scripts/validate_ngram_oren.py",
-        "scripts/plot_from_scores.py", "scripts/build_bundle.py",
+        "scripts/controls_160m.py", "scripts/hardening_160m.py",
+        "scripts/collinearity_check.py", "scripts/contamination_matrix.py",
+        "scripts/validate_ngram_oren.py", "scripts/plot_from_scores.py",
+        "scripts/plot_hardening.py", "scripts/build_bundle.py",
     ]),
     ("PART 5 — ALL TESTS", sorted(glob.glob("tests/test_*.py"))),
     ("PART 6 — PAPER SOURCE (LaTeX)", [
-        "paper/main.tex", "paper/introduction.tex", "paper/background.tex",
-        "paper/related_work.tex", "paper/evaluation.tex", "paper/datasets_table.tex",
+        "paper/main.tex", "paper/abstract.tex", "paper/introduction.tex",
+        "paper/background.tex", "paper/threat_model.tex", "paper/related_work.tex",
+        "paper/evaluation.tex", "paper/datasets_table.tex", "paper/results.tex",
+        "paper/discussion.tex", "paper/limitations.tex", "paper/conclusion.tex",
     ]),
     ("PART 7 — CONFIG, ENV & BIBLIOGRAPHY", [
         "requirements.txt", "configs/pythia160m_cpu.yaml",
@@ -4496,7 +6686,8 @@ PARTS = [
     ]),
     ("PART 8 — RAW RESULT SUMMARIES (the actual numbers)", sorted(
         glob.glob("results/*summary*.json") + glob.glob("results/correlation_*.json")
-        + glob.glob("results/controls_*.json"))),
+        + glob.glob("results/controls_[a-z]*.json") + glob.glob("results/hardening_*.json")
+        + glob.glob("results/collinearity_*.json") + glob.glob("results/contamination_matrix.json"))),
 ]
 
 HEADER = """# COMPLETE PROJECT BUNDLE — Benchmark Contamination as a Privacy/Security Vulnerability in LLMs
@@ -4691,6 +6882,103 @@ def test_invalid_prefix_len():
         is_extractable([1, 2, 3], prefix_len=0, generate=garbage_generator)
     with pytest.raises(ValueError):
         is_extractable([1, 2, 3], prefix_len=3, generate=garbage_generator)
+
+```
+
+
+### `tests/test_mediation.py`
+
+```python
+"""Integrity tests for St hardening statistics (constructed cases with known answers)."""
+import numpy as np
+import pytest
+
+from eval.mediation import (
+    cubic_residual_spearman,
+    decile_stratified_spearman,
+    rank_mediation,
+    stratified_permutation_p,
+)
+from eval.partial import spearman
+
+
+def test_decile_strat_reduces_linear_confound():
+    # y and d correlated ONLY through control. Decile stratification is COARSE: it strongly
+    # REDUCES the confound (from ~0.7 raw) but, with 10 bins, leaves residual within-bin
+    # confounding (~0.18). This is exactly why cubic residualization is the PRIMARY control.
+    rng = np.random.default_rng(0)
+    c = rng.normal(size=3000)
+    d = c + 0.3 * rng.normal(size=3000)
+    y = c + 0.3 * rng.normal(size=3000)
+    raw = abs(spearman(d, y))
+    dec = abs(decile_stratified_spearman(d, y, c, n_bins=10))
+    assert raw > 0.6 and dec < 0.30 and dec < raw / 2   # reduces a lot, not fully
+
+def test_cubic_fully_removes_linear_confound():
+    # The PRIMARY control removes the linear confound cleanly (residual ~ 0).
+    rng = np.random.default_rng(0)
+    c = rng.normal(size=3000)
+    d = c + 0.3 * rng.normal(size=3000)
+    y = c + 0.3 * rng.normal(size=3000)
+    assert abs(cubic_residual_spearman(d, y, c)) < 0.12
+
+
+def test_decile_strat_survives_with_independent_signal():
+    rng = np.random.default_rng(1)
+    c = rng.normal(size=3000)
+    xsig = rng.normal(size=3000)
+    d = xsig
+    y = c + xsig + 0.3 * rng.normal(size=3000)
+    assert decile_stratified_spearman(d, y, c, n_bins=10) > 0.3
+
+
+def test_decile_strat_survives_nonlinear_control():
+    # control affects y NON-linearly; linear partial would leak, decile strat should not.
+    rng = np.random.default_rng(2)
+    c = rng.uniform(-3, 3, size=4000)
+    d = c + 0.3 * rng.normal(size=4000)
+    y = c**2 + 0.3 * rng.normal(size=4000)  # nonlinear in c, no independent d signal
+    assert abs(decile_stratified_spearman(d, y, c, n_bins=10)) < 0.15
+
+
+def test_stratified_perm_p_detects_and_nulls():
+    rng = np.random.default_rng(3)
+    c = rng.normal(size=600)
+    xsig = rng.normal(size=600)
+    y = c + xsig
+    p_sig = stratified_permutation_p(xsig, y, c, n_bins=5, n_perm=500, seed=0)
+    p_null = stratified_permutation_p(rng.normal(size=600), y, c, n_bins=5, n_perm=500, seed=0)
+    assert p_sig < 0.05 and p_null > 0.05
+
+
+def test_cubic_residual_removes_nonlinear_control():
+    rng = np.random.default_rng(4)
+    c = rng.uniform(-3, 3, size=3000)
+    d = c + 0.3 * rng.normal(size=3000)
+    y = c**2 + 0.3 * rng.normal(size=3000)
+    assert abs(cubic_residual_spearman(d, y, c)) < 0.15
+
+
+def test_mediation_full():
+    # d -> m -> y, no direct path: prop_mediated ~ 1, direct ~ 0.
+    rng = np.random.default_rng(5)
+    d = rng.normal(size=4000)
+    m = d + 0.3 * rng.normal(size=4000)
+    y = m + 0.3 * rng.normal(size=4000)
+    r = rank_mediation(d, y, m)
+    assert r["total"] > 0.3
+    assert abs(r["direct"]) < 0.1
+    assert r["prop_mediated"] > 0.8
+
+
+def test_mediation_none():
+    # d -> y directly, m is independent noise: prop_mediated ~ 0.
+    rng = np.random.default_rng(6)
+    d = rng.normal(size=4000)
+    m = rng.normal(size=4000)
+    y = d + 0.3 * rng.normal(size=4000)
+    r = rank_mediation(d, y, m)
+    assert abs(r["prop_mediated"]) < 0.1
 
 ```
 
@@ -5156,15 +7444,54 @@ def test_contamination_leakage_correlation_wiring():
 \begin{document}
 \maketitle
 
+\begin{abstract}
+\input{abstract}
+\end{abstract}
+
 \input{introduction}
 \input{background}
+\input{threat_model}
 \input{related_work}
 \input{evaluation}
+\input{results}
+\input{discussion}
+\input{limitations}
+\input{conclusion}
 
 \bibliographystyle{plainnat}
 \bibliography{../references}
 
 \end{document}
+
+```
+
+
+### `paper/abstract.tex`
+
+```latex
+% abstract.tex — included by main.tex inside \begin{abstract}...\end{abstract}
+Large language models are ranked and certified as safe on public benchmarks whose validity
+rests on the benchmark not appearing in pre-training. We study \emph{benchmark contamination}
+not as a measurement-hygiene problem but as a privacy/security vulnerability: contamination is a
+visible symptom of memorization, and memorization is the mechanism by which sensitive content
+leaks. Using the Pythia suite trained on the public Pile---so that membership is ground truth
+rather than an inferred label---we run a systematic, pre-registered comparison of existing
+contamination/membership detectors (LOSS, Min-K\%, Min-K\%++, zlib) against a per-item
+\emph{extraction} outcome. We make no claim to a new detector or metric. Our contribution is a
+\emph{controlled} result: a pre-registered partial-correlation and mediation analysis that
+isolates the role of raw per-item loss. We find that the apparent contamination$\rightarrow$leakage
+association is \emph{loss-mediated to the resolution of this experiment}: the calibrated
+reference-free detectors---which are themselves strongly-to-moderately collinear with loss
+(Spearman $0.74$--$0.90$)---add no positive predictive value beyond it, and their residual partials
+are null or, for the most loss-collinear detector (Min-K\%), weakly negative in a manner consistent
+with a suppression artifact rather than substantive inverse prediction. This absence of positive
+residual survives a non-linear (cubic-residual and decile-stratified) loss control and
+deduplication, and is not explained by token frequency or the zero-inflated outcome. We frame this
+as a \emph{membership-detection-versus-leakage-prediction divergence}: the detectors the field
+optimizes for membership are not the right instrument for the privacy question. \textbf{These results are preliminary,
+obtained on the smallest ($160$M) Pythia model on CPU; the pipeline is built so that the
+GPU-scale replication is a single configuration change.} All analyses are pre-registered and every
+number is reproducible from a seeded script.
 
 ```
 
@@ -5256,16 +7583,19 @@ Carlini~et~al.~\cite{carlini2022lira}. Within that honest scope, our contributio
   extraction outcome---prefix-continuation extractable memorization under greedy
   decoding~\cite{carlini2023quantifying}---and, on the Enron Emails subset that already
   sits inside the Pile, against regex-detected PII leakage~\cite{lukas2023pii}. A
-  pre-registered partial-correlation control then isolates the role of raw loss. In our
-  ground-truth $160$M-parameter setting we find that the
-  contamination$\rightarrow$leakage association is carried \emph{entirely by per-item
-  loss}: once loss is held fixed, the calibrated reference-free detectors (Min-K\%,
-  Min-K\%++, zlib) add no predictive value, and Min-K\%/Min-K\%++ are if anything
-  inversely related to extraction. The calibrations that improve membership-detection AUC
-  thus discard the loss-magnitude signal that actually predicts leakage---a divergence
-  between membership detection and leakage prediction that we report as our central
-  empirical finding (robust to deduplication, and not explained by token frequency or the
-  zero-inflated outcome).
+  pre-registered partial-correlation and mediation control then isolates the role of raw
+  loss. In our ground-truth $160$M-parameter setting we find that the
+  contamination$\rightarrow$leakage association is \emph{loss-mediated to the resolution of
+  this experiment}: once loss is held fixed, the calibrated reference-free detectors
+  (Min-K\%, Min-K\%++, zlib) add no positive predictive value. These detectors are
+  themselves near-collinear transforms of loss (Spearman $0.74$--$0.90$), so we read a
+  negative residual for the most collinear of them (Min-K\%) as a likely suppression
+  artifact rather than substantive inverse prediction, and claim only the conservative
+  result: no positive signal beyond loss. The calibrations that improve membership-detection
+  AUC thus do not retain the loss-magnitude signal that predicts leakage---a divergence
+  between membership detection and leakage prediction that we report as our central empirical
+  finding (robust to deduplication and a non-linear loss control, and not explained by token
+  frequency or the zero-inflated outcome).
 \end{itemize}
 We do not propose internal-probe or other novel detectors as contributions, do not train
 or fine-tune models, and do not attack closed production systems for real third-party
@@ -5343,6 +7673,52 @@ on, and (ii)---the focus of this paper---couples directly to \emph{memorization}
 through memorization to the leakage of sensitive content that co-occurs in the same
 weakly filtered corpora. Section~\ref{sec:relatedwork} formalizes contamination, its
 typology, and the detection and memorization literature on which our evaluation builds.
+
+```
+
+
+### `paper/threat_model.tex`
+
+```latex
+% threat_model.tex — standalone Threat Model section (promoted from a subsection).
+\section{Threat Model}
+\label{sec:threat}
+
+We frame contamination detection as a membership/exposure attack and state the adversary
+explicitly, following the convention that a privacy attack must be evaluated by its behaviour at a
+low false-positive operating point rather than on average~\cite{carlini2022lira}.
+
+\paragraph{Adversary goals (graded).}
+\begin{itemize}
+  \item \textbf{G1 --- Membership inference.} Decide whether a specific sequence (a benchmark item,
+  document, or record) was in the training corpus.
+  \item \textbf{G2 --- Benchmark-level contamination confirmation.} Decide, with a controlled
+  false-positive rate, whether an entire benchmark was trained on.
+  \item \textbf{G3 --- Extraction / leakage.} Recover verbatim content---and, on a controlled
+  corpus, PII---that was in training. This is the concrete harm; G1--G2 are of interest largely
+  insofar as they predict G3.
+\end{itemize}
+
+\paragraph{Adversary knowledge and access.} We grade detectors by the minimum access each requires:
+\emph{black-box} (text in, text out; e.g.\ guided prompting, which we do not evaluate),
+\emph{gray-box} (per-token log-probabilities / loss; LOSS, Min-K\%, zlib), and \emph{white-box}
+(the full next-token distribution; Min-K\%++). The corpus-side $n$-gram test instead assumes access
+to the training corpus (available here because the Pile is public) and is used to construct
+ground-truth contamination labels, not as a model-access attack. For our ground-truth experiments
+the \emph{auditor} additionally knows the public training corpus; the modelled attacker does not
+need corpus access for G1/G3.
+
+\paragraph{Success criteria.} G1: true-positive rate at $0.1\%$ and $1\%$ false-positive rate
+(log-scale ROC), with AUC secondary and bootstrap confidence intervals. G2: a permutation-test
+$p$-value below threshold with a controlled false-positive rate~\cite{oren2024proving}. G3: a
+non-zero extraction rate, and---our headline analysis---a positive association between a per-item
+contamination score and the per-item extraction outcome that \emph{survives controlling for raw
+loss}. The last criterion is what distinguishes a contamination signal that genuinely predicts
+leakage from one that merely restates the model's loss.
+
+\paragraph{Out of scope.} We do not attack closed production models for real third-party PII, do not
+train or fine-tune models, and propose no new detector. Differential privacy is discussed as the
+producer-side mitigation our threat model motivates (Section~\ref{sec:dp}), not implemented.
 
 ```
 
@@ -5544,6 +7920,59 @@ membership on the Pythia suite~\cite{biderman2023pythia} trained on the public
 Pile~\cite{gao2020pile}, under the low-FPR protocol, with explicit controls for the
 frequency, duplication, and temporal confounds that prior work identifies.
 
+\subsection{Closest prior work, and how we differ}
+\label{sec:closest}
+Three recent works reach conclusions adjacent to ours, and we are careful to position
+against them rather than overclaim. Al Sahili et al.~\cite{alsahili2025effectiveness}
+reach a compatible conclusion for targeted extraction---that ``complex MIA techniques
+yield only marginal improvements over simple likelihood-based ranking''---but they
+establish it through aggregate \emph{ranking-precision} comparisons and an AdaBoost
+ensemble over MIA features, reporting \emph{marginal gains} rather than testing for
+independent signal. In contrast, we run a pre-registered \emph{partial correlation
+controlling for raw per-item loss}, which lets us state the stronger, calibrated claim
+that the reference-free detectors contribute \emph{zero or negative} residual predictive
+value once loss is partialled out. Hayes et al.~\cite{hayes2025strong} likewise
+``observe no correlation with MIA success'' for extraction and conclude the ``two privacy
+attacks may capture different signals,'' but their evidence is a \emph{direct, zero-order}
+correlation between a reference-model attack (LiRA) and extraction. We differ on both
+method and object: we \emph{partial out per-item loss} rather than correlating directly,
+and we target the reference-free \emph{calibrated} detectors (Min-K\%, Min-K\%++, zlib)
+that the contamination-detection literature actually deploys, showing the divergence
+persists as a controlled mediation result. Independently, Chen et
+al.~\cite{chen2025statistical} find for the \emph{membership} task that the few detectors
+numerically above the loss baseline (Min-K\%, Min-K\%++, ReCaLL) do not beat it robustly
+once random-seed variance is accounted for, and that performance is domain-dependent
+(code-like, low-token-diversity domains such as GitHub and StackExchange behave
+differently from Wikipedia and FreeLaw); we revisit this domain dependence for the
+\emph{extraction} outcome in our per-domain analysis (Section~\ref{sec:eval}), noting it
+is a distinct axis from their membership-AUC result. Finally, blind-baseline and SoK
+critiques~\cite{das2024blind,meeus2025sok} show that post-hoc member/non-member splits can
+make detector ``success'' an artifact of distribution shift; our use of ground-truth Pile
+membership (no post-hoc split) is precisely the design discipline they call for.
+
+\begin{table}[t]
+\centering
+\footnotesize
+\setlength{\tabcolsep}{4pt}
+\begin{tabular}{@{}p{2.1cm}p{1.6cm}p{1.9cm}p{2.0cm}p{2.4cm}@{}}
+\toprule
+\textbf{Study} & \textbf{Outcome} & \textbf{Detectors} & \textbf{Statistical method} & \textbf{Conclusion} \\
+\midrule
+Shi'24; Zhang'25~\cite{shi2024detecting,zhang2025minkpp} & membership & reference-free (Min-K\%/++) & AUC / TPR@FPR & detector raises membership AUC \\
+Duan'24 (MIMIR)~\cite{duan2024mia} & membership & ref-free + reference & AUC on ground truth & MIAs $\approx$ chance on LLMs \\
+Carlini'22 (LiRA)~\cite{carlini2022lira} & membership & shadow/reference & TPR at low FPR & strong only with shadow models \\
+Chen'25~\cite{chen2025statistical} & membership & reference-free & seed-variance testing vs loss & not robustly beyond loss \\
+Hayes'25~\cite{hayes2025strong} & membership \& extraction & LiRA (reference) & direct (zero-order) correlation & MIA $\neq$ extraction \\
+Al Sahili'25~\cite{alsahili2025effectiveness} & extraction (targeted) & ref-free + AdaBoost & ranking precision; ensemble & marginal gains over likelihood \\
+\textbf{This work} & \textbf{extraction} & \textbf{ref-free calibrated} & \textbf{partial corr.\ + mediation (control loss)} & \textbf{zero/negative residual beyond loss} \\
+\bottomrule
+\end{tabular}
+\caption{Where this work sits. To our knowledge it is the only study that pairs a per-item
+\emph{extraction} outcome with a \emph{partial-correlation/mediation} control for raw loss
+on \emph{calibrated reference-free} detectors, yielding a quantified zero/negative marginal.}
+\label{tab:closest}
+\end{table}
+
 ```
 
 
@@ -5700,6 +8129,280 @@ logged harness run.
     \bottomrule
   \end{tabular}
 \end{table*}
+
+```
+
+
+### `paper/results.tex`
+
+```latex
+% results.tex — PRELIMINARY results (Pythia-160m, CPU). Every number traces to findings.md
+% and a seeded script. Tables are structured so GPU-scaled rows drop in without restructuring.
+\section{Results}
+\label{sec:results}
+
+\textbf{All results in this section are preliminary, obtained on Pythia-$160$M on CPU with $N=300$
+ground-truth Pile members (seed $0$); larger-model rows are left for the GPU replication.} Every
+number is reproducible from a seeded script and recorded in our results ledger.
+
+\subsection{Membership separation is at chance on a confound-clean split}
+\label{sec:res-membership}
+We first reproduce, as a control, the known weakness of membership inference on pre-trained
+LLMs~\cite{duan2024mia}. On a confound-clean split (members = Pile train, non-members = Pile
+validation, stratified across $22$ Pile subsets to match domain), all four detectors sit at chance
+at $160$M (Table~\ref{tab:membership}); on the temporally-confounded WikiMIA split the same model
+shows a spurious $0.52$--$0.56$, and a $1.4$B model rises further---evidence that the WikiMIA signal
+is substantially distribution shift, not membership.
+
+\begin{table}[t]
+\centering\footnotesize\setlength{\tabcolsep}{4pt}
+\begin{tabular}{@{}lcccc@{}}
+\toprule
+Construction (model) & LOSS & Min-K\% & Min-K\%++ & zlib \\
+\midrule
+Pile train-vs-val, clean ($160$M) & 0.454 & 0.470 & 0.490 & 0.484 \\
+WikiMIA-64, confounded ($160$M) & 0.523 & 0.539 & 0.545 & 0.564 \\
+WikiMIA-64, confounded ($1.4$B) & 0.571 & 0.580 & 0.547 & 0.616 \\
+\bottomrule
+\end{tabular}
+\caption{Membership AUC. Chance ($\approx0.5$) on the confound-clean split at $160$M; the WikiMIA
+``signal'' is largely temporal/topical distribution shift. CIs in the ledger; deduplicated Pythia
+gives the same chance-level result.}
+\label{tab:membership}
+\end{table}
+
+\subsection{Contamination predicts leakage --- but only through loss}
+\label{sec:res-headline}
+Our headline analysis correlates each per-item detector score with the per-item extraction outcome
+(prefix-continuation extractable memorization under greedy decoding~\cite{carlini2023quantifying}),
+then controls for raw loss. Table~\ref{tab:headline} reports, for each calibrated detector, the
+zero-order Spearman $\rho$, the linear partial $\rho$ given loss, the non-linear (cubic-residual)
+partial $\rho$ with bootstrap CI, the FDR-corrected permutation $q$, and the mediation decomposition.
+
+\begin{table}[t]
+\centering\footnotesize\setlength{\tabcolsep}{3.5pt}
+\begin{tabular}{@{}lccccc@{}}
+\toprule
+Detector & zero-order & partial$\mid$loss & cubic-resid.\ [95\% CI] & BH-$q$ & mediation: direct $\mid$ indirect \\
+\midrule
+LOSS & $+0.275$ & --- & --- & --- & (mediator) \\
+Min-K\% & $+0.173$ & $-0.178$ & $-0.110$ $[-0.234,-0.002]$ & $0.058$ & $-0.394 \mid +0.567$ \\
+Min-K\%++ & $+0.108$ & $-0.148$ & $-0.160$ $[-0.287,-0.041]$ & $\mathbf{0.015}$ & $-0.213 \mid +0.321$ \\
+zlib & $+0.177$ & $-0.042$ & $-0.052$ $[-0.165,+0.068]$ & $0.331$ & $-0.061 \mid +0.238$ \\
+\bottomrule
+\end{tabular}
+\caption{Headline: per-item contamination score vs.\ extraction (Spearman $\rho$), Pythia-$160$M,
+$N=300$ members. The positive zero-order correlations collapse to $\approx 0$ or significantly
+\emph{negative} once loss is controlled---linearly, and under the non-linear cubic-residual control
+(no positive signal revives; deciles and the deduplicated arm agree). Mediation: the loss-mediated
+\emph{indirect} effect is significantly positive for all three detectors while the \emph{direct}
+effect is null (zlib) or negative (Min-K\%, Min-K\%++). We read this as a \emph{descriptive}
+decomposition, not a causal mediation claim (see below): no calibrated detector adds positive signal
+beyond loss.}
+\label{tab:headline}
+\end{table}
+
+\paragraph{Collinearity caveat (why we do not over-read the negative partials).} The calibrated
+detectors are deterministic transforms of the same per-token log-probabilities as loss, and are
+empirically collinear with it: Spearman $\rho(\text{loss},\cdot)=0.90$ (Min-K\%), $0.74$ (Min-K\%++),
+$0.74$ (zlib), with variance-inflation factors $6.2$, $2.6$, $2.4$. The strongest negative partial
+(Min-K\%, the most loss-collinear detector at VIF $6.2$) is therefore consistent with a
+\emph{suppression artifact} of near-collinearity rather than substantive inverse prediction; we do
+not claim the calibrated detectors \emph{negatively} predict leakage. The defensible, conservative
+statement is that they carry \emph{no positive} leakage signal independent of loss. Min-K\%++ and
+zlib have only moderate collinearity (VIF $<3$), so their null/near-null residuals are less
+attributable to collinearity.
+
+\noindent The pre-registered decision rule asked whether any calibrated detector predicts leakage
+\emph{beyond} loss (a positive partial $\rho$, CI excluding zero, FDR-significant). None does, under
+the linear or the non-linear control. \textbf{Power note:} with $N=300$ and a near-degenerate
+outcome ($3/300$ fully extracted), this is evidence of \emph{no positive independent signal of
+appreciable size}, not proof of an exact null; the analysis is well-powered only for moderate-to-large
+positive residuals, and a small positive effect at scale is not excluded (hence the GPU replication).
+The per-domain breakdown (ledger) shows the loss$\leftrightarrow$extraction link is heterogeneous and
+sign-flipping across domains---strongest in templated/structured domains (GitHub, StackExchange),
+reversed in some prose domains (PubMed Abstracts)---so the pooled $\rho$ is a domain-mixture, not a
+uniform effect.
+
+\subsection{Extraction and PII at this scale}
+\label{sec:res-extraction}
+Extractable memorization is rare at $160$M: $3/300$ members are fully extractable (exact-match
+extraction rate $0.010$; mean fractional extraction $0.037$), the fully-extracted items being
+templated boilerplate. On the Enron-Emails-in-Pile subset we measured \emph{zero} verbatim PII
+leakage ($8/36$ documents contained PII in the held suffix; none were regurgitated). We report the
+PII result as a null at this scale and make no PII-exposure claim; both quantities are expected to
+grow with model scale.
+
+\subsection{Benchmark contamination (model-free $n$-gram + permutation test)}
+\label{sec:res-matrix}
+We complement the per-item analysis with two benchmark-level contamination tests
+(Table~\ref{tab:matrix}). The model-free $n$-gram overlap against a public \emph{sample} of the Pile
+($10$k documents) is a scale-invariant method but, with a sampled reference, yields only a loose
+\emph{lower bound}: overlap is near-zero for MMLU ($0.2\%$ at $13$-grams), GSM8K ($0\%$), and
+HumanEval ($0\%$ at $13$-grams), which certifies overlap is \emph{at least} this small and is
+uninformative about true contamination---a full-Pile index (infrastructure-, not GPU-, gated) is
+required for a real rate. The Oren permutation/exchangeability test~\cite{oren2024proving} at $160$M
+finds the canonical ordering favoured beyond chance for MMLU ($p=0.001$) and GSM8K ($p=0.013$) but
+not HumanEval ($p=0.875$); we draw \emph{no} contamination conclusion from this, as the test is
+membership-based, run at sanity scale (small $k$, smallest model), and subject to a fluency/orientation
+artifact---it is flagged GPU-gated and requires a fluency-control baseline before any claim.
+
+\begin{table}[t]
+\centering\footnotesize\setlength{\tabcolsep}{4pt}
+\begin{tabular}{@{}lccc@{}}
+\toprule
+Benchmark & $13$-gram overlap (lower bound) & $8$-gram overlap & Oren $p$ ($160$M, sanity) \\
+\midrule
+MMLU & $0.2\%$ & $0.8\%$ & $0.001$ \\
+GSM8K & $0.0\%$ & $0.0\%$ & $0.013$ \\
+HumanEval & $0.0\%$ & $1.8\%$ & $0.875$ \\
+\bottomrule
+\end{tabular}
+\caption{Benchmark-level contamination at small scale. $n$-gram cells are a \emph{lower bound}
+against a $10$k Pile sample (method scale-invariant, reference under-powered); Oren $p$-values are
+sanity-scale at $160$M and GPU-gated (no contamination conclusion drawn). See
+\texttt{docs/contamination\_matrix.md}.}
+\label{tab:matrix}
+\end{table}
+
+```
+
+
+### `paper/discussion.tex`
+
+```latex
+% discussion.tex
+\section{Discussion}
+\label{sec:discussion}
+
+\paragraph{Membership detection and leakage prediction diverge.} The central empirical observation
+is that the contamination/membership signal which predicts \emph{extraction} is, to the resolution
+of our experiment, \emph{just raw loss}. The reference-free detectors that the contamination-detection
+literature has invested in---Min-K\%, Min-K\%++, zlib---improve membership ranking by re-calibrating
+the per-token likelihood (z-scoring against the vocabulary, compressing, or trimming to the
+lowest-probability tokens), but in doing so they discard precisely the loss-magnitude information
+that tracks how extractable an item is. A descriptive mediation decomposition is consistent with
+this---the loss-mediated (indirect) path is positive for all three detectors while the direct paths
+are null or negative---but we read it descriptively, not causally: the detectors are near-collinear
+transforms of loss (Spearman up to $0.90$; VIF up to $6.2$), so a negative direct/partial term is
+consistent with statistical suppression rather than genuine inverse prediction. We therefore claim
+only the conservative version: the calibrated detectors add \emph{no positive} leakage signal beyond
+loss. A practitioner who wants to know \emph{which contaminated items the model will actually leak}
+is, on this evidence, no better served by a state-of-the-art membership detector than by raw loss.
+This is the sense in which membership detection and leakage prediction are different tasks.
+
+\paragraph{Why this is a security result, not a leaderboard result.} Our finding is deliberately
+\emph{not} ``we built a better detector.'' It is that the privacy question---will contamination of a
+benchmark expose a leakage channel?---is mis-served by importing the membership-inference toolkit
+wholesale. For an auditor of a released model, the actionable implication is to measure
+loss/extractability directly and to treat a high Min-K\%/Min-K\%++ score as evidence about
+membership, not about leakage risk. This reframing is the contribution; the detectors themselves are
+prior work.
+
+\paragraph{Relation to concurrent work.} Our direction agrees with two recent results and we do not
+claim the bottom line is surprising: Al Sahili et al.~\cite{alsahili2025effectiveness} report only
+``marginal'' gains of MIA scores over likelihood ranking for targeted extraction, and Hayes et
+al.~\cite{hayes2025strong} find no correlation between (LiRA) membership success and extraction. We
+add the controlled, mechanistic form of the claim---a pre-registered partial-correlation/mediation
+that quantifies a \emph{zero-to-negative} residual for the calibrated reference-free detectors after
+loss is removed---and we target the reference-free detectors the contamination literature actually
+deploys rather than a shadow-model attack. Chen et al.~\cite{chen2025statistical} independently find
+these detectors do not robustly beat the loss baseline for \emph{membership} once seed variance is
+accounted for; our result is the extraction-outcome analogue.
+
+\paragraph{Defenses.} Because the leakage we measure is downstream of memorization, the principled
+mitigation is differential privacy applied at training time~\cite{abadi2016deep,li2022dpllm}; it is a
+producer-side control, not an auditor-side detector, and bounds the very quantity (loss-magnitude /
+memorization) our analysis identifies as the operative one.
+
+```
+
+
+### `paper/limitations.tex`
+
+```latex
+% limitations.tex — candid; each item ties to a logged result or a known gap.
+\section{Limitations}
+\label{sec:limitations}
+
+We state the limitations plainly; several bound the strength of the present claims and motivate the
+GPU-scale replication the pipeline is built for.
+
+\begin{itemize}
+  \item \textbf{Single, smallest model.} All results are on Pythia-$160$M (CPU). Memorization grows
+  log-linearly with model scale~\cite{carlini2023quantifying}, so both the membership signal and the
+  extraction outcome are expected to be stronger at $1.4$B--$12$B. The present numbers are
+  \emph{preliminary}; we have built every analysis so the larger-model run is a one-line
+  configuration change.
+  \item \textbf{Chance-level membership separation.} On the confound-clean Pile train-vs-val split,
+  membership AUC is at chance ($0.45$--$0.49$) at $160$M, consistent with~\cite{duan2024mia}. The
+  divergence result is therefore established in a regime where the membership signal is itself weak;
+  whether the calibrated detectors gain \emph{independent} leakage-predictive value once membership
+  separation becomes non-trivial at scale is an open question our design is poised to answer.
+  \item \textbf{Near-degenerate extraction outcome.} Extractable memorization at $160$M is rare
+  ($3/300$ items fully extracted; mean fractional extraction $0.037$), so the correlation analysis
+  leans on a small high-extraction tail. We mitigate with rank statistics, bootstrap CIs, and a
+  zero-robust Kendall check, but a less zero-inflated outcome at scale would sharpen all estimates.
+  \item \textbf{PII not yet demonstrated.} On the Enron-in-Pile subset we observed \emph{zero}
+  verbatim PII leakage at $160$M ($8/36$ documents contained PII in the held suffix; none were
+  regurgitated). The PII limb of the threat model is thus a designed capability with a null result at
+  this scale, not a demonstrated leak; we report it as such and do not claim PII exposure.
+  \item \textbf{Benchmark-level test underpowered.} The Oren permutation/exchangeability test is run
+  only at sanity scale on $160$M; membership-based, it is underpowered here and is flagged as
+  GPU-gated rather than used to draw contamination conclusions.
+  \item \textbf{$n$-gram contamination is a lower bound.} Our model-free $n$-gram overlap uses a
+  public \emph{sample} of the Pile as the reference index, so measured benchmark$\leftrightarrow$Pile
+  overlap underestimates the true overlap against the full corpus.
+  \item \textbf{Observational, members-only correlation.} The headline analysis correlates detector
+  scores with extraction across known members; it is observational, not interventional. We address
+  the most important confound (loss) by pre-registered partial correlation and mediation, and the
+  obvious alternatives (frequency, duplication, non-linearity, distribution shift) by explicit
+  controls, but residual confounding cannot be excluded.
+  \item \textbf{Collinearity of detectors with loss.} The calibrated detectors are deterministic
+  transforms of the same per-token log-probabilities as loss and are empirically collinear with it
+  (Spearman $0.74$--$0.90$; VIF up to $6.2$ for Min-K\%). Consequently we interpret the negative
+  partial/direct terms as possible \emph{suppression artifacts} of near-collinearity and claim only
+  the conservative ``no positive residual'' result; we do not assert the detectors inversely predict
+  leakage.
+  \item \textbf{Construct validity of the leakage proxy.} The outcome (greedy prefix-continuation
+  extraction over the held suffix) is itself likelihood-related, so part of the loss$\leftrightarrow$
+  extraction association is mechanical/definitional. Our control removes the loss component, but a
+  decisive separation would compute prefix-only loss against extraction; we flag this as a known
+  construct-validity limitation rather than claiming the two are independent by construction.
+  \item \textbf{Selection and aggregation.} Members are drawn from a non-uniform public Pile sample
+  (\texttt{pile-10k}), so member-selection bias is possible; and the pooled correlation aggregates
+  domains whose effects flip sign (Section~\ref{sec:res-headline}), so the pooled $\rho$ should be
+  read as a domain-mixture, not a homogeneous effect.
+  \item \textbf{Linearity (now addressed).} An earlier version controlled for loss only linearly; we
+  added a cubic-residual and decile-stratified non-linear control, under which no positive
+  independent signal revives. We note it here because it was a live threat to the claim until tested.
+\end{itemize}
+
+```
+
+
+### `paper/conclusion.tex`
+
+```latex
+% conclusion.tex
+\section{Conclusion}
+\label{sec:conclusion}
+
+We argued that benchmark contamination is best understood as a privacy/security vulnerability and
+asked, on models with ground-truth public training data, whether the contamination/membership signal
+that a benchmark leaks actually predicts concrete extraction. Using a pre-registered partial-correlation
+and mediation analysis that controls for raw per-item loss, we found that it does---but only through
+loss: the calibrated reference-free detectors (Min-K\%, Min-K\%++, zlib) add no independent
+predictive value beyond loss, and two are negatively associated with extraction once loss is held
+fixed. The result is robust to a non-linear loss control and to deduplication, and is not a frequency
+or zero-inflation artifact. The practical message is a divergence: the detectors optimized for
+membership inference are not the right instrument for the leakage question, and an auditor should
+measure loss/extractability directly. We claim no new detector or metric; the contribution is the
+security reframing and the controlled, pre-registered measurement. These findings are preliminary, on
+the smallest Pythia model; the immediate next step---and the design target of our released
+pipeline---is the GPU-scale replication across model sizes, where memorization, extraction, and any
+PII leakage are expected to strengthen, and where the question of whether calibrated detectors gain
+independent leakage-predictive value at scale can be settled.
 
 ```
 
@@ -5940,6 +8643,80 @@ correlation:
   booktitle = {The Thirteenth International Conference on Learning Representations (ICLR)},
   year      = {2025},
   eprint    = {2311.17035},
+  archivePrefix = {arXiv}
+}
+
+% VERIFIED arXiv:2512.13352 (submitted 15 Dec 2025; abs + arXiv HTML v1 read). CLOSEST PRIOR WORK. Integrates MIA scores
+% (LOSS, Min-K%, Min-K%++, zlib, S-ReCaLL, lowercase, ...) into a targeted-extraction pipeline; evaluates by ranking
+% precision (proportion of correctly extracted suffixes among top-ranked outputs) and an AdaBoost ensemble over all MIA
+% features. Verified quotes: "complex MIA techniques yield only marginal improvements over simple likelihood-based ranking";
+% "while certain methods (e.g., S-ReCaLL, Min K%) achieve consistent but marginal gains over the baseline ranking, most
+% approaches perform comparably to the baseline"; "methods such as lowercase and Min-K%++ systematically underperform".
+% Does NOT use partial correlation / residualization / mediation (verified NOT FOUND). Venue: arXiv preprint only as of read.
+@misc{alsahili2025effectiveness,
+  title         = {On the Effectiveness of Membership Inference in Targeted Data Extraction from Large Language Models},
+  author        = {Al Sahili, Ali and Chehab, Ali and Tajeddine, Razane},
+  year          = {2025},
+  eprint        = {2512.13352},
+  archivePrefix = {arXiv},
+  primaryClass  = {cs.CR}
+}
+
+% VERIFIED arXiv:2505.18773 ; NeurIPS 2025 (comment field states NeurIPS 2025; v1 24 May 2025, v2 2 Nov 2025, v3 8 Jan 2026).
+% NOTE: TITLE CHANGED across versions — arXiv v1 header was "Strong Membership Inference Attacks on Massive Datasets and
+% (Moderately) Large LLMs"; current/published title (v3, used here) is below. Scales LiRA to GPT-2-style LMs (10M-1B).
+% Verified quotes: "We also study if there is any relationship between training data extraction and MIA, and observe no
+% correlation with MIA success"; "This suggests that the two privacy attacks may capture different signals related to
+% memorization"; "we observe no correlation between MIA and standard extraction methodology". Direct correlation, not
+% partial/residualized.
+@inproceedings{hayes2025strong,
+  title     = {Exploring the Limits of Strong Membership Inference Attacks on Large Language Models},
+  author    = {Hayes, Jamie and Shumailov, Ilia and Choquette-Choo, Christopher A. and Jagielski, Matthew and Kaissis, Georgios and Nasr, Milad and Ghalebikesabi, Sahra and Annamalai, Meenatchi Sundaram Mutu Selva and Mireshghallah, Niloofar and Shilov, Igor and Meeus, Matthieu and de Montjoye, Yves-Alexandre and Lee, Katherine and Boenisch, Franziska and Dziedzic, Adam and Cooper, A. Feder},
+  booktitle = {Advances in Neural Information Processing Systems 38 (NeurIPS 2025)},
+  year      = {2025},
+  eprint    = {2505.18773},
+  archivePrefix = {arXiv}
+}
+
+% VERIFIED arXiv:2412.13475 (submitted 18 Dec 2024) ; ACL 2025 (Proc. 63rd ACL, Vol. 1: Long Papers, Vienna), pp. 22854--22874.
+% Statistical re-analysis of MIA on LLMs over thousands of runs. Verified quotes: "Loss baseline is only outperformed by
+% Min-k% ++, Min-k%, and ReCaLL" BUT "their performance gap is within the variance from random seeds"; per-domain:
+% "Wikipedia (en) and FreeLaw show statistically better performance compared to other domains"; "GitHub and StackExchange
+% are related to codes that have less token diversity compared to FreeLaw and Wikipedia". Corroborates loss-baseline parity +
+% per-domain strata. [VERIFY] exact ACL Anthology ID (pages/venue confirmed; e.g. anthology page 22854 lands in this paper).
+@inproceedings{chen2025statistical,
+  title     = {A Statistical and Multi-Perspective Revisiting of the Membership Inference Attack in Large Language Models},
+  author    = {Chen, Bowen and Han, Namgi and Miyao, Yusuke},
+  booktitle = {Proceedings of the 63rd Annual Meeting of the Association for Computational Linguistics (ACL), Volume 1: Long Papers},
+  pages     = {22854--22874},
+  year      = {2025},
+  eprint    = {2412.13475},
+  archivePrefix = {arXiv}
+}
+
+% VERIFIED arXiv:2406.16201 (submitted 23 Jun 2024; rev 30 Mar 2025) ; DATA-FM @ ICLR 2025 / IEEE DLSP Workshop 2025.
+% Verified claim: "blind attacks -- that distinguish the member and non-member distributions without looking at any trained
+% model -- outperform state-of-the-art MI attacks", across 8 published MIA-for-foundation-model datasets; evaluation flaw =
+% member/non-member sampled from different distributions. [VERIFY] precise workshop proceedings string for camera-ready.
+@misc{das2024blind,
+  title         = {Blind Baselines Beat Membership Inference Attacks for Foundation Models},
+  author        = {Das, Debeshee and Zhang, Jie and Tram{\`e}r, Florian},
+  year          = {2024},
+  eprint        = {2406.16201},
+  archivePrefix = {arXiv},
+  primaryClass  = {cs.LG}
+}
+
+% VERIFIED arXiv:2406.17975 (submitted 25 Jun 2024; rev 7 Mar 2025) ; IEEE Conf. on Secure and Trustworthy ML (SaTML) 2025.
+% SoK: most recent LLM-MIA work suffers from post-hoc dataset construction inducing member/non-member distribution shift.
+% Verified quote: shifts "invalidate the claims of LLMs memorizing strongly in real-world scenarios and, potentially, also the
+% methodological contributions of the recent papers based on these datasets". Motivates ground-truth membership (we use Pile).
+@inproceedings{meeus2025sok,
+  title     = {{SoK}: Membership Inference Attacks on {LLM}s are Rushing Nowhere (and How to Fix It)},
+  author    = {Meeus, Matthieu and Shilov, Igor and Jain, Shubham and Faysse, Manuel and Rei, Marek and de Montjoye, Yves-Alexandre},
+  booktitle = {2025 IEEE Conference on Secure and Trustworthy Machine Learning (SaTML)},
+  year      = {2025},
+  eprint    = {2406.17975},
   archivePrefix = {arXiv}
 }
 
@@ -6287,6 +9064,171 @@ correlation:
 
 
 # PART 8 — RAW RESULT SUMMARIES (the actual numbers)
+
+
+### `results/collinearity_pythia-160m.json`
+
+```json
+{
+  "tag": "pythia-160m",
+  "n": 300,
+  "detector_vs_loss": {
+    "min_20_prob": {
+      "pearson": 0.915499474254246,
+      "spearman": 0.900627784753164,
+      "vif": 6.1781514716477535,
+      "cond": 4.7611439582949755
+    },
+    "min_20_plusplus": {
+      "pearson": 0.7861822158997075,
+      "spearman": 0.7415655729508106,
+      "vif": 2.61836637159152,
+      "cond": 2.8902869918562155
+    },
+    "zlib_ratio": {
+      "pearson": 0.763795355026861,
+      "spearman": 0.7443064922943589,
+      "vif": 2.4002880980965022,
+      "cond": 2.7326240129768573
+    }
+  }
+}
+```
+
+
+### `results/contamination_matrix.json`
+
+```json
+{
+  "seed": 0,
+  "model": "EleutherAI/pythia-160m",
+  "device": "cpu",
+  "ngram_n_primary": 13,
+  "ngram_n_secondary": 8,
+  "loaders_used": {
+    "MMLU": {
+      "loader": "cais/mmlu",
+      "config": "all",
+      "split": "test",
+      "total_in_split": 14042,
+      "n_sampled": 500,
+      "text_field": "question + choices"
+    },
+    "GSM8K": {
+      "loader": "openai/gsm8k",
+      "config": "main",
+      "split": "test",
+      "total_in_split": 1319,
+      "n_sampled": 500,
+      "text_field": "question"
+    },
+    "HumanEval": {
+      "loader": "openai_humaneval",
+      "config": null,
+      "split": "test",
+      "total_in_split": 164,
+      "n_sampled": 164,
+      "text_field": "prompt"
+    }
+  },
+  "pile_reference": {
+    "loader": "NeelNanda/pile-10k",
+    "n_docs": 10000,
+    "is_sample": true,
+    "caveat": "SAMPLE of the Pile; measured overlap is a LOWER BOUND on true benchmark<->Pile overlap"
+  },
+  "ngram_index_sizes": {
+    "n13": 8844899,
+    "n8": 8826152
+  },
+  "mx1_ngram_overlap": {
+    "MMLU": {
+      "n13": {
+        "n_items": 500,
+        "n_with_any_overlap": 1,
+        "contamination_rate": 0.002,
+        "mean_overlap_fraction": 0.0003481781376518219,
+        "max_overlap_fraction": 0.17408906882591094
+      },
+      "n8": {
+        "n_items": 500,
+        "n_with_any_overlap": 4,
+        "contamination_rate": 0.008,
+        "mean_overlap_fraction": 0.000538825254136259,
+        "max_overlap_fraction": 0.21031746031746032
+      }
+    },
+    "GSM8K": {
+      "n13": {
+        "n_items": 500,
+        "n_with_any_overlap": 0,
+        "contamination_rate": 0.0,
+        "mean_overlap_fraction": 0.0,
+        "max_overlap_fraction": 0.0
+      },
+      "n8": {
+        "n_items": 500,
+        "n_with_any_overlap": 0,
+        "contamination_rate": 0.0,
+        "mean_overlap_fraction": 0.0,
+        "max_overlap_fraction": 0.0
+      }
+    },
+    "HumanEval": {
+      "n13": {
+        "n_items": 164,
+        "n_with_any_overlap": 0,
+        "contamination_rate": 0.0,
+        "mean_overlap_fraction": 0.0,
+        "max_overlap_fraction": 0.0
+      },
+      "n8": {
+        "n_items": 164,
+        "n_with_any_overlap": 3,
+        "contamination_rate": 0.018292682926829267,
+        "mean_overlap_fraction": 0.0003608294970963761,
+        "max_overlap_fraction": 0.02631578947368421
+      }
+    }
+  },
+  "mx2_oren_permutation": {
+    "params": {
+      "model": "EleutherAI/pythia-160m",
+      "device": "cpu",
+      "n_permutations": 1000,
+      "oren_k": 30,
+      "oren_words": 20
+    },
+    "status": "UNDERPOWERED / sanity-scale at 160m; membership-based => GPU-gated; no contamination conclusions drawn",
+    "results": {
+      "MMLU": {
+        "p_value": 0.000999000999000999,
+        "canonical_loglik": -2894.898483040277,
+        "null_mean": -2975.3968578770023,
+        "null_std": 17.666704121953195,
+        "k_used": 30,
+        "oren_words": 20
+      },
+      "GSM8K": {
+        "p_value": 0.012987012987012988,
+        "canonical_loglik": -2974.4482324664714,
+        "null_mean": -3020.4698257266637,
+        "null_std": 21.403014032172695,
+        "k_used": 30,
+        "oren_words": 20
+      },
+      "HumanEval": {
+        "p_value": 0.8751248751248751,
+        "canonical_loglik": -2152.8440884390147,
+        "null_mean": -2125.686296417913,
+        "null_std": 23.375151428701166,
+        "k_used": 30,
+        "oren_words": 20
+      }
+    }
+  }
+}
+```
 
 
 ### `results/controls_pythia-160m-deduped.json`
@@ -6695,6 +9637,532 @@ correlation:
         0.2945947621618041
       ],
       "rho_extracted": 0.1642141677550078
+    }
+  }
+}
+```
+
+
+### `results/hardening_pythia-160m-deduped.json`
+
+```json
+{
+  "tag": "pythia-160m-deduped",
+  "n": 300,
+  "detectors": {
+    "min_20_prob": {
+      "zero_order_rho": 0.22121462407949116,
+      "linear_partial_rho": -0.1331080191943897,
+      "cubic_residual_rho": -0.10104423382482028,
+      "cubic_residual_ci": [
+        -0.22225370673564698,
+        0.011251661417769288
+      ],
+      "cubic_residual_perm_p": 0.0559720139930035,
+      "decile_rho": -0.06922384277751274,
+      "decile_ci": [
+        -0.19643773223913,
+        0.04183615585214216
+      ],
+      "decile_perm_p": 0.24187906046976512,
+      "mediation": {
+        "a": 0.8862107356748408,
+        "b": 0.5572504788685871,
+        "direct": -0.27262673275379684,
+        "indirect": 0.4938413568332879,
+        "total": 0.22121462407949105,
+        "prop_mediated": 2.23240827268197
+      },
+      "mediation_ci": {
+        "direct": [
+          -0.48937147646682794,
+          -0.02409699848075331
+        ],
+        "indirect": [
+          0.27877223106824284,
+          0.7001344264818279
+        ],
+        "total": [
+          0.10718667147304498,
+          0.33121418829472943
+        ]
+      }
+    },
+    "min_20_plusplus": {
+      "zero_order_rho": 0.1609711485687338,
+      "linear_partial_rho": -0.1414484590042969,
+      "cubic_residual_rho": -0.1105256725074723,
+      "cubic_residual_ci": [
+        -0.24088184396639675,
+        0.004093729220062657
+      ],
+      "cubic_residual_perm_p": 0.034482758620689655,
+      "decile_rho": -0.099440898947689,
+      "decile_ci": [
+        -0.20867946538444024,
+        0.026235102996679107
+      ],
+      "decile_perm_p": 0.0814592703648176,
+      "mediation": {
+        "a": 0.7774241936021512,
+        "b": 0.4815401391876292,
+        "direct": -0.21338980582627654,
+        "indirect": 0.3743609543950103,
+        "total": 0.1609711485687338,
+        "prop_mediated": 2.325640077266146
+      },
+      "mediation_ci": {
+        "direct": [
+          -0.3786452039044205,
+          -0.04261508728873224
+        ],
+        "indirect": [
+          0.2363692641240624,
+          0.5099389438061609
+        ],
+        "total": [
+          0.04960133516392355,
+          0.2672332730841154
+        ]
+      }
+    },
+    "zlib_ratio": {
+      "zero_order_rho": 0.22013961420955383,
+      "linear_partial_rho": -0.01644769489408432,
+      "cubic_residual_rho": -0.018299314436827075,
+      "cubic_residual_ci": [
+        -0.13362245580905868,
+        0.10799591143055379
+      ],
+      "cubic_residual_perm_p": 0.7186406796601699,
+      "decile_rho": 0.04094796861173581,
+      "decile_ci": [
+        -0.056006894573656825,
+        0.16005507459716176
+      ],
+      "decile_perm_p": 0.48875562218890556,
+      "mediation": {
+        "a": 0.7311574573050811,
+        "b": 0.33237237884331156,
+        "direct": -0.022876929183963016,
+        "indirect": 0.2430165433935168,
+        "total": 0.2201396142095538,
+        "prop_mediated": 1.1039200930105482
+      },
+      "mediation_ci": {
+        "direct": [
+          -0.1735312948128743,
+          0.13150673013634911
+        ],
+        "indirect": [
+          0.13044989596693182,
+          0.3573263344470519
+        ],
+        "total": [
+          0.10500953083811335,
+          0.33090415818389174
+        ]
+      }
+    }
+  },
+  "St1_family": {
+    "control": "cubic_residual",
+    "detectors": [
+      "min_20_prob",
+      "min_20_plusplus",
+      "zlib_ratio"
+    ],
+    "perm_p": [
+      0.0559720139930035,
+      0.034482758620689655,
+      0.7186406796601699
+    ],
+    "bh_q": [
+      0.08395802098950525,
+      0.08395802098950525,
+      0.71864067966017
+    ],
+    "bh_reject": [
+      false,
+      false,
+      false
+    ]
+  },
+  "per_domain": {
+    "ArXiv": {
+      "n": 14,
+      "loss_vs_frac_rho": 0.5486917318756083,
+      "min_20_prob_vs_frac_rho": 0.20035216765582375,
+      "min_20_plusplus_vs_frac_rho": -0.33467918915234196,
+      "zlib_ratio_vs_frac_rho": -0.08423897958256225
+    },
+    "DM Mathematics": {
+      "n": 13,
+      "loss_vs_frac_rho": 0.10875205500825674,
+      "min_20_prob_vs_frac_rho": 0.02351395783962308,
+      "min_20_plusplus_vs_frac_rho": 0.19986864163679618,
+      "zlib_ratio_vs_frac_rho": -0.21162562055660772
+    },
+    "Enron Emails": {
+      "n": 13,
+      "loss_vs_frac_rho": 0.16479775246380865,
+      "min_20_prob_vs_frac_rho": -0.0868933603900082,
+      "min_20_plusplus_vs_frac_rho": 0.13183820197104693,
+      "zlib_ratio_vs_frac_rho": 0.4554410613545257
+    },
+    "FreeLaw": {
+      "n": 17,
+      "loss_vs_frac_rho": 0.35631188012262816,
+      "min_20_prob_vs_frac_rho": 0.23326892871337526,
+      "min_20_plusplus_vs_frac_rho": 0.2537760872815841,
+      "zlib_ratio_vs_frac_rho": 0.2896636147759495
+    },
+    "Github": {
+      "n": 21,
+      "loss_vs_frac_rho": 0.7529217904327254,
+      "min_20_prob_vs_frac_rho": 0.6690401292882596,
+      "min_20_plusplus_vs_frac_rho": 0.43282937150544376,
+      "zlib_ratio_vs_frac_rho": 0.5885137345895723
+    },
+    "HackerNews": {
+      "n": 13,
+      "loss_vs_frac_rho": 0.044572568370250226,
+      "min_20_prob_vs_frac_rho": -0.011143142092562557,
+      "min_20_plusplus_vs_frac_rho": -0.21729127080496985,
+      "zlib_ratio_vs_frac_rho": -0.20614812871240729
+    },
+    "NIH ExPorter": {
+      "n": 13,
+      "loss_vs_frac_rho": -0.18552434993629385,
+      "min_20_prob_vs_frac_rho": -0.0882001007893856,
+      "min_20_plusplus_vs_frac_rho": -0.1794415843646121,
+      "zlib_ratio_vs_frac_rho": -0.09732424914690825
+    },
+    "OpenSubtitles": {
+      "n": 13,
+      "loss_vs_frac_rho": -0.04732449912961666,
+      "min_20_prob_vs_frac_rho": -0.1293536309542855,
+      "min_20_plusplus_vs_frac_rho": -0.19560792973574884,
+      "zlib_ratio_vs_frac_rho": -0.3943708260801388
+    },
+    "OpenWebText2": {
+      "n": 27,
+      "loss_vs_frac_rho": 0.17873108119926945,
+      "min_20_prob_vs_frac_rho": -0.014298486495941556,
+      "min_20_plusplus_vs_frac_rho": 0.08698245951697779,
+      "zlib_ratio_vs_frac_rho": 0.07625859464502163
+    },
+    "Pile-CC": {
+      "n": 26,
+      "loss_vs_frac_rho": -0.01681828906153688,
+      "min_20_prob_vs_frac_rho": -0.1261371679615266,
+      "min_20_plusplus_vs_frac_rho": -0.021787329011536412,
+      "zlib_ratio_vs_frac_rho": 0.12995950638460316
+    },
+    "PubMed Abstracts": {
+      "n": 21,
+      "loss_vs_frac_rho": -0.5769820571633398,
+      "min_20_prob_vs_frac_rho": -0.43508935552718603,
+      "min_20_plusplus_vs_frac_rho": -0.5820496536503453,
+      "zlib_ratio_vs_frac_rho": -0.5299258040697175
+    },
+    "PubMed Central": {
+      "n": 15,
+      "loss_vs_frac_rho": 0.22854352508251652,
+      "min_20_prob_vs_frac_rho": 0.3164448808834844,
+      "min_20_plusplus_vs_frac_rho": 0.3262116981947031,
+      "zlib_ratio_vs_frac_rho": 0.04492735963160581
+    },
+    "StackExchange": {
+      "n": 21,
+      "loss_vs_frac_rho": 0.517618317334646,
+      "min_20_prob_vs_frac_rho": 0.48886174414938793,
+      "min_20_plusplus_vs_frac_rho": 0.5424888671164909,
+      "zlib_ratio_vs_frac_rho": 0.4538875335186686
+    },
+    "USPTO Backgrounds": {
+      "n": 17,
+      "loss_vs_frac_rho": 0.17943514064131835,
+      "min_20_prob_vs_frac_rho": 0.35359277714612736,
+      "min_20_plusplus_vs_frac_rho": 0.17943514064131835,
+      "zlib_ratio_vs_frac_rho": 0.20054515718735583
+    },
+    "Wikipedia (en)": {
+      "n": 19,
+      "loss_vs_frac_rho": 0.2823529650651674,
+      "min_20_prob_vs_frac_rho": 0.1006993092190457,
+      "min_20_plusplus_vs_frac_rho": -0.1382147381437882,
+      "zlib_ratio_vs_frac_rho": -0.009872481295984873
+    },
+    "YoutubeSubtitles": {
+      "n": 11,
+      "loss_vs_frac_rho": 0.35976048897510887,
+      "min_20_prob_vs_frac_rho": 0.37716825457067865,
+      "min_20_plusplus_vs_frac_rho": 0.3191423692521127,
+      "zlib_ratio_vs_frac_rho": 0.05222329678670935
+    }
+  }
+}
+```
+
+
+### `results/hardening_pythia-160m.json`
+
+```json
+{
+  "tag": "pythia-160m",
+  "n": 300,
+  "detectors": {
+    "min_20_prob": {
+      "zero_order_rho": 0.1729732393612115,
+      "linear_partial_rho": -0.1780056098170858,
+      "cubic_residual_rho": -0.11028166979633107,
+      "cubic_residual_ci": [
+        -0.23370101938457835,
+        -0.0015173607644451202
+      ],
+      "cubic_residual_perm_p": 0.0384807596201899,
+      "decile_rho": -0.11125910950415481,
+      "decile_ci": [
+        -0.2303496623658343,
+        0.008450036562870791
+      ],
+      "decile_perm_p": 0.04997501249375312,
+      "mediation": {
+        "a": 0.9006277847531639,
+        "b": 0.629355549137778,
+        "direct": -0.3938418546808559,
+        "indirect": 0.566815094042068,
+        "total": 0.17297323936121206,
+        "prop_mediated": 3.2768947158260366
+      },
+      "mediation_ci": {
+        "direct": [
+          -0.621637459626617,
+          -0.15146820474536818
+        ],
+        "indirect": [
+          0.35151562944257914,
+          0.7702132123121368
+        ],
+        "total": [
+          0.06101616539617101,
+          0.2846411665224007
+        ]
+      }
+    },
+    "min_20_plusplus": {
+      "zero_order_rho": 0.1078924246347382,
+      "linear_partial_rho": -0.14847595518279239,
+      "cubic_residual_rho": -0.16023289147657196,
+      "cubic_residual_ci": [
+        -0.28684582579026136,
+        -0.0410476086937444
+      ],
+      "cubic_residual_perm_p": 0.004997501249375313,
+      "decile_rho": -0.10894015537542534,
+      "decile_ci": [
+        -0.2357546252721131,
+        0.013355290617934461
+      ],
+      "decile_perm_p": 0.050474762618690654,
+      "mediation": {
+        "a": 0.7415655729508105,
+        "b": 0.4324589132024093,
+        "direct": -0.21280421711189146,
+        "indirect": 0.3206966417466295,
+        "total": 0.10789242463473803,
+        "prop_mediated": 2.972374036753041
+      },
+      "mediation_ci": {
+        "direct": [
+          -0.37692003881814634,
+          -0.044148657031149875
+        ],
+        "indirect": [
+          0.19481350364688127,
+          0.4506785937266727
+        ],
+        "total": [
+          -0.009649577533504289,
+          0.22030673006860807
+        ]
+      }
+    },
+    "zlib_ratio": {
+      "zero_order_rho": 0.17729023868159155,
+      "linear_partial_rho": -0.04225455454896127,
+      "cubic_residual_rho": -0.05187035411504572,
+      "cubic_residual_ci": [
+        -0.1646456846645684,
+        0.06762195663395838
+      ],
+      "cubic_residual_perm_p": 0.3313343328335832,
+      "decile_rho": -0.018497344386394457,
+      "decile_ci": [
+        -0.1387429331488339,
+        0.10008495101646504
+      ],
+      "decile_perm_p": 0.7631184407796102,
+      "mediation": {
+        "a": 0.7443064922943587,
+        "b": 0.3199323908154169,
+        "direct": -0.06083751689757925,
+        "indirect": 0.23812775557917087,
+        "total": 0.17729023868159163,
+        "prop_mediated": 1.3431520954001406
+      },
+      "mediation_ci": {
+        "direct": [
+          -0.23264256729327581,
+          0.107606018470887
+        ],
+        "indirect": [
+          0.11278807986888624,
+          0.369337315372252
+        ],
+        "total": [
+          0.06265715714585739,
+          0.2945947621618042
+        ]
+      }
+    }
+  },
+  "St1_family": {
+    "control": "cubic_residual",
+    "detectors": [
+      "min_20_prob",
+      "min_20_plusplus",
+      "zlib_ratio"
+    ],
+    "perm_p": [
+      0.0384807596201899,
+      0.004997501249375313,
+      0.3313343328335832
+    ],
+    "bh_q": [
+      0.057721139430284854,
+      0.014992503748125937,
+      0.3313343328335832
+    ],
+    "bh_reject": [
+      false,
+      true,
+      false
+    ]
+  },
+  "per_domain": {
+    "ArXiv": {
+      "n": 14,
+      "loss_vs_frac_rho": 0.3824742653798658,
+      "min_20_prob_vs_frac_rho": 0.3617377088231261,
+      "min_20_plusplus_vs_frac_rho": -0.12211527750080053,
+      "zlib_ratio_vs_frac_rho": 0.32256865754928443
+    },
+    "DM Mathematics": {
+      "n": 13,
+      "loss_vs_frac_rho": 0.002939244729952885,
+      "min_20_prob_vs_frac_rho": -0.0587848945990577,
+      "min_20_plusplus_vs_frac_rho": 0.1381445023077856,
+      "zlib_ratio_vs_frac_rho": -0.2351395783962308
+    },
+    "Enron Emails": {
+      "n": 13,
+      "loss_vs_frac_rho": 0.17079039800794715,
+      "min_20_prob_vs_frac_rho": 0.017977936632415488,
+      "min_20_plusplus_vs_frac_rho": 0.13183820197104693,
+      "zlib_ratio_vs_frac_rho": 0.5333454534283262
+    },
+    "FreeLaw": {
+      "n": 17,
+      "loss_vs_frac_rho": 0.09151523153120272,
+      "min_20_prob_vs_frac_rho": -0.06536802252228767,
+      "min_20_plusplus_vs_frac_rho": 0.19218198621552574,
+      "zlib_ratio_vs_frac_rho": 0.14250228909858711
+    },
+    "Github": {
+      "n": 21,
+      "loss_vs_frac_rho": 0.5978567871242692,
+      "min_20_prob_vs_frac_rho": 0.5299487778963454,
+      "min_20_plusplus_vs_frac_rho": 0.37815440432804553,
+      "zlib_ratio_vs_frac_rho": 0.42941829364716433
+    },
+    "HackerNews": {
+      "n": 13,
+      "loss_vs_frac_rho": -0.09258711133604776,
+      "min_20_prob_vs_frac_rho": -0.07014175101215739,
+      "min_20_plusplus_vs_frac_rho": -0.42085050607294433,
+      "zlib_ratio_vs_frac_rho": -0.3871824655871088
+    },
+    "NIH ExPorter": {
+      "n": 13,
+      "loss_vs_frac_rho": 0.32120803721981056,
+      "min_20_prob_vs_frac_rho": 0.3953329688859207,
+      "min_20_plusplus_vs_frac_rho": -0.07412493166611012,
+      "zlib_ratio_vs_frac_rho": 0.12354155277685021
+    },
+    "OpenSubtitles": {
+      "n": 13,
+      "loss_vs_frac_rho": 0.00946489982592333,
+      "min_20_prob_vs_frac_rho": -0.14197349738884996,
+      "min_20_plusplus_vs_frac_rho": -0.10411389808515664,
+      "zlib_ratio_vs_frac_rho": -0.3091867276468288
+    },
+    "OpenWebText2": {
+      "n": 27,
+      "loss_vs_frac_rho": 0.30596558442582084,
+      "min_20_prob_vs_frac_rho": 0.09245003270420485,
+      "min_20_plusplus_vs_frac_rho": 0.06713633327329162,
+      "zlib_ratio_vs_frac_rho": 0.07484050266530869
+    },
+    "Pile-CC": {
+      "n": 26,
+      "loss_vs_frac_rho": 0.15350716380711898,
+      "min_20_prob_vs_frac_rho": 0.01413881771907675,
+      "min_20_plusplus_vs_frac_rho": 0.0468600815832258,
+      "zlib_ratio_vs_frac_rho": 0.29812707076224687
+    },
+    "PubMed Abstracts": {
+      "n": 21,
+      "loss_vs_frac_rho": -0.48431743568666796,
+      "min_20_prob_vs_frac_rho": -0.5965285007560753,
+      "min_20_plusplus_vs_frac_rho": -0.5878411924926373,
+      "zlib_ratio_vs_frac_rho": -0.47490618506794346
+    },
+    "PubMed Central": {
+      "n": 15,
+      "loss_vs_frac_rho": 0.25279543103845264,
+      "min_20_prob_vs_frac_rho": 0.26455335806349695,
+      "min_20_plusplus_vs_frac_rho": 0.3586167742638514,
+      "zlib_ratio_vs_frac_rho": -0.017636890537566462
+    },
+    "StackExchange": {
+      "n": 21,
+      "loss_vs_frac_rho": 0.5443332630831055,
+      "min_20_prob_vs_frac_rho": 0.5893066665856982,
+      "min_20_plusplus_vs_frac_rho": 0.5885312630770329,
+      "zlib_ratio_vs_frac_rho": 0.6024885262330099
+    },
+    "USPTO Backgrounds": {
+      "n": 17,
+      "loss_vs_frac_rho": -0.18994964809552306,
+      "min_20_prob_vs_frac_rho": -0.01951537480433456,
+      "min_20_plusplus_vs_frac_rho": -0.13010249869556373,
+      "zlib_ratio_vs_frac_rho": -0.07936252420429388
+    },
+    "Wikipedia (en)": {
+      "n": 19,
+      "loss_vs_frac_rho": 0.30166058400019696,
+      "min_20_prob_vs_frac_rho": 0.08263309726738069,
+      "min_20_plusplus_vs_frac_rho": -0.187168943208043,
+      "zlib_ratio_vs_frac_rho": 0.031858543524773277
+    },
+    "YoutubeSubtitles": {
+      "n": 11,
+      "loss_vs_frac_rho": -0.09469274704942043,
+      "min_20_prob_vs_frac_rho": -0.16446635013846708,
+      "min_20_plusplus_vs_frac_rho": -0.13954720617809327,
+      "zlib_ratio_vs_frac_rho": -0.393722474573906
     }
   }
 }

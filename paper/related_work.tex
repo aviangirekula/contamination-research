@@ -191,3 +191,56 @@ is weak, does it predict concrete privacy leakage?} We answer it with ground-tru
 membership on the Pythia suite~\cite{biderman2023pythia} trained on the public
 Pile~\cite{gao2020pile}, under the low-FPR protocol, with explicit controls for the
 frequency, duplication, and temporal confounds that prior work identifies.
+
+\subsection{Closest prior work, and how we differ}
+\label{sec:closest}
+Three recent works reach conclusions adjacent to ours, and we are careful to position
+against them rather than overclaim. Al Sahili et al.~\cite{alsahili2025effectiveness}
+reach a compatible conclusion for targeted extraction---that ``complex MIA techniques
+yield only marginal improvements over simple likelihood-based ranking''---but they
+establish it through aggregate \emph{ranking-precision} comparisons and an AdaBoost
+ensemble over MIA features, reporting \emph{marginal gains} rather than testing for
+independent signal. In contrast, we run a pre-registered \emph{partial correlation
+controlling for raw per-item loss}, which lets us state the stronger, calibrated claim
+that the reference-free detectors contribute \emph{zero or negative} residual predictive
+value once loss is partialled out. Hayes et al.~\cite{hayes2025strong} likewise
+``observe no correlation with MIA success'' for extraction and conclude the ``two privacy
+attacks may capture different signals,'' but their evidence is a \emph{direct, zero-order}
+correlation between a reference-model attack (LiRA) and extraction. We differ on both
+method and object: we \emph{partial out per-item loss} rather than correlating directly,
+and we target the reference-free \emph{calibrated} detectors (Min-K\%, Min-K\%++, zlib)
+that the contamination-detection literature actually deploys, showing the divergence
+persists as a controlled mediation result. Independently, Chen et
+al.~\cite{chen2025statistical} find for the \emph{membership} task that the few detectors
+numerically above the loss baseline (Min-K\%, Min-K\%++, ReCaLL) do not beat it robustly
+once random-seed variance is accounted for, and that performance is domain-dependent
+(code-like, low-token-diversity domains such as GitHub and StackExchange behave
+differently from Wikipedia and FreeLaw); we revisit this domain dependence for the
+\emph{extraction} outcome in our per-domain analysis (Section~\ref{sec:eval}), noting it
+is a distinct axis from their membership-AUC result. Finally, blind-baseline and SoK
+critiques~\cite{das2024blind,meeus2025sok} show that post-hoc member/non-member splits can
+make detector ``success'' an artifact of distribution shift; our use of ground-truth Pile
+membership (no post-hoc split) is precisely the design discipline they call for.
+
+\begin{table}[t]
+\centering
+\footnotesize
+\setlength{\tabcolsep}{4pt}
+\begin{tabular}{@{}p{2.1cm}p{1.6cm}p{1.9cm}p{2.0cm}p{2.4cm}@{}}
+\toprule
+\textbf{Study} & \textbf{Outcome} & \textbf{Detectors} & \textbf{Statistical method} & \textbf{Conclusion} \\
+\midrule
+Shi'24; Zhang'25~\cite{shi2024detecting,zhang2025minkpp} & membership & reference-free (Min-K\%/++) & AUC / TPR@FPR & detector raises membership AUC \\
+Duan'24 (MIMIR)~\cite{duan2024mia} & membership & ref-free + reference & AUC on ground truth & MIAs $\approx$ chance on LLMs \\
+Carlini'22 (LiRA)~\cite{carlini2022lira} & membership & shadow/reference & TPR at low FPR & strong only with shadow models \\
+Chen'25~\cite{chen2025statistical} & membership & reference-free & seed-variance testing vs loss & not robustly beyond loss \\
+Hayes'25~\cite{hayes2025strong} & membership \& extraction & LiRA (reference) & direct (zero-order) correlation & MIA $\neq$ extraction \\
+Al Sahili'25~\cite{alsahili2025effectiveness} & extraction (targeted) & ref-free + AdaBoost & ranking precision; ensemble & marginal gains over likelihood \\
+\textbf{This work} & \textbf{extraction} & \textbf{ref-free calibrated} & \textbf{partial corr.\ + mediation (control loss)} & \textbf{zero/negative residual beyond loss} \\
+\bottomrule
+\end{tabular}
+\caption{Where this work sits. To our knowledge it is the only study that pairs a per-item
+\emph{extraction} outcome with a \emph{partial-correlation/mediation} control for raw loss
+on \emph{calibrated reference-free} detectors, yielding a quantified zero/negative marginal.}
+\label{tab:closest}
+\end{table}

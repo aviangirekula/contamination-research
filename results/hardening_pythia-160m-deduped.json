@@ -1,0 +1,257 @@
+{
+  "tag": "pythia-160m-deduped",
+  "n": 300,
+  "detectors": {
+    "min_20_prob": {
+      "zero_order_rho": 0.22121462407949116,
+      "linear_partial_rho": -0.1331080191943897,
+      "cubic_residual_rho": -0.10104423382482028,
+      "cubic_residual_ci": [
+        -0.22225370673564698,
+        0.011251661417769288
+      ],
+      "cubic_residual_perm_p": 0.0559720139930035,
+      "decile_rho": -0.06922384277751274,
+      "decile_ci": [
+        -0.19643773223913,
+        0.04183615585214216
+      ],
+      "decile_perm_p": 0.24187906046976512,
+      "mediation": {
+        "a": 0.8862107356748408,
+        "b": 0.5572504788685871,
+        "direct": -0.27262673275379684,
+        "indirect": 0.4938413568332879,
+        "total": 0.22121462407949105,
+        "prop_mediated": 2.23240827268197
+      },
+      "mediation_ci": {
+        "direct": [
+          -0.48937147646682794,
+          -0.02409699848075331
+        ],
+        "indirect": [
+          0.27877223106824284,
+          0.7001344264818279
+        ],
+        "total": [
+          0.10718667147304498,
+          0.33121418829472943
+        ]
+      }
+    },
+    "min_20_plusplus": {
+      "zero_order_rho": 0.1609711485687338,
+      "linear_partial_rho": -0.1414484590042969,
+      "cubic_residual_rho": -0.1105256725074723,
+      "cubic_residual_ci": [
+        -0.24088184396639675,
+        0.004093729220062657
+      ],
+      "cubic_residual_perm_p": 0.034482758620689655,
+      "decile_rho": -0.099440898947689,
+      "decile_ci": [
+        -0.20867946538444024,
+        0.026235102996679107
+      ],
+      "decile_perm_p": 0.0814592703648176,
+      "mediation": {
+        "a": 0.7774241936021512,
+        "b": 0.4815401391876292,
+        "direct": -0.21338980582627654,
+        "indirect": 0.3743609543950103,
+        "total": 0.1609711485687338,
+        "prop_mediated": 2.325640077266146
+      },
+      "mediation_ci": {
+        "direct": [
+          -0.3786452039044205,
+          -0.04261508728873224
+        ],
+        "indirect": [
+          0.2363692641240624,
+          0.5099389438061609
+        ],
+        "total": [
+          0.04960133516392355,
+          0.2672332730841154
+        ]
+      }
+    },
+    "zlib_ratio": {
+      "zero_order_rho": 0.22013961420955383,
+      "linear_partial_rho": -0.01644769489408432,
+      "cubic_residual_rho": -0.018299314436827075,
+      "cubic_residual_ci": [
+        -0.13362245580905868,
+        0.10799591143055379
+      ],
+      "cubic_residual_perm_p": 0.7186406796601699,
+      "decile_rho": 0.04094796861173581,
+      "decile_ci": [
+        -0.056006894573656825,
+        0.16005507459716176
+      ],
+      "decile_perm_p": 0.48875562218890556,
+      "mediation": {
+        "a": 0.7311574573050811,
+        "b": 0.33237237884331156,
+        "direct": -0.022876929183963016,
+        "indirect": 0.2430165433935168,
+        "total": 0.2201396142095538,
+        "prop_mediated": 1.1039200930105482
+      },
+      "mediation_ci": {
+        "direct": [
+          -0.1735312948128743,
+          0.13150673013634911
+        ],
+        "indirect": [
+          0.13044989596693182,
+          0.3573263344470519
+        ],
+        "total": [
+          0.10500953083811335,
+          0.33090415818389174
+        ]
+      }
+    }
+  },
+  "St1_family": {
+    "control": "cubic_residual",
+    "detectors": [
+      "min_20_prob",
+      "min_20_plusplus",
+      "zlib_ratio"
+    ],
+    "perm_p": [
+      0.0559720139930035,
+      0.034482758620689655,
+      0.7186406796601699
+    ],
+    "bh_q": [
+      0.08395802098950525,
+      0.08395802098950525,
+      0.71864067966017
+    ],
+    "bh_reject": [
+      false,
+      false,
+      false
+    ]
+  },
+  "per_domain": {
+    "ArXiv": {
+      "n": 14,
+      "loss_vs_frac_rho": 0.5486917318756083,
+      "min_20_prob_vs_frac_rho": 0.20035216765582375,
+      "min_20_plusplus_vs_frac_rho": -0.33467918915234196,
+      "zlib_ratio_vs_frac_rho": -0.08423897958256225
+    },
+    "DM Mathematics": {
+      "n": 13,
+      "loss_vs_frac_rho": 0.10875205500825674,
+      "min_20_prob_vs_frac_rho": 0.02351395783962308,
+      "min_20_plusplus_vs_frac_rho": 0.19986864163679618,
+      "zlib_ratio_vs_frac_rho": -0.21162562055660772
+    },
+    "Enron Emails": {
+      "n": 13,
+      "loss_vs_frac_rho": 0.16479775246380865,
+      "min_20_prob_vs_frac_rho": -0.0868933603900082,
+      "min_20_plusplus_vs_frac_rho": 0.13183820197104693,
+      "zlib_ratio_vs_frac_rho": 0.4554410613545257
+    },
+    "FreeLaw": {
+      "n": 17,
+      "loss_vs_frac_rho": 0.35631188012262816,
+      "min_20_prob_vs_frac_rho": 0.23326892871337526,
+      "min_20_plusplus_vs_frac_rho": 0.2537760872815841,
+      "zlib_ratio_vs_frac_rho": 0.2896636147759495
+    },
+    "Github": {
+      "n": 21,
+      "loss_vs_frac_rho": 0.7529217904327254,
+      "min_20_prob_vs_frac_rho": 0.6690401292882596,
+      "min_20_plusplus_vs_frac_rho": 0.43282937150544376,
+      "zlib_ratio_vs_frac_rho": 0.5885137345895723
+    },
+    "HackerNews": {
+      "n": 13,
+      "loss_vs_frac_rho": 0.044572568370250226,
+      "min_20_prob_vs_frac_rho": -0.011143142092562557,
+      "min_20_plusplus_vs_frac_rho": -0.21729127080496985,
+      "zlib_ratio_vs_frac_rho": -0.20614812871240729
+    },
+    "NIH ExPorter": {
+      "n": 13,
+      "loss_vs_frac_rho": -0.18552434993629385,
+      "min_20_prob_vs_frac_rho": -0.0882001007893856,
+      "min_20_plusplus_vs_frac_rho": -0.1794415843646121,
+      "zlib_ratio_vs_frac_rho": -0.09732424914690825
+    },
+    "OpenSubtitles": {
+      "n": 13,
+      "loss_vs_frac_rho": -0.04732449912961666,
+      "min_20_prob_vs_frac_rho": -0.1293536309542855,
+      "min_20_plusplus_vs_frac_rho": -0.19560792973574884,
+      "zlib_ratio_vs_frac_rho": -0.3943708260801388
+    },
+    "OpenWebText2": {
+      "n": 27,
+      "loss_vs_frac_rho": 0.17873108119926945,
+      "min_20_prob_vs_frac_rho": -0.014298486495941556,
+      "min_20_plusplus_vs_frac_rho": 0.08698245951697779,
+      "zlib_ratio_vs_frac_rho": 0.07625859464502163
+    },
+    "Pile-CC": {
+      "n": 26,
+      "loss_vs_frac_rho": -0.01681828906153688,
+      "min_20_prob_vs_frac_rho": -0.1261371679615266,
+      "min_20_plusplus_vs_frac_rho": -0.021787329011536412,
+      "zlib_ratio_vs_frac_rho": 0.12995950638460316
+    },
+    "PubMed Abstracts": {
+      "n": 21,
+      "loss_vs_frac_rho": -0.5769820571633398,
+      "min_20_prob_vs_frac_rho": -0.43508935552718603,
+      "min_20_plusplus_vs_frac_rho": -0.5820496536503453,
+      "zlib_ratio_vs_frac_rho": -0.5299258040697175
+    },
+    "PubMed Central": {
+      "n": 15,
+      "loss_vs_frac_rho": 0.22854352508251652,
+      "min_20_prob_vs_frac_rho": 0.3164448808834844,
+      "min_20_plusplus_vs_frac_rho": 0.3262116981947031,
+      "zlib_ratio_vs_frac_rho": 0.04492735963160581
+    },
+    "StackExchange": {
+      "n": 21,
+      "loss_vs_frac_rho": 0.517618317334646,
+      "min_20_prob_vs_frac_rho": 0.48886174414938793,
+      "min_20_plusplus_vs_frac_rho": 0.5424888671164909,
+      "zlib_ratio_vs_frac_rho": 0.4538875335186686
+    },
+    "USPTO Backgrounds": {
+      "n": 17,
+      "loss_vs_frac_rho": 0.17943514064131835,
+      "min_20_prob_vs_frac_rho": 0.35359277714612736,
+      "min_20_plusplus_vs_frac_rho": 0.17943514064131835,
+      "zlib_ratio_vs_frac_rho": 0.20054515718735583
+    },
+    "Wikipedia (en)": {
+      "n": 19,
+      "loss_vs_frac_rho": 0.2823529650651674,
+      "min_20_prob_vs_frac_rho": 0.1006993092190457,
+      "min_20_plusplus_vs_frac_rho": -0.1382147381437882,
+      "zlib_ratio_vs_frac_rho": -0.009872481295984873
+    },
+    "YoutubeSubtitles": {
+      "n": 11,
+      "loss_vs_frac_rho": 0.35976048897510887,
+      "min_20_prob_vs_frac_rho": 0.37716825457067865,
+      "min_20_plusplus_vs_frac_rho": 0.3191423692521127,
+      "zlib_ratio_vs_frac_rho": 0.05222329678670935
+    }
+  }
+}

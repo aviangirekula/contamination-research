@@ -1,0 +1,43 @@
+% discussion.tex
+\section{Discussion}
+\label{sec:discussion}
+
+\paragraph{Membership detection and leakage prediction diverge.} The central empirical observation
+is that the contamination/membership signal which predicts \emph{extraction} is, to the resolution
+of our experiment, \emph{just raw loss}. The reference-free detectors that the contamination-detection
+literature has invested in---Min-K\%, Min-K\%++, zlib---improve membership ranking by re-calibrating
+the per-token likelihood (z-scoring against the vocabulary, compressing, or trimming to the
+lowest-probability tokens), but in doing so they discard precisely the loss-magnitude information
+that tracks how extractable an item is. A descriptive mediation decomposition is consistent with
+this---the loss-mediated (indirect) path is positive for all three detectors while the direct paths
+are null or negative---but we read it descriptively, not causally: the detectors are near-collinear
+transforms of loss (Spearman up to $0.90$; VIF up to $6.2$), so a negative direct/partial term is
+consistent with statistical suppression rather than genuine inverse prediction. We therefore claim
+only the conservative version: the calibrated detectors add \emph{no positive} leakage signal beyond
+loss. A practitioner who wants to know \emph{which contaminated items the model will actually leak}
+is, on this evidence, no better served by a state-of-the-art membership detector than by raw loss.
+This is the sense in which membership detection and leakage prediction are different tasks.
+
+\paragraph{Why this is a security result, not a leaderboard result.} Our finding is deliberately
+\emph{not} ``we built a better detector.'' It is that the privacy question---will contamination of a
+benchmark expose a leakage channel?---is mis-served by importing the membership-inference toolkit
+wholesale. For an auditor of a released model, the actionable implication is to measure
+loss/extractability directly and to treat a high Min-K\%/Min-K\%++ score as evidence about
+membership, not about leakage risk. This reframing is the contribution; the detectors themselves are
+prior work.
+
+\paragraph{Relation to concurrent work.} Our direction agrees with two recent results and we do not
+claim the bottom line is surprising: Al Sahili et al.~\cite{alsahili2025effectiveness} report only
+``marginal'' gains of MIA scores over likelihood ranking for targeted extraction, and Hayes et
+al.~\cite{hayes2025strong} find no correlation between (LiRA) membership success and extraction. We
+add the controlled, mechanistic form of the claim---a pre-registered partial-correlation/mediation
+that quantifies a \emph{zero-to-negative} residual for the calibrated reference-free detectors after
+loss is removed---and we target the reference-free detectors the contamination literature actually
+deploys rather than a shadow-model attack. Chen et al.~\cite{chen2025statistical} independently find
+these detectors do not robustly beat the loss baseline for \emph{membership} once seed variance is
+accounted for; our result is the extraction-outcome analogue.
+
+\paragraph{Defenses.} Because the leakage we measure is downstream of memorization, the principled
+mitigation is differential privacy applied at training time~\cite{abadi2016deep,li2022dpllm}; it is a
+producer-side control, not an auditor-side detector, and bounds the very quantity (loss-magnitude /
+memorization) our analysis identifies as the operative one.

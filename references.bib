@@ -143,6 +143,80 @@
   archivePrefix = {arXiv}
 }
 
+% VERIFIED arXiv:2512.13352 (submitted 15 Dec 2025; abs + arXiv HTML v1 read). CLOSEST PRIOR WORK. Integrates MIA scores
+% (LOSS, Min-K%, Min-K%++, zlib, S-ReCaLL, lowercase, ...) into a targeted-extraction pipeline; evaluates by ranking
+% precision (proportion of correctly extracted suffixes among top-ranked outputs) and an AdaBoost ensemble over all MIA
+% features. Verified quotes: "complex MIA techniques yield only marginal improvements over simple likelihood-based ranking";
+% "while certain methods (e.g., S-ReCaLL, Min K%) achieve consistent but marginal gains over the baseline ranking, most
+% approaches perform comparably to the baseline"; "methods such as lowercase and Min-K%++ systematically underperform".
+% Does NOT use partial correlation / residualization / mediation (verified NOT FOUND). Venue: arXiv preprint only as of read.
+@misc{alsahili2025effectiveness,
+  title         = {On the Effectiveness of Membership Inference in Targeted Data Extraction from Large Language Models},
+  author        = {Al Sahili, Ali and Chehab, Ali and Tajeddine, Razane},
+  year          = {2025},
+  eprint        = {2512.13352},
+  archivePrefix = {arXiv},
+  primaryClass  = {cs.CR}
+}
+
+% VERIFIED arXiv:2505.18773 ; NeurIPS 2025 (comment field states NeurIPS 2025; v1 24 May 2025, v2 2 Nov 2025, v3 8 Jan 2026).
+% NOTE: TITLE CHANGED across versions — arXiv v1 header was "Strong Membership Inference Attacks on Massive Datasets and
+% (Moderately) Large LLMs"; current/published title (v3, used here) is below. Scales LiRA to GPT-2-style LMs (10M-1B).
+% Verified quotes: "We also study if there is any relationship between training data extraction and MIA, and observe no
+% correlation with MIA success"; "This suggests that the two privacy attacks may capture different signals related to
+% memorization"; "we observe no correlation between MIA and standard extraction methodology". Direct correlation, not
+% partial/residualized.
+@inproceedings{hayes2025strong,
+  title     = {Exploring the Limits of Strong Membership Inference Attacks on Large Language Models},
+  author    = {Hayes, Jamie and Shumailov, Ilia and Choquette-Choo, Christopher A. and Jagielski, Matthew and Kaissis, Georgios and Nasr, Milad and Ghalebikesabi, Sahra and Annamalai, Meenatchi Sundaram Mutu Selva and Mireshghallah, Niloofar and Shilov, Igor and Meeus, Matthieu and de Montjoye, Yves-Alexandre and Lee, Katherine and Boenisch, Franziska and Dziedzic, Adam and Cooper, A. Feder},
+  booktitle = {Advances in Neural Information Processing Systems 38 (NeurIPS 2025)},
+  year      = {2025},
+  eprint    = {2505.18773},
+  archivePrefix = {arXiv}
+}
+
+% VERIFIED arXiv:2412.13475 (submitted 18 Dec 2024) ; ACL 2025 (Proc. 63rd ACL, Vol. 1: Long Papers, Vienna), pp. 22854--22874.
+% Statistical re-analysis of MIA on LLMs over thousands of runs. Verified quotes: "Loss baseline is only outperformed by
+% Min-k% ++, Min-k%, and ReCaLL" BUT "their performance gap is within the variance from random seeds"; per-domain:
+% "Wikipedia (en) and FreeLaw show statistically better performance compared to other domains"; "GitHub and StackExchange
+% are related to codes that have less token diversity compared to FreeLaw and Wikipedia". Corroborates loss-baseline parity +
+% per-domain strata. [VERIFY] exact ACL Anthology ID (pages/venue confirmed; e.g. anthology page 22854 lands in this paper).
+@inproceedings{chen2025statistical,
+  title     = {A Statistical and Multi-Perspective Revisiting of the Membership Inference Attack in Large Language Models},
+  author    = {Chen, Bowen and Han, Namgi and Miyao, Yusuke},
+  booktitle = {Proceedings of the 63rd Annual Meeting of the Association for Computational Linguistics (ACL), Volume 1: Long Papers},
+  pages     = {22854--22874},
+  year      = {2025},
+  eprint    = {2412.13475},
+  archivePrefix = {arXiv}
+}
+
+% VERIFIED arXiv:2406.16201 (submitted 23 Jun 2024; rev 30 Mar 2025) ; DATA-FM @ ICLR 2025 / IEEE DLSP Workshop 2025.
+% Verified claim: "blind attacks -- that distinguish the member and non-member distributions without looking at any trained
+% model -- outperform state-of-the-art MI attacks", across 8 published MIA-for-foundation-model datasets; evaluation flaw =
+% member/non-member sampled from different distributions. [VERIFY] precise workshop proceedings string for camera-ready.
+@misc{das2024blind,
+  title         = {Blind Baselines Beat Membership Inference Attacks for Foundation Models},
+  author        = {Das, Debeshee and Zhang, Jie and Tram{\`e}r, Florian},
+  year          = {2024},
+  eprint        = {2406.16201},
+  archivePrefix = {arXiv},
+  primaryClass  = {cs.LG}
+}
+
+% VERIFIED arXiv:2406.17975 (submitted 25 Jun 2024; rev 7 Mar 2025) ; IEEE Conf. on Secure and Trustworthy ML (SaTML) 2025.
+% SoK: most recent LLM-MIA work suffers from post-hoc dataset construction inducing member/non-member distribution shift.
+% Verified quote: shifts "invalidate the claims of LLMs memorizing strongly in real-world scenarios and, potentially, also the
+% methodological contributions of the recent papers based on these datasets". Motivates ground-truth membership (we use Pile).
+@inproceedings{meeus2025sok,
+  title     = {{SoK}: Membership Inference Attacks on {LLM}s are Rushing Nowhere (and How to Fix It)},
+  author    = {Meeus, Matthieu and Shilov, Igor and Jain, Shubham and Faysse, Manuel and Rei, Marek and de Montjoye, Yves-Alexandre},
+  booktitle = {2025 IEEE Conference on Secure and Trustworthy Machine Learning (SaTML)},
+  year      = {2025},
+  eprint    = {2406.17975},
+  archivePrefix = {arXiv}
+}
+
 % VERIFIED arXiv:1610.05820 ; IEEE S&P 2017 pp.3-18. Canonical shadow-model MIA.
 @inproceedings{shokri2017membership,
   title     = {Membership Inference Attacks Against Machine Learning Models},

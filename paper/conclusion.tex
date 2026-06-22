@@ -1,0 +1,19 @@
+% conclusion.tex
+\section{Conclusion}
+\label{sec:conclusion}
+
+We argued that benchmark contamination is best understood as a privacy/security vulnerability and
+asked, on models with ground-truth public training data, whether the contamination/membership signal
+that a benchmark leaks actually predicts concrete extraction. Using a pre-registered partial-correlation
+and mediation analysis that controls for raw per-item loss, we found that it does---but only through
+loss: the calibrated reference-free detectors (Min-K\%, Min-K\%++, zlib) add no independent
+predictive value beyond loss, and two are negatively associated with extraction once loss is held
+fixed. The result is robust to a non-linear loss control and to deduplication, and is not a frequency
+or zero-inflation artifact. The practical message is a divergence: the detectors optimized for
+membership inference are not the right instrument for the leakage question, and an auditor should
+measure loss/extractability directly. We claim no new detector or metric; the contribution is the
+security reframing and the controlled, pre-registered measurement. These findings are preliminary, on
+the smallest Pythia model; the immediate next step---and the design target of our released
+pipeline---is the GPU-scale replication across model sizes, where memorization, extraction, and any
+PII leakage are expected to strengthen, and where the question of whether calibrated detectors gain
+independent leakage-predictive value at scale can be settled.

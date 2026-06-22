@@ -1,0 +1,129 @@
+{
+  "seed": 0,
+  "model": "EleutherAI/pythia-160m",
+  "device": "cpu",
+  "ngram_n_primary": 13,
+  "ngram_n_secondary": 8,
+  "loaders_used": {
+    "MMLU": {
+      "loader": "cais/mmlu",
+      "config": "all",
+      "split": "test",
+      "total_in_split": 14042,
+      "n_sampled": 500,
+      "text_field": "question + choices"
+    },
+    "GSM8K": {
+      "loader": "openai/gsm8k",
+      "config": "main",
+      "split": "test",
+      "total_in_split": 1319,
+      "n_sampled": 500,
+      "text_field": "question"
+    },
+    "HumanEval": {
+      "loader": "openai_humaneval",
+      "config": null,
+      "split": "test",
+      "total_in_split": 164,
+      "n_sampled": 164,
+      "text_field": "prompt"
+    }
+  },
+  "pile_reference": {
+    "loader": "NeelNanda/pile-10k",
+    "n_docs": 10000,
+    "is_sample": true,
+    "caveat": "SAMPLE of the Pile; measured overlap is a LOWER BOUND on true benchmark<->Pile overlap"
+  },
+  "ngram_index_sizes": {
+    "n13": 8844899,
+    "n8": 8826152
+  },
+  "mx1_ngram_overlap": {
+    "MMLU": {
+      "n13": {
+        "n_items": 500,
+        "n_with_any_overlap": 1,
+        "contamination_rate": 0.002,
+        "mean_overlap_fraction": 0.0003481781376518219,
+        "max_overlap_fraction": 0.17408906882591094
+      },
+      "n8": {
+        "n_items": 500,
+        "n_with_any_overlap": 4,
+        "contamination_rate": 0.008,
+        "mean_overlap_fraction": 0.000538825254136259,
+        "max_overlap_fraction": 0.21031746031746032
+      }
+    },
+    "GSM8K": {
+      "n13": {
+        "n_items": 500,
+        "n_with_any_overlap": 0,
+        "contamination_rate": 0.0,
+        "mean_overlap_fraction": 0.0,
+        "max_overlap_fraction": 0.0
+      },
+      "n8": {
+        "n_items": 500,
+        "n_with_any_overlap": 0,
+        "contamination_rate": 0.0,
+        "mean_overlap_fraction": 0.0,
+        "max_overlap_fraction": 0.0
+      }
+    },
+    "HumanEval": {
+      "n13": {
+        "n_items": 164,
+        "n_with_any_overlap": 0,
+        "contamination_rate": 0.0,
+        "mean_overlap_fraction": 0.0,
+        "max_overlap_fraction": 0.0
+      },
+      "n8": {
+        "n_items": 164,
+        "n_with_any_overlap": 3,
+        "contamination_rate": 0.018292682926829267,
+        "mean_overlap_fraction": 0.0003608294970963761,
+        "max_overlap_fraction": 0.02631578947368421
+      }
+    }
+  },
+  "mx2_oren_permutation": {
+    "params": {
+      "model": "EleutherAI/pythia-160m",
+      "device": "cpu",
+      "n_permutations": 1000,
+      "oren_k": 30,
+      "oren_words": 20
+    },
+    "status": "UNDERPOWERED / sanity-scale at 160m; membership-based => GPU-gated; no contamination conclusions drawn",
+    "results": {
+      "MMLU": {
+        "p_value": 0.000999000999000999,
+        "canonical_loglik": -2894.898483040277,
+        "null_mean": -2975.3968578770023,
+        "null_std": 17.666704121953195,
+        "k_used": 30,
+        "oren_words": 20
+      },
+      "GSM8K": {
+        "p_value": 0.012987012987012988,
+        "canonical_loglik": -2974.4482324664714,
+        "null_mean": -3020.4698257266637,
+        "null_std": 21.403014032172695,
+        "k_used": 30,
+        "oren_words": 20
+      },
+      "HumanEval": {
+        "p_value": 0.8751248751248751,
+        "canonical_loglik": -2152.8440884390147,
+        "null_mean": -2125.686296417913,
+        "null_std": 23.375151428701166,
+        "k_used": 30,
+        "oren_words": 20
+      }
+    }
+  }
+}

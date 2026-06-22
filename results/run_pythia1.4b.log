@@ -1,0 +1,19 @@
+WikiMIA_length64: 542 examples (284 member / 258 non-member)
+  scored 50/542
+  scored 100/542
+  scored 150/542
+  scored 200/542
+  scored 250/542
+  scored 300/542
+  scored 350/542
+  scored 400/542
+  scored 450/542
+  scored 500/542
+
+Model=EleutherAI/pythia-1.4b  WikiMIA_length64  N=542
+detector               AUC          AUC 95% CI    TPR@1%   TPR@.1%
+loss                 0.571      [0.526, 0.620]     0.025     0.004
+min_20_prob          0.580      [0.532, 0.625]     0.025     0.011
+min_20_plusplus      0.547      [0.497, 0.595]     0.021     0.018
+zlib_ratio           0.616      [0.565, 0.663]     0.049     0.007
+Plots -> figures/
