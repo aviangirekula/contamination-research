@@ -27,17 +27,17 @@ membership, not about leakage risk. This reframing is the contribution; the dete
 prior work.
 
 \paragraph{Relation to concurrent work.} Our direction agrees with two recent results and we do not
-claim the bottom line is surprising: Al Sahili et al.~\cite{alsahili2025effectiveness} report only
-``marginal'' gains of MIA scores over likelihood ranking for targeted extraction, and Hayes et
-al.~\cite{hayes2025strong} find no correlation between (LiRA) membership success and extraction. We
+claim the bottom line is surprising: \citet{alsahili2025effectiveness} report only
+``marginal'' gains of MIA scores over likelihood ranking for targeted extraction, and
+\citet{hayes2025strong} find no correlation between (LiRA) membership success and extraction. We
 add the controlled, mechanistic form of the claim, a pre-registered partial-correlation/mediation
 that quantifies a \emph{zero-to-negative} residual for the calibrated reference-free detectors after
 loss is removed, and we target the reference-free detectors the contamination literature actually
-deploys rather than a shadow-model attack. Chen et al.~\cite{chen2025statistical} independently find
+deploys rather than a shadow-model attack. \citet{chen2025statistical} independently find
 these detectors do not robustly beat the loss baseline for \emph{membership} once seed variance is
 accounted for; our result is the extraction-outcome analogue.
 
 \paragraph{Defenses.} Because the leakage we measure is downstream of memorization, the principled
-mitigation is differential privacy applied at training time~\cite{abadi2016deep,li2022dpllm}; it is a
+mitigation is differential privacy applied at training time~\citep{abadi2016deep,li2022dpllm}; it is a
 producer-side control, not an auditor-side detector, and bounds the very quantity (loss-magnitude /
 memorization) our analysis identifies as the operative one.

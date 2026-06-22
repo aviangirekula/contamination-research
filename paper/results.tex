@@ -10,7 +10,7 @@ number is reproducible from a seeded script and recorded in our results ledger.
 \subsection{Membership separation is at chance on a confound-clean split}
 \label{sec:res-membership}
 We first reproduce, as a control, the known weakness of membership inference on pre-trained
-LLMs~\cite{duan2024mia}. On a confound-clean split (members = Pile train, non-members = Pile
+LLMs~\citep{duan2024mia}. On a confound-clean split (members = Pile train, non-members = Pile
 validation, stratified across $22$ Pile subsets to match domain), all four detectors sit at chance
 at $160$M (Table~\ref{tab:membership}); on the temporally-confounded WikiMIA split the same model
 shows a spurious $0.52$--$0.56$, and a $1.4$B model rises further, evidence that the WikiMIA signal
@@ -36,7 +36,7 @@ gives the same chance-level result.}
 \subsection{Contamination predicts leakage, but only through loss}
 \label{sec:res-headline}
 Our headline analysis correlates each per-item detector score with the per-item extraction outcome
-(prefix-continuation extractable memorization under greedy decoding~\cite{carlini2023quantifying}),
+(prefix-continuation extractable memorization under greedy decoding~\citep{carlini2023quantifying}),
 then controls for raw loss. Table~\ref{tab:headline} reports, for each calibrated detector, the
 zero-order Spearman $\rho$, the linear partial $\rho$ given loss, the non-linear (cubic-residual)
 partial $\rho$ with bootstrap CI, the FDR-corrected permutation $q$, and the mediation decomposition.
@@ -103,7 +103,7 @@ We complement the per-item analysis with two benchmark-level contamination tests
 \emph{lower bound}: overlap is near-zero for MMLU ($0.2\%$ at $13$-grams), GSM8K ($0\%$), and
 HumanEval ($0\%$ at $13$-grams), which certifies overlap is \emph{at least} this small and is
 uninformative about true contamination, a full-Pile index (infrastructure-, not GPU-, gated) is
-required for a real rate. The Oren permutation/exchangeability test~\cite{oren2024proving} at $160$M
+required for a real rate. The Oren permutation/exchangeability test~\citep{oren2024proving} at $160$M
 finds the canonical ordering favoured beyond chance for MMLU ($p=0.001$) and GSM8K ($p=0.013$) but
 not HumanEval ($p=0.875$); we draw \emph{no} contamination conclusion from this, as the test is
 membership-based, run at sanity scale (small $k$, smallest model), and subject to a fluency/orientation
