@@ -1,0 +1,39 @@
+% threat_model.tex — standalone Threat Model section (promoted from a subsection).
+\section{Threat Model}
+\label{sec:threat}
+
+We frame contamination detection as a membership/exposure attack and state the adversary
+explicitly, following the convention that a privacy attack must be evaluated by its behaviour at a
+low false-positive operating point rather than on average~\cite{carlini2022lira}.
+
+\paragraph{Adversary goals (graded).}
+\begin{itemize}
+  \item \textbf{G1 --- Membership inference.} Decide whether a specific sequence (a benchmark item,
+  document, or record) was in the training corpus.
+  \item \textbf{G2 --- Benchmark-level contamination confirmation.} Decide, with a controlled
+  false-positive rate, whether an entire benchmark was trained on.
+  \item \textbf{G3 --- Extraction / leakage.} Recover verbatim content---and, on a controlled
+  corpus, PII---that was in training. This is the concrete harm; G1--G2 are of interest largely
+  insofar as they predict G3.
+\end{itemize}
+
+\paragraph{Adversary knowledge and access.} We grade detectors by the minimum access each requires:
+\emph{black-box} (text in, text out; e.g.\ guided prompting, which we do not evaluate),
+\emph{gray-box} (per-token log-probabilities / loss; LOSS, Min-K\%, zlib), and \emph{white-box}
+(the full next-token distribution; Min-K\%++). The corpus-side $n$-gram test instead assumes access
+to the training corpus (available here because the Pile is public) and is used to construct
+ground-truth contamination labels, not as a model-access attack. For our ground-truth experiments
+the \emph{auditor} additionally knows the public training corpus; the modelled attacker does not
+need corpus access for G1/G3.
+
+\paragraph{Success criteria.} G1: true-positive rate at $0.1\%$ and $1\%$ false-positive rate
+(log-scale ROC), with AUC secondary and bootstrap confidence intervals. G2: a permutation-test
+$p$-value below threshold with a controlled false-positive rate~\cite{oren2024proving}. G3: a
+non-zero extraction rate, and---our headline analysis---a positive association between a per-item
+contamination score and the per-item extraction outcome that \emph{survives controlling for raw
+loss}. The last criterion is what distinguishes a contamination signal that genuinely predicts
+leakage from one that merely restates the model's loss.
+
+\paragraph{Out of scope.} We do not attack closed production models for real third-party PII, do not
+train or fine-tune models, and propose no new detector. Differential privacy is discussed as the
+producer-side mitigation our threat model motivates (Section~\ref{sec:dp}), not implemented.

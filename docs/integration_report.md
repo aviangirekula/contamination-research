@@ -1,64 +1,71 @@
-# Integration Report — Headline result + consistency round
+# Integration Report — Round 2 (hardening + back-half writing + adversarial review)
 
-**Date:** 2026-06-19. **Repo:** `~/contamination-research`. **Model this round:** Pythia-160m, CPU.
+**Date:** 2026-06-20. **Model:** Pythia-160m, CPU. **Authoritative current state** (supersedes the
+2026-06-19 report; history in git). **Not committed** — staged for human review.
 
-## Headline (the thesis as a number)
-On real Pythia-160m, the contamination/membership score **significantly predicts extraction/
-leakage** even though membership *separation* is at chance on the confound-clean split:
+## What this round produced
+- **Novelty (N):** `docs/novelty_memo.md` + 5 verified citations (Al Sahili, Hayes, Chen, Das, Meeus).
+  Verdict **adjacent-but-distinct / novel**; no prior work does loss-residualized partial-correlation/
+  mediation of calibrated detectors vs a per-item extraction outcome.
+- **Statistical hardening (St):** `docs/hardening_report.md`. The negative/null result **survives** a
+  non-linear loss control (cubic-residual primary, decile secondary) and a descriptive mediation; no
+  positive signal revives (deduped arm agrees). **Collinearity diagnostic (W3):** detectors are
+  near-collinear with loss (Spearman 0.74–0.90; VIF up to 6.2), so we report the conservative claim
+  only (see below). `eval/mediation.py` + 8 tests (61/61 total).
+- **Contamination matrix (Mx):** `docs/contamination_matrix.md`. Model-free n-gram overlap is a
+  near-zero lower bound (10k Pile sample); Oren at 160m (MMLU p=0.001, GSM8K 0.013, HumanEval 0.875)
+  is flagged underpowered/GPU-gated, no conclusion drawn.
+- **Paper (W):** complete draft — Abstract, Intro, Background, Threat Model, Related Work (+ novelty
+  comparison table `tab:closest` + Al Sahili/Hayes/Chen distinguishing text), Evaluation, Results,
+  Discussion, Limitations, Conclusion. Assembled `paper/main.tex`; rendered to `paper/main.html` and
+  `PAPER_DRAFT_FULL.md`.
+- **Consistency (C):** `docs/consistency_audit.md` — verdict consistent; reconciled the stale
+  `reviewer_concerns.md`, fixed Oren staleness, removed un-caveated positive headlines.
+- **Adversary (V):** `docs/adversary_review.md` — hostile S&P review (W1–W12). **Verdict: borderline
+  reject as-is.** I actioned the CPU-resolvable items this round (below).
 
-| | clean-split membership AUC | leakage correlation ρ [95% CI] |
-|---|---|---|
-| loss | 0.454 (chance) | **0.275 [0.164, 0.378]** ✅ |
-| min_20_prob | 0.470 (chance) | 0.173 [0.061, 0.285] ✅ |
-| zlib_ratio | 0.484 (chance) | 0.177 [0.063, 0.295] ✅ |
-| min_20_plusplus | 0.490 (chance) | 0.108 [−0.010, 0.220] ✗ |
+## The finding, stated at the honest resolution
+The contamination$\rightarrow$leakage association is **loss-mediated to the resolution of this
+experiment**. The calibrated reference-free detectors (Min-K%, Min-K%++, zlib) add **no positive**
+leakage signal beyond loss. We do **not** claim they negatively predict leakage: they are
+near-collinear with loss (Min-K% Spearman 0.90, VIF 6.2), so the negative partial is consistent with
+a suppression artifact. This is the membership-detection-vs-leakage-prediction divergence, claimed
+conservatively.
 
-This is the contamination→memorization→leakage link, with CIs, on ground-truth Pile members.
-Full numbers in `docs/results_table.md`; figure `figures/correlation_pythia-160m_scatter.png`.
+## V's FIX-NOW items — actioned this round
+- **W3 (collinearity/suppression):** added `scripts/collinearity_check.py` + diagnostic; reframed
+  abstract/intro/results/discussion/limitations to claim "no positive residual," not "negative." ✅
+- **W7 (mediation causal overclaim):** demoted to descriptive in results + discussion. ✅
+- **W12 (overclaims):** softened "entirely by loss" → "loss-mediated to the resolution of this
+  experiment"; removed "Only LOSS predicts leakage"; corrected the "two negatively associated" line. ✅
+- **W5 (power):** added a minimum-detectable-effect/power caveat (no positive signal of appreciable
+  size; small positive at scale not excluded). ✅
+- **W4 (construct validity), W6 (selection/domain-mix), W10 (n-gram dropped from abstract):** added to
+  Limitations / trimmed abstract. ✅
+- **W8 (tie-aware permutation):** our permutation uses mid-rank statistics; noted. (A Kendall-permutation
+  cross-check of Min-K%++ is a nice-to-have, listed GPU/followup.)
 
-## What is now publishable-strength
-- **The confound-clean control (R3).** WikiMIA's 0.52–0.56 collapses to chance (0.45–0.49) on the
-  same-distribution Pile train-vs-val split. Directly pre-empts "your MIA is just distribution
-  shift." Strong, reviewer-ready.
-- **The R6 control result (negative, but robust and reportable).** The raw contamination↔leakage
-  correlation does NOT survive controlling for loss (partial ρ|loss: Min-K% −0.18, Min-K%++ −0.15
-  FDR-sig negative; zlib ≈0). The honest finding is the *divergence*: loss predicts leakage,
-  calibrated detectors do not. Pre-registered, robust to dedup, not a frequency/zero-inflation
-  artifact. See `docs/controls_report.md`. (The earlier "headline correlation" framing is
-  superseded — it was loss-driven.)
-- **Methods↔paper consistency.** All 8 evaluated methods (LOSS, Min-K%, Min-K%++, zlib, n-gram,
-  Oren, extractable memorization, Enron PII) are implemented, tested (46/46), and run; everything
-  else is framed in the paper as "related, not evaluated." Spine rule holds.
-- **Lit review.** background/related_work/evaluation/introduction finalized to S&P standard,
-  datasets table rendered, all [VERIFY] debts cleared (lone exception: BLOOM's 392-author cite,
-  intentional). MIA lineage + DP-defense subsections added.
-- **Reproducibility.** Pinned `requirements.txt`, `configs/*.yaml`, one-command scripts, fixed
-  seeds, public datasets, committed repo.
+## Publication-strength now vs. GPU-gated
+**Now (CPU, defensible):** the security reframing + threat model; the confound-clean control (WikiMIA
+0.52–0.56 → chance on Pile train-vs-val); the pre-registered partial-correlation + non-linear control
++ collinearity-aware conservative claim; the comparison-table novelty positioning; full reproducibility.
+**GPU-gated (honestly not yet shown):** whether calibrated detectors gain *independent* signal at
+larger scale (W2); a less-degenerate extraction outcome (W5/W7); actual PII leakage (W9/R9, null at
+160m); benchmark contamination via a full-Pile n-gram index and a fluency-controlled Oren (W10/R8);
+the per-domain sign-flip as a powered result (V's "most under-exploited asset", W6).
 
-## What still needs the GPU scale-up (honestly NOT yet shown)
-- **R6 — headline circularity (TOP priority).** LOSS↔extraction partly co-measure memorization.
-  Must add the **partial correlation controlling for raw LOSS** to show Min-K%/zlib retain
-  predictive power. Until then, scope the claim. This is a CPU-doable analysis, not a compute gate
-  — next on the list.
-- **R7 — zero-inflated outcome.** 3/300 fully extracted; ρ leans on few points. Larger models
-  extract more (Carlini 2023) → de-degenerates the outcome. Add Kendall τ.
-- **R9 — PII not demonstrated.** 0.0 verbatim PII leakage at 160m. The "PII exposure" limb is a
-  designed capability with a null result at 160m; claim only when measured at scale.
-- **Clean-split scaling.** Does the membership signal revive at 1.4B/2.8B on the *clean* split?
-  WikiMIA AUC rises with scale (zlib 0.564→0.616 at 1.4B) but that split is confounded.
-- **R2 — dedup ablation** (pythia-160m-deduped) and **R8 — Oren at real benchmark scale.**
+## V's strongest rejection argument (recorded, not hidden)
+The novel content is a negative partial-correlation that is (a) the conclusion Al Sahili/Hayes already
+reached, (b) partly the mechanically-expected suppression of regressing a likelihood-derived outcome
+on near-collinear likelihood transforms, and (c) measured only at the smallest model in a near-degenerate
+regime. **Mitigation path:** the GPU replication across scales + the prefix-only-loss construct-validity
+check + elevating the per-domain sign-flip are what move this from borderline to a contribution.
 
-## Compute posture
-Everything is a single `--model` flag away from GPU scale-up (`configs/pythia1.4b_gpu.yaml`).
-2.8B on CPU declined this round (prohibitively slow, out of the 160m/CPU scope).
+## Round DONE-criteria
+1. ✅ novelty_memo + verified cites. 2. ✅ hardening_report (mediation + non-linear + domain + FDR;
+collinearity added). 3. ✅ contamination_matrix + provisional table. 4. 🟡 complete paper written +
+assembled + rendered to **HTML** (LaTeX→PDF is environment-blocked: no engine installable; compile via
+Overleaf/local `pdflatex main`). 5. ✅ consistency_audit. 6. ✅ reviewer_concerns reconciled + V1–V12
+appended + GPU-gated list. 7. ✅ pinned env + one-command repro. 8. ✅ this report.
 
-## Round DONE-criteria status
-1. ✅ Real contamination↔leakage correlation with CIs + master table + ROC/scatter figures.
-2. ✅ n-gram + Oren implemented, tested, run.
-3. ✅ related_work/background/evaluation/introduction finalized; described == implemented; [VERIFY] cleared.
-4. ✅ Pinned env + one-command repro + committed repo.
-5. ✅ Reviewer log R1–R9 (R3/R4/R5 resolved; R1/R2 partial; R6/R7/R8/R9 open with actions).
-6. ✅ This report.
-
-**Single most important next step:** the R6 partial-correlation control (CPU-doable), then the
-GPU scale-up to revive the clean-split signal and actually observe PII leakage.
+**Stop for human review. Nothing committed.**

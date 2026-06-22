@@ -82,16 +82,19 @@ Carlini~et~al.~\cite{carlini2022lira}. Within that honest scope, our contributio
   extraction outcome---prefix-continuation extractable memorization under greedy
   decoding~\cite{carlini2023quantifying}---and, on the Enron Emails subset that already
   sits inside the Pile, against regex-detected PII leakage~\cite{lukas2023pii}. A
-  pre-registered partial-correlation control then isolates the role of raw loss. In our
-  ground-truth $160$M-parameter setting we find that the
-  contamination$\rightarrow$leakage association is carried \emph{entirely by per-item
-  loss}: once loss is held fixed, the calibrated reference-free detectors (Min-K\%,
-  Min-K\%++, zlib) add no predictive value, and Min-K\%/Min-K\%++ are if anything
-  inversely related to extraction. The calibrations that improve membership-detection AUC
-  thus discard the loss-magnitude signal that actually predicts leakage---a divergence
-  between membership detection and leakage prediction that we report as our central
-  empirical finding (robust to deduplication, and not explained by token frequency or the
-  zero-inflated outcome).
+  pre-registered partial-correlation and mediation control then isolates the role of raw
+  loss. In our ground-truth $160$M-parameter setting we find that the
+  contamination$\rightarrow$leakage association is \emph{loss-mediated to the resolution of
+  this experiment}: once loss is held fixed, the calibrated reference-free detectors
+  (Min-K\%, Min-K\%++, zlib) add no positive predictive value. These detectors are
+  themselves near-collinear transforms of loss (Spearman $0.74$--$0.90$), so we read a
+  negative residual for the most collinear of them (Min-K\%) as a likely suppression
+  artifact rather than substantive inverse prediction, and claim only the conservative
+  result: no positive signal beyond loss. The calibrations that improve membership-detection
+  AUC thus do not retain the loss-magnitude signal that predicts leakage---a divergence
+  between membership detection and leakage prediction that we report as our central empirical
+  finding (robust to deduplication and a non-linear loss control, and not explained by token
+  frequency or the zero-inflated outcome).
 \end{itemize}
 We do not propose internal-probe or other novel detectors as contributions, do not train
 or fine-tune models, and do not attack closed production systems for real third-party

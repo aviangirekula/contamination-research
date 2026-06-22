@@ -1,0 +1,27 @@
+The attention mask is not set and cannot be inferred from input because pad token is same as eos token. As a consequence, you may observe unexpected behavior. Please pass your input's `attention_mask` to obtain reliable results.
+Loaded 300 member docs (>= 80 tokens). Per-subset quota: [('ArXiv', 13), ('BookCorpus2', 2), ('Books3', 9), ('DM Mathematics', 13), ('Enron Emails', 13), ('EuroParl', 6), ('FreeLaw', 13), ('Github', 13), ('Gutenberg (PG-19)', 2), ('HackerNews', 13), ('NIH ExPorter', 13), ('OpenSubtitles', 13), ('OpenWebText2', 13), ('PhilPapers', 5), ('Pile-CC', 13), ('PubMed Abstracts', 13), ('PubMed Central', 13), ('StackExchange', 13), ('USPTO Backgrounds', 13), ('Ubuntu IRC', 2), ('Wikipedia (en)', 13), ('YoutubeSubtitles', 11)]
+  scored 25/300
+  scored 50/300
+  scored 75/300
+  scored 100/300
+  scored 125/300
+  scored 150/300
+  scored 175/300
+  scored 200/300
+  scored 225/300
+  scored 250/300
+  scored 275/300
+  scored 300/300
+
+Model=EleutherAI/pythia-160m  N=300  prefix_len=32
+extraction_rate (exact full-suffix match): 0.0100  (3/300)
+mean frac_extracted: 0.0370   median: 0.0000
+frac_extracted histogram:
+  [0,0.1)     : 280
+  [0.1,0.25)  : 13
+  [0.25,0.5)  : 1
+  [0.5,0.75)  : 3
+  [0.75,0.9)  : 0
+  [0.9,1.0)   : 0
+  ==1.0       : 3
+Wrote 300 items -> results/pile_items_160m.jsonl

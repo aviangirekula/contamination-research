@@ -4,9 +4,7 @@ __pycache__/
 .venv/
 venv/
 env/
-results/
-figures/
-*.png
+# results/ and figures/ are tracked (small JSONs + PNGs; reproducible but kept in-repo)
 data/
 *.lock
 .DS_Store

@@ -71,7 +71,9 @@ Figure: `figures/correlation_pythia-160m_scatter.png`.
 | Enron-in-Pile: verbatim PII leakage rate | 0.0000 | aggregate only; 160m doesn't regurgitate the PII at 32-tok prefix |
 | n-gram(13) overlap: member vs non-member | 1.000 vs 0.022 | corpus-side; separation +0.978 |
 | n-gram(13): non-members with residual overlap | 3/44 | real Pile train↔val near-duplicate leakage |
-| Oren permutation test: contaminated vs control p | 0.044 vs 0.124 | dataset-level; contaminated marginally significant, control not (10 short examples — sanity scale) |
+| Oren permutation test: contaminated vs control p | 0.044 vs 0.124 | 10-example sanity demo; SUPERSEDED by the Mx run below |
+| Oren permutation @160m, real benchmarks (n_perm=1000, k=30) | MMLU 0.001 / GSM8K 0.013 / HumanEval 0.875 | GPU-gated; NO contamination conclusion (see `docs/contamination_matrix.md`) |
+| n-gram(13) benchmark↔Pile overlap (vs 10k Pile sample, lower bound) | MMLU 0.2% / GSM8K 0% / HumanEval 0% | model-free; reference is a sample → lower bound only |
 
 ---
 

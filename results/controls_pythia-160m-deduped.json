@@ -1,0 +1,177 @@
+{
+  "model": "EleutherAI/pythia-160m-deduped",
+  "tag": "pythia-160m-deduped",
+  "n": 300,
+  "mean_frac": 0.04473333333333334,
+  "detectors": {
+    "loss": {
+      "raw_rho": 0.3156457414702166,
+      "raw_ci": [
+        0.20255926049040032,
+        0.42296974943095095
+      ],
+      "raw_kendall": 0.24387484313994887,
+      "raw_perm_p": 0.0004997501249375312
+    },
+    "min_20_prob": {
+      "raw_rho": 0.22121462407949116,
+      "raw_ci": [
+        0.10718667147304492,
+        0.3312141882947294
+      ],
+      "raw_kendall": 0.16816591690048177,
+      "raw_perm_p": 0.0004997501249375312,
+      "partial_rho_given_loss": -0.1331080191943897,
+      "partial_ci": [
+        -0.23902855764922085,
+        -0.010845811461471217
+      ],
+      "partial_perm_p": 0.021989005497251374,
+      "partial_kendall_resid": null,
+      "semipartial_rho": -0.1263031522911229,
+      "freqmatched_rho": 0.06480793115700867,
+      "freqmatched_n": 100,
+      "partial_rho_given_freq": 0.21910808947679186
+    },
+    "min_20_plusplus": {
+      "raw_rho": 0.1609711485687338,
+      "raw_ci": [
+        0.04960133516392368,
+        0.2672332730841155
+      ],
+      "raw_kendall": 0.12189630520887408,
+      "raw_perm_p": 0.00849575212393803,
+      "partial_rho_given_loss": -0.1414484590042969,
+      "partial_ci": [
+        -0.2521150477462051,
+        -0.02783618829107524
+      ],
+      "partial_perm_p": 0.013493253373313344,
+      "partial_kendall_resid": null,
+      "semipartial_rho": -0.13421720469653992,
+      "freqmatched_rho": 0.001042365326301538,
+      "freqmatched_n": 100,
+      "partial_rho_given_freq": 0.18786940036725217
+    },
+    "zlib_ratio": {
+      "raw_rho": 0.22013961420955383,
+      "raw_ci": [
+        0.10500953083811314,
+        0.3309041581838914
+      ],
+      "raw_kendall": 0.16865931323368613,
+      "raw_perm_p": 0.0009995002498750624,
+      "partial_rho_given_loss": -0.01644769489408432,
+      "partial_ci": [
+        -0.12504643802548576,
+        0.09392357695338283
+      ],
+      "partial_perm_p": 0.7526236881559221,
+      "partial_kendall_resid": null,
+      "semipartial_rho": -0.015606841162677418,
+      "freqmatched_rho": 0.07409857863056585,
+      "freqmatched_n": 100,
+      "partial_rho_given_freq": 0.2427282190446941
+    }
+  },
+  "R6_family": {
+    "detectors": [
+      "min_20_prob",
+      "min_20_plusplus",
+      "zlib_ratio"
+    ],
+    "perm_p": [
+      0.021989005497251374,
+      0.013493253373313344,
+      0.7526236881559221
+    ],
+    "bh_qvalues": [
+      0.03298350824587706,
+      0.03298350824587706,
+      0.752623688155922
+    ],
+    "bh_rejected": [
+      true,
+      true,
+      false
+    ]
+  },
+  "per_domain_loss_rho": {
+    "ArXiv": {
+      "n": 14,
+      "loss_rho": 0.5486917318756083
+    },
+    "Books3": {
+      "n": 9,
+      "loss_rho": 0.5179323973782373
+    },
+    "DM Mathematics": {
+      "n": 13,
+      "loss_rho": 0.10875205500825674
+    },
+    "Enron Emails": {
+      "n": 13,
+      "loss_rho": 0.16479775246380865
+    },
+    "EuroParl": {
+      "n": 6,
+      "loss_rho": -0.6761234037828133
+    },
+    "FreeLaw": {
+      "n": 17,
+      "loss_rho": 0.35631188012262816
+    },
+    "Github": {
+      "n": 21,
+      "loss_rho": 0.7529217904327254
+    },
+    "HackerNews": {
+      "n": 13,
+      "loss_rho": 0.044572568370250226
+    },
+    "NIH ExPorter": {
+      "n": 13,
+      "loss_rho": -0.18552434993629385
+    },
+    "OpenSubtitles": {
+      "n": 13,
+      "loss_rho": -0.04732449912961666
+    },
+    "OpenWebText2": {
+      "n": 27,
+      "loss_rho": 0.17873108119926945
+    },
+    "PhilPapers": {
+      "n": 5,
+      "loss_rho": -0.8660254037844386
+    },
+    "Pile-CC": {
+      "n": 26,
+      "loss_rho": -0.01681828906153688
+    },
+    "PubMed Abstracts": {
+      "n": 21,
+      "loss_rho": -0.5769820571633398
+    },
+    "PubMed Central": {
+      "n": 15,
+      "loss_rho": 0.22854352508251652
+    },
+    "StackExchange": {
+      "n": 21,
+      "loss_rho": 0.517618317334646
+    },
+    "USPTO Backgrounds": {
+      "n": 17,
+      "loss_rho": 0.17943514064131835
+    },
+    "Wikipedia (en)": {
+      "n": 19,
+      "loss_rho": 0.2823529650651674
+    },
+    "YoutubeSubtitles": {
+      "n": 11,
+      "loss_rho": 0.35976048897510887
+    }
+  }
+}

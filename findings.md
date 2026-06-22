@@ -96,7 +96,9 @@ membership detector) the weakest/non-significant. Artifacts: `figures/correlatio
 | Enron-in-Pile PII: verbatim leakage rate | 0.0000 | same (aggregate; no PII strings stored) |
 | n-gram(13) overlap: member vs non-member mean | 1.000 vs 0.022 (sep +0.978) | `scripts/validate_ngram_oren.py` |
 | n-gram residual: non-members w/ some overlap | 3/44 (real train↔val near-dup leakage) | same |
-| Oren permutation: contaminated vs control p | 0.044 vs 0.124 | same |
+| Oren permutation (10-ex sanity demo; SUPERSEDED by Mx below) | 0.044 vs 0.124 | same |
+| Oren permutation @160m, real benchmarks (n_perm=1000, k=30) | MMLU 0.001 / GSM8K 0.013 / HumanEval 0.875 | `results/contamination_matrix.json` (GPU-gated, no conclusion) |
+| n-gram(13) overlap rate vs 10k-Pile sample (lower bound) | MMLU 0.2% / GSM8K 0% / HumanEval 0% | same |
 | WikiMIA-64 AUC scaling 160m→1.4B (zlib) | 0.564 → 0.616 | `results/wikimia64_summary.json` (1.4B), findings M1 (160m) |
 | WikiMIA-64 AUC scaling 160m→1.4B (loss) | 0.523 → 0.571 | same |
 
@@ -108,6 +110,34 @@ membership detector) the weakest/non-significant. Artifacts: `figures/correlatio
 | Min-K%++ over runner-up (reference-free) on WikiMIA | 📚 | +6.2–10.5% AUROC | zhang2025minkpp |
 | GPT-J memorizes ≥1% of the Pile (extractable) | 📚 | ≥1% | carlini2023quantifying |
 | LiRA gain at low FPR vs. prior attacks | 📚 | ~10× TPR @ low FPR | carlini2022lira |
+
+## Round 2 — St statistical hardening (docs/hardening_report.md; pre-registered)
+Cached per-example data, N=300, no new inference. PRIMARY non-linear control = cubic-residual
+(decile = coarse secondary). FDR over 3 cubic-residual permutation p-values.
+| Detector | zero-order ρ | linear partial ρ\|loss | cubic-residual ρ [95% CI] | BH-q | mediation: direct \| indirect |
+|---|---|---|---|---|---|
+| Min-K% | +0.173 | −0.178 | −0.110 [−0.234, −0.002] | 0.058 | −0.394 [−0.62,−0.15] \| +0.567 [0.35,0.77] |
+| Min-K%++ | +0.108 | −0.148 | −0.160 [−0.287, −0.041] | **0.015** | −0.213 [−0.38,−0.04] \| +0.321 [0.20,0.45] |
+| zlib | +0.177 | −0.042 | −0.052 [−0.165, +0.068] | 0.331 | −0.061 [−0.23,+0.11] \| +0.238 [0.11,0.37] |
+
+**Collinearity (W3, `results/collinearity_pythia-160m.json`):** detector~loss Spearman 0.90/0.74/0.74,
+VIF 6.2/2.6/2.4 → Min-K%'s negative partial is a likely SUPPRESSION artifact; claim only "no positive
+residual beyond loss," not "negatively predicts." Mediation reported descriptively, not causally.
+
+**St VERDICT:** the negative/null SURVIVES the non-linear loss control — REVIVED detectors = NONE
+(non-deduped AND deduped). Mediation: indirect (loss-mediated) effect significantly POSITIVE for all
+three; direct effect null (zlib) or significantly NEGATIVE (Min-K%, Min-K%++) → inconsistent/
+suppression mediation, loss carries >100% of the positive association. Robust to dedup. The
+contamination→leakage link is loss, not the calibrated detectors — confirmed, not a linearity artifact.
+Artifacts: `results/hardening_pythia-160m{,-deduped}.json`, `figures/hardening_pythia-160m_forest.png`.
+
+## Novelty (docs/novelty_memo.md; Subagent N, web-verified)
+Verdict: adjacent-but-distinct / novel framing+method (NOT reproduction). Added verified cites:
+alsahili2025effectiveness (arXiv:2512.13352, closest prior work — ranking/AdaBoost "marginal gains",
+NOT residualization), hayes2025strong (NeurIPS 2025, "Exploring the Limits of Strong MIA on LLMs";
+MIA≠extraction via LiRA direct correlation), chen2025statistical (ACL 2025; detectors do not ROBUSTLY
+beat loss — within-seed-variance; domain/token-diversity dependence), das2024blind, meeus2025sok.
+[VERIFY] remaining: Chen ACL Anthology id, Das workshop proceedings string, carlini2023 verbatim def.
 
 ## Reviewer-concerns ledger (full log in docs/reviewer_concerns.md)
 | # | Concern | Status | Resolution / evidence |

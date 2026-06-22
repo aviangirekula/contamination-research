@@ -33,10 +33,12 @@ def block(path):
 
 
 PARTS = [
-    ("PART 1 — THE PAPER (readable prose, front matter)", ["PAPER_DRAFT.md"]),
+    ("PART 1 — THE PAPER (readable prose, full draft)", ["PAPER_DRAFT_FULL.md"]),
     ("PART 2 — RESULTS, EXPERIMENT DESIGN & ANALYSIS (docs)", [
-        "docs/controls_report.md", "docs/results_table.md", "findings.md",
-        "docs/pre_analysis.md", "docs/reviewer_concerns.md", "docs/milestone1_report.md",
+        "docs/controls_report.md", "docs/hardening_report.md", "docs/contamination_matrix.md",
+        "docs/results_table.md", "findings.md", "docs/pre_analysis.md",
+        "docs/novelty_memo.md", "docs/consistency_audit.md", "docs/adversary_review.md",
+        "docs/reviewer_concerns.md", "docs/milestone1_report.md",
         "docs/integration_report.md", "docs/method_selection_memo.md",
         "docs/experiment_design.md", "docs/glossary.md", "README.md",
     ]),
@@ -45,20 +47,24 @@ PARTS = [
         "detectors/minkpp.py", "detectors/zlib_ratio.py", "detectors/ngram_overlap.py",
         "detectors/oren_permutation.py", "detectors/scorers.py", "detectors/__init__.py",
         "extraction/extract.py", "extraction/pii.py", "extraction/__init__.py",
-        "eval/metrics.py", "eval/partial.py", "eval/__init__.py",
+        "eval/metrics.py", "eval/partial.py", "eval/mediation.py", "eval/__init__.py",
     ]),
     ("PART 4 — ALL EXPERIMENT SCRIPTS & RUNNER", [
         "run.py", "conftest.py",
         "scripts/milestone1_pile.py", "scripts/milestone1_wikimia.py",
         "scripts/milestone1_separation.py", "scripts/extraction_pile.py",
         "scripts/pii_enron.py", "scripts/correlation_160m.py",
-        "scripts/controls_160m.py", "scripts/validate_ngram_oren.py",
-        "scripts/plot_from_scores.py", "scripts/build_bundle.py",
+        "scripts/controls_160m.py", "scripts/hardening_160m.py",
+        "scripts/collinearity_check.py", "scripts/contamination_matrix.py",
+        "scripts/validate_ngram_oren.py", "scripts/plot_from_scores.py",
+        "scripts/plot_hardening.py", "scripts/build_bundle.py",
     ]),
     ("PART 5 — ALL TESTS", sorted(glob.glob("tests/test_*.py"))),
     ("PART 6 — PAPER SOURCE (LaTeX)", [
-        "paper/main.tex", "paper/introduction.tex", "paper/background.tex",
-        "paper/related_work.tex", "paper/evaluation.tex", "paper/datasets_table.tex",
+        "paper/main.tex", "paper/abstract.tex", "paper/introduction.tex",
+        "paper/background.tex", "paper/threat_model.tex", "paper/related_work.tex",
+        "paper/evaluation.tex", "paper/datasets_table.tex", "paper/results.tex",
+        "paper/discussion.tex", "paper/limitations.tex", "paper/conclusion.tex",
     ]),
     ("PART 7 — CONFIG, ENV & BIBLIOGRAPHY", [
         "requirements.txt", "configs/pythia160m_cpu.yaml",
@@ -66,7 +72,8 @@ PARTS = [
     ]),
     ("PART 8 — RAW RESULT SUMMARIES (the actual numbers)", sorted(
         glob.glob("results/*summary*.json") + glob.glob("results/correlation_*.json")
-        + glob.glob("results/controls_*.json"))),
+        + glob.glob("results/controls_[a-z]*.json") + glob.glob("results/hardening_*.json")
+        + glob.glob("results/collinearity_*.json") + glob.glob("results/contamination_matrix.json"))),
 ]
 
 HEADER = """# COMPLETE PROJECT BUNDLE — Benchmark Contamination as a Privacy/Security Vulnerability in LLMs

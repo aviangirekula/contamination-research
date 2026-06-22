@@ -1,0 +1,10 @@
+The attention mask is not set and cannot be inferred from input because pad token is same as eos token. As a consequence, you may observe unexpected behavior. Please pass your input's `attention_mask` to obtain reliable results.
+Loaded 36 Enron Emails docs (>= 80 tokens)
+
+Model=EleutherAI/pythia-160m  Enron Emails  docs=36
+docs with PII in suffix: 8
+docs where PII leaked (verbatim reproduced): 0
+PII leakage rate (leaked / with-PII): 0.0000
+PII type counts across suffixes (type: #docs-with-that-type):
+  email: 8
+Wrote 36 rows -> results/pii_enron_160m.jsonl
