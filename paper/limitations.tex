@@ -7,12 +7,12 @@ GPU-scale replication the pipeline is built for.
 
 \begin{itemize}
  \item \textbf{Single, smallest model.} All results are on Pythia-$160$M (CPU). Memorization grows
- log-linearly with model scale~\cite{carlini2023quantifying}, so both the membership signal and the
+ log-linearly with model scale~\citep{carlini2023quantifying}, so both the membership signal and the
  extraction outcome are expected to be stronger at $1.4$B--$12$B. The present numbers are
  \emph{preliminary}; we have built every analysis so the larger-model run is a one-line
  configuration change.
  \item \textbf{Chance-level membership separation.} On the confound-clean Pile train-vs-val split,
- membership AUC is at chance ($0.45$--$0.49$) at $160$M, consistent with~\cite{duan2024mia}. The
+ membership AUC is at chance ($0.45$--$0.49$) at $160$M, consistent with~\citep{duan2024mia}. The
  divergence result is therefore established in a regime where the membership signal is itself weak;
  whether the calibrated detectors gain \emph{independent} leakage-predictive value once membership
  separation becomes non-trivial at scale is an open question our design is poised to answer.
