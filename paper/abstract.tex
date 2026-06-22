@@ -1,17 +1,17 @@
-% abstract.tex — included by main.tex inside \begin{abstract}...\end{abstract}
+% abstract.tex, included by main.tex inside \begin{abstract}...\end{abstract}
 Large language models are ranked and certified as safe on public benchmarks whose validity
 rests on the benchmark not appearing in pre-training. We study \emph{benchmark contamination}
 not as a measurement-hygiene problem but as a privacy/security vulnerability: contamination is a
 visible symptom of memorization, and memorization is the mechanism by which sensitive content
-leaks. Using the Pythia suite trained on the public Pile---so that membership is ground truth
-rather than an inferred label---we run a systematic, pre-registered comparison of existing
+leaks. Using the Pythia suite trained on the public Pile, so that membership is ground truth
+rather than an inferred label, we run a systematic, pre-registered comparison of existing
 contamination/membership detectors (LOSS, Min-K\%, Min-K\%++, zlib) against a per-item
 \emph{extraction} outcome. We make no claim to a new detector or metric. Our contribution is a
 \emph{controlled} result: a pre-registered partial-correlation and mediation analysis that
 isolates the role of raw per-item loss. We find that the apparent contamination$\rightarrow$leakage
 association is \emph{loss-mediated to the resolution of this experiment}: the calibrated
-reference-free detectors---which are themselves strongly-to-moderately collinear with loss
-(Spearman $0.74$--$0.90$)---add no positive predictive value beyond it, and their residual partials
+reference-free detectors, which are themselves strongly-to-moderately collinear with loss
+(Spearman $0.74$--$0.90$), add no positive predictive value beyond it, and their residual partials
 are null or, for the most loss-collinear detector (Min-K\%), weakly negative in a manner consistent
 with a suppression artifact rather than substantive inverse prediction. This absence of positive
 residual survives a non-linear (cubic-residual and decile-stratified) loss control and

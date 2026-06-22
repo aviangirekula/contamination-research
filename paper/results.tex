@@ -1,4 +1,4 @@
-% results.tex — PRELIMINARY results (Pythia-160m, CPU). Every number traces to findings.md
+% results.tex, PRELIMINARY results (Pythia-160m, CPU). Every number traces to findings.md
 % and a seeded script. Tables are structured so GPU-scaled rows drop in without restructuring.
 \section{Results}
 \label{sec:results}
@@ -13,7 +13,7 @@ We first reproduce, as a control, the known weakness of membership inference on 
 LLMs~\cite{duan2024mia}. On a confound-clean split (members = Pile train, non-members = Pile
 validation, stratified across $22$ Pile subsets to match domain), all four detectors sit at chance
 at $160$M (Table~\ref{tab:membership}); on the temporally-confounded WikiMIA split the same model
-shows a spurious $0.52$--$0.56$, and a $1.4$B model rises further---evidence that the WikiMIA signal
+shows a spurious $0.52$--$0.56$, and a $1.4$B model rises further, evidence that the WikiMIA signal
 is substantially distribution shift, not membership.
 
 \begin{table}[t]
@@ -33,7 +33,7 @@ gives the same chance-level result.}
 \label{tab:membership}
 \end{table}
 
-\subsection{Contamination predicts leakage --- but only through loss}
+\subsection{Contamination predicts leakage, but only through loss}
 \label{sec:res-headline}
 Our headline analysis correlates each per-item detector score with the per-item extraction outcome
 (prefix-continuation extractable memorization under greedy decoding~\cite{carlini2023quantifying}),
@@ -47,7 +47,7 @@ partial $\rho$ with bootstrap CI, the FDR-corrected permutation $q$, and the med
 \toprule
 Detector & zero-order & partial$\mid$loss & cubic-resid.\ [95\% CI] & BH-$q$ & mediation: direct $\mid$ indirect \\
 \midrule
-LOSS & $+0.275$ & --- & --- & --- & (mediator) \\
+LOSS & $+0.275$ &, &, &, & (mediator) \\
 Min-K\% & $+0.173$ & $-0.178$ & $-0.110$ $[-0.234,-0.002]$ & $0.058$ & $-0.394 \mid +0.567$ \\
 Min-K\%++ & $+0.108$ & $-0.148$ & $-0.160$ $[-0.287,-0.041]$ & $\mathbf{0.015}$ & $-0.213 \mid +0.321$ \\
 zlib & $+0.177$ & $-0.042$ & $-0.052$ $[-0.165,+0.068]$ & $0.331$ & $-0.061 \mid +0.238$ \\
@@ -55,7 +55,7 @@ zlib & $+0.177$ & $-0.042$ & $-0.052$ $[-0.165,+0.068]$ & $0.331$ & $-0.061 \mid
 \end{tabular}
 \caption{Headline: per-item contamination score vs.\ extraction (Spearman $\rho$), Pythia-$160$M,
 $N=300$ members. The positive zero-order correlations collapse to $\approx 0$ or significantly
-\emph{negative} once loss is controlled---linearly, and under the non-linear cubic-residual control
+\emph{negative} once loss is controlled, linearly, and under the non-linear cubic-residual control
 (no positive signal revives; deciles and the deduplicated arm agree). Mediation: the loss-mediated
 \emph{indirect} effect is significantly positive for all three detectors while the \emph{direct}
 effect is null (zlib) or negative (Min-K\%, Min-K\%++). We read this as a \emph{descriptive}
@@ -82,8 +82,8 @@ outcome ($3/300$ fully extracted), this is evidence of \emph{no positive indepen
 appreciable size}, not proof of an exact null; the analysis is well-powered only for moderate-to-large
 positive residuals, and a small positive effect at scale is not excluded (hence the GPU replication).
 The per-domain breakdown (ledger) shows the loss$\leftrightarrow$extraction link is heterogeneous and
-sign-flipping across domains---strongest in templated/structured domains (GitHub, StackExchange),
-reversed in some prose domains (PubMed Abstracts)---so the pooled $\rho$ is a domain-mixture, not a
+sign-flipping across domains, strongest in templated/structured domains (GitHub, StackExchange),
+reversed in some prose domains (PubMed Abstracts), so the pooled $\rho$ is a domain-mixture, not a
 uniform effect.
 
 \subsection{Extraction and PII at this scale}
@@ -102,12 +102,12 @@ We complement the per-item analysis with two benchmark-level contamination tests
 ($10$k documents) is a scale-invariant method but, with a sampled reference, yields only a loose
 \emph{lower bound}: overlap is near-zero for MMLU ($0.2\%$ at $13$-grams), GSM8K ($0\%$), and
 HumanEval ($0\%$ at $13$-grams), which certifies overlap is \emph{at least} this small and is
-uninformative about true contamination---a full-Pile index (infrastructure-, not GPU-, gated) is
+uninformative about true contamination, a full-Pile index (infrastructure-, not GPU-, gated) is
 required for a real rate. The Oren permutation/exchangeability test~\cite{oren2024proving} at $160$M
 finds the canonical ordering favoured beyond chance for MMLU ($p=0.001$) and GSM8K ($p=0.013$) but
 not HumanEval ($p=0.875$); we draw \emph{no} contamination conclusion from this, as the test is
 membership-based, run at sanity scale (small $k$, smallest model), and subject to a fluency/orientation
-artifact---it is flagged GPU-gated and requires a fluency-control baseline before any claim.
+artifact, it is flagged GPU-gated and requires a fluency-control baseline before any claim.
 
 \begin{table}[t]
 \centering\footnotesize\setlength{\tabcolsep}{4pt}
