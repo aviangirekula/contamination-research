@@ -1,4 +1,4 @@
-% threat_model.tex — standalone Threat Model section (promoted from a subsection).
+% threat_model.tex, standalone Threat Model section (promoted from a subsection).
 \section{Threat Model}
 \label{sec:threat}
 
@@ -8,13 +8,13 @@ low false-positive operating point rather than on average~\cite{carlini2022lira}
 
 \paragraph{Adversary goals (graded).}
 \begin{itemize}
-  \item \textbf{G1 --- Membership inference.} Decide whether a specific sequence (a benchmark item,
-  document, or record) was in the training corpus.
-  \item \textbf{G2 --- Benchmark-level contamination confirmation.} Decide, with a controlled
-  false-positive rate, whether an entire benchmark was trained on.
-  \item \textbf{G3 --- Extraction / leakage.} Recover verbatim content---and, on a controlled
-  corpus, PII---that was in training. This is the concrete harm; G1--G2 are of interest largely
-  insofar as they predict G3.
+ \item \textbf{G1: membership inference.} Decide whether a specific sequence (a benchmark item,
+ document, or record) was in the training corpus.
+ \item \textbf{G2: benchmark-level contamination confirmation.} Decide, with a controlled
+ false-positive rate, whether an entire benchmark was trained on.
+ \item \textbf{G3: extraction / leakage.} Recover verbatim content (and, on a controlled
+ corpus, PII) that was in training. This is the concrete harm; G1--G2 are of interest largely
+ insofar as they predict G3.
 \end{itemize}
 
 \paragraph{Adversary knowledge and access.} We grade detectors by the minimum access each requires:
@@ -29,7 +29,7 @@ need corpus access for G1/G3.
 \paragraph{Success criteria.} G1: true-positive rate at $0.1\%$ and $1\%$ false-positive rate
 (log-scale ROC), with AUC secondary and bootstrap confidence intervals. G2: a permutation-test
 $p$-value below threshold with a controlled false-positive rate~\cite{oren2024proving}. G3: a
-non-zero extraction rate, and---our headline analysis---a positive association between a per-item
+non-zero extraction rate and, as our headline analysis, a positive association between a per-item
 contamination score and the per-item extraction outcome that \emph{survives controlling for raw
 loss}. The last criterion is what distinguishes a contamination signal that genuinely predicts
 leakage from one that merely restates the model's loss.

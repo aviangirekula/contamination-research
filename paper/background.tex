@@ -1,13 +1,13 @@
 % =============================================================================
-% background.tex  --  "LLM Evaluation Benchmarks" (the attack-surface framing).
+% background.tex -- "LLM Evaluation Benchmarks" (the attack-surface framing).
 % Owner: Subagent A (Literature Review Writer). All \cite keys -> ../references.bib.
 %
 % DIVERGENCES FROM THE PASTED DRAFT (flagged for review):
-%  * Removed reliance on "Wei et al. 2023" (Skywork, a model paper) for definitional
-%    claims; replaced with the survey (ravaut2024survey) and primary sources.
-%  * Kept the benchmarks-as-proxies and assumption-violation argument, re-grounded.
-%  * Dropped unverified citations (Deng et al.) not in the verified bib; if you want
-%    them, they must be verified and added to references.bib first.
+% * Removed reliance on "Wei et al. 2023" (Skywork, a model paper) for definitional
+% claims; replaced with the survey (ravaut2024survey) and primary sources.
+% * Kept the benchmarks-as-proxies and assumption-violation argument, re-grounded.
+% * Dropped unverified citations (Deng et al.) not in the verified bib; if you want
+% them, they must be verified and added to references.bib first.
 % =============================================================================
 
 \section{Background: LLM Evaluation Benchmarks as an Attack Surface}
@@ -15,7 +15,7 @@
 
 \subsection{Benchmarks as proxies for latent capabilities}
 Large language model (LLM) benchmarks function as \emph{proxies} for latent
-capabilities---reasoning, comprehension, factual knowledge, coding proficiency---that
+capabilities, reasoning, comprehension, factual knowledge, coding proficiency, that
 cannot be measured directly. By scoring a model on a fixed set of standardized tasks,
 the community infers a model's likely utility (and, increasingly, its safety) in
 deployment~\cite{hendrycks2021mmlu}. Canonical examples target distinct competencies:
@@ -27,14 +27,14 @@ drive model-selection decisions, leaderboard rankings, and published claims of p
 \subsection{The core validity assumption}
 The inferential validity of benchmark evaluation rests on one strict assumption:
 \emph{the test data was not seen during pre-training}. Only under this assumption does
-high benchmark performance license the intended conclusion---that the model
+high benchmark performance license the intended conclusion, that the model
 \emph{generalizes} (applies learned regularities to novel inputs) rather than
 \emph{memorizes} (retrieves specific training instances). When the assumption is
 violated, the benchmark no longer measures capability; a memorized test item inflates
 the score without any corresponding gain in generalization, rendering the metric an
 unreliable estimator of the construct it claims to measure. The generalization-versus-
 memorization distinction is not merely conceptual: memorization is directly measurable
-as the verbatim regeneration of training sequences and grows predictably---log-linearly
+as the verbatim regeneration of training sequences and grows predictably, log-linearly
 in model scale, data duplication, and context length~\cite{carlini2023quantifying}. The
 same phenomenon has a sharper, privacy-relevant form: a planted secret's
 \emph{exposure}, the model's tendency to rank that secret above random alternatives,
@@ -47,7 +47,7 @@ is thus the visible end of the same mechanism that retains rare, sensitive strin
 The security-relevant tension is structural. Evaluation benchmarks are \emph{static,
 small, widely circulated, and publicly indexed}: once published, an MMLU or GSM8K item
 is copied into papers, blog posts, GitHub repositories, and discussion forums. Training
-corpora, by contrast, are \emph{massive web scrapes with weak filtering}---Common
+corpora, by contrast, are \emph{massive web scrapes with weak filtering}, Common
 Crawl~\cite{commoncrawl} and The Pile~\cite{gao2020pile} are assembled at the scale of
 hundreds of gigabytes to petabytes, where exhaustive removal of any particular short
 string is impractical. The natural consequence is that benchmark items are swept into
@@ -59,7 +59,7 @@ eventual presence in the next corpus crawl.
 We argue this is best understood through a security lens rather than purely as a
 measurement-hygiene problem. Contamination converts an evaluation artifact into a
 channel that (i) invalidates the safety and capability claims downstream decisions rely
-on, and (ii)---the focus of this paper---couples directly to \emph{memorization}, and
+on, and (ii), the focus of this paper, couples directly to \emph{memorization}, and
 through memorization to the leakage of sensitive content that co-occurs in the same
 weakly filtered corpora. Section~\ref{sec:relatedwork} formalizes contamination, its
 typology, and the detection and memorization literature on which our evaluation builds.

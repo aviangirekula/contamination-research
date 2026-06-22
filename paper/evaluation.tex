@@ -1,23 +1,23 @@
 % =============================================================================
-% evaluation.tex  --  reconciled "Evaluation Overview".
+% evaluation.tex -- reconciled "Evaluation Overview".
 % Owner: Subagent A, reconciled with docs/experiment_design.md + method memo.
 %
 % MAJOR DIVERGENCES FROM THE PASTED DRAFT (each flagged; please review):
-%  [D1] REMOVED the "Proposed Method: Internal Activation Analysis" as a claimed
-%       contribution. The advisor constraint forbids proposing a novel detector. It
-%       survives only as an optional exploratory probe in the Discussion, not a result.
-%  [D2] REPLACED Precision/Recall/F1 as primary metrics with TPR@low-FPR + log-scale
-%       ROC + AUC (Carlini S&P'22 convention). P/R/F1 retained only as a secondary,
-%       fixed-threshold view for the benchmark-flagging use case.
-%  [D3] REMOVED the "fine-tune to force overfitting on PII" positive control. We do not
-%       train models. Memorization ground truth comes from public Pile membership and
-%       Pythia's known duplication counts / checkpoints. Enron PII is studied because
-%       the Enron Emails corpus is itself a Pile subset (i.e., already in training),
-%       giving controlled PII ground truth without inducing new memorization.
-%       [VERIFY] confirm Enron Emails is a Pile component before citing as such.
-%  [D4] REPLACED k-fold cross-validation (a trained-classifier validation scheme) with
-%       multi-seed bootstrap confidence intervals + a permutation test, appropriate for
-%       threshold-free attack metrics.
+% [D1] REMOVED the "Proposed Method: Internal Activation Analysis" as a claimed
+% contribution. The advisor constraint forbids proposing a novel detector. It
+% survives only as an optional exploratory probe in the Discussion, not a result.
+% [D2] REPLACED Precision/Recall/F1 as primary metrics with TPR@low-FPR + log-scale
+% ROC + AUC (Carlini S&P'22 convention). P/R/F1 retained only as a secondary,
+% fixed-threshold view for the benchmark-flagging use case.
+% [D3] REMOVED the "fine-tune to force overfitting on PII" positive control. We do not
+% train models. Memorization ground truth comes from public Pile membership and
+% Pythia's known duplication counts / checkpoints. Enron PII is studied because
+% the Enron Emails corpus is itself a Pile subset (i.e., already in training),
+% giving controlled PII ground truth without inducing new memorization.
+% [VERIFY] confirm Enron Emails is a Pile component before citing as such.
+% [D4] REPLACED k-fold cross-validation (a trained-classifier validation scheme) with
+% multi-seed bootstrap confidence intervals + a permutation test, appropriate for
+% threshold-free attack metrics.
 % =============================================================================
 
 \section{Evaluation Overview}
@@ -33,7 +33,7 @@ Min-K\%++). Success is defined by the security-appropriate operating point rathe
 average accuracy.
 
 \subsection{Methods under comparison}
-We evaluate \emph{existing} detectors only---we propose no new detector. The
+We evaluate \emph{existing} detectors only; we propose no new detector. The
 per-item membership suite is LOSS/perplexity~\cite{yeom2018privacy}, Min-K\%
 Prob~\cite{shi2024detecting}, Min-K\%++~\cite{zhang2025minkpp}, and the zlib-entropy
 ratio~\cite{carlini2021extracting}. Two further tests operate off the per-item
@@ -46,10 +46,10 @@ outcome is prefix-continuation extractable memorization under greedy
 decoding~\cite{carlini2023quantifying}; on the controlled corpus we additionally measure
 regex-detected PII leakage, framed via the PII-leakage games of
 Lukas~et~al.~\cite{lukas2023pii}. Related approaches we deliberately \emph{do not}
-evaluate---guided prompting~\cite{golchin2024timetravel}, neighbourhood and shadow-model
+evaluate, guided prompting~\cite{golchin2024timetravel}, neighbourhood and shadow-model
 reference attacks~\cite{mattern2023neighbourhood,shokri2017membership}, and the
 divergence-style extraction of production
-models~\cite{nasr2025scalable}---are discussed in Section~\ref{sec:relatedwork}.
+models~\cite{nasr2025scalable}, are discussed in Section~\ref{sec:relatedwork}.
 \textbf{[D1]} An internal-activation probe is reported, if at all, only as exploratory
 analysis in the Discussion, not as a contribution.
 
@@ -63,8 +63,8 @@ variant provide exact membership ground truth. We use the released MIMIR member/
 non-member splits~\cite{duan2024mia}, which control $n$-gram overlap between members and
 non-members. OLMo~\cite{groeneveld2024olmo} on Dolma~\cite{soldaini2024dolma} is a
 secondary replication target. The Pile sits within the broader weakly filtered
-web-scrape regime---Common Crawl~\cite{commoncrawl} and its filtered derivatives
-C4~\cite{raffel2020c4,dodge2021c4} and RedPajama~\cite{weber2024redpajama}---that makes
+web-scrape regime, Common Crawl~\cite{commoncrawl} and its filtered derivatives
+C4~\cite{raffel2020c4,dodge2021c4} and RedPajama~\cite{weber2024redpajama}, that makes
 benchmark contamination structural rather than adversarial.
 
 \input{datasets_table}
@@ -80,13 +80,13 @@ PII results are reported in aggregate; no real PII is reproduced in the paper.
 convention~\cite{carlini2022lira}, the primary metric is \emph{true-positive rate at a
 fixed low false-positive rate} (TPR @ $0.1\%$ and $1\%$ FPR) reported with
 \emph{log-scale ROC}; AUC-ROC is reported secondarily. These capture whether a detector
-\emph{confidently} identifies members---the privacy-relevant regime---which average-case
+\emph{confidently} identifies members, the privacy-relevant regime, which average-case
 accuracy hides. For benchmark flagging at a chosen operating threshold we additionally
 report precision/recall/F1 as a secondary, application-facing view. The leakage outcome
 is the \emph{extraction rate}~\cite{carlini2023quantifying}. The headline analysis is
 the \emph{Spearman correlation between per-item contamination score and per-item
 extraction/leakage outcome}, with bootstrap confidence intervals and a pre-registered
-partial-correlation control that isolates the contribution of raw loss---the quantitative
+partial-correlation control that isolates the contribution of raw loss, the quantitative
 form of the paper's central question.
 
 \subsection{Validation and controls}
@@ -103,7 +103,7 @@ training~\cite{abadi2016deep,li2022dpllm} is discussed as the mitigation directi
 training time rather than an auditor-side detector.
 
 This section fixes the threat model, methods, data, and metrics; the empirical results
-under this protocol---per-detector TPR at low FPR with log-scale ROC, extraction rates,
+under this protocol, per-detector TPR at low FPR with log-scale ROC, extraction rates,
 and the headline contamination$\rightarrow$leakage correlation with confidence
-intervals---are reported in the results section, with every reported number tracing to a
+intervals, are reported in the results section, with every reported number tracing to a
 logged harness run.
