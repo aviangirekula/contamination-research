@@ -64,9 +64,12 @@ def main():
                     "-o", "paper/main.html", "--metadata",
                     "title=Benchmark Contamination as a Privacy/Security Vulnerability in LLMs (working draft)"],
                    check=True)
+    # Microsoft Word (.docx): native pandoc writer, no engine needed; APA citations + References.
+    subprocess.run(["pandoc", "/tmp/full_cites.tex", *common, "-o", "paper/main.docx"], check=True)
     subprocess.run([sys.executable, "scripts/build_pdf.py", "--md", "PAPER_DRAFT_FULL.md",
                     "--out", "paper/main.pdf"], check=True)
-    print("rendered: PAPER_DRAFT_FULL.md, paper/main.html, paper/main.pdf (APA citations + References)")
+    print("rendered: PAPER_DRAFT_FULL.md, paper/main.html, paper/main.docx, paper/main.pdf "
+          "(APA citations + References)")
 
 
 if __name__ == "__main__":
