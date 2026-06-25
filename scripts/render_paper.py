@@ -13,11 +13,13 @@ from __future__ import annotations
 import os
 import pathlib
 import re
+import shutil
 import subprocess
 import sys
 
 ROOT = pathlib.Path(__file__).resolve().parent.parent
 os.chdir(ROOT)
+PANDOC = shutil.which("pandoc") or "/opt/anaconda3/bin/pandoc"
 ORDER = ["abstract", "introduction", "background", "threat_model", "related_work",
          "evaluation", "results", "discussion", "limitations", "conclusion"]
 
@@ -49,7 +51,7 @@ def main():
     else:
         print("WARNING: paper/apa.csl missing; falling back to pandoc default (Chicago) style")
 
-    subprocess.run(["pandoc", "/tmp/full_cites.tex", *common, "-t", "gfm",
+    subprocess.run([PANDOC, "/tmp/full_cites.tex", *common, "-t", "gfm",
                     "-o", "PAPER_DRAFT_FULL.md"], check=True)
     # Strip citeproc's <div> wrappers around the bibliography so the references render as
     # clean APA paragraphs (one per entry) in the Markdown and the reportlab PDF.
@@ -60,12 +62,12 @@ def main():
             continue
         kept.append(ln)
     md.write_text(re.sub(r"\n{3,}", "\n\n", "\n".join(kept)))
-    subprocess.run(["pandoc", "/tmp/full_cites.tex", *common, "-s", "--toc",
+    subprocess.run([PANDOC, "/tmp/full_cites.tex", *common, "-s", "--toc",
                     "-o", "paper/main.html", "--metadata",
                     "title=Benchmark Contamination as a Privacy/Security Vulnerability in LLMs (working draft)"],
                    check=True)
     # Microsoft Word (.docx): native pandoc writer, no engine needed; APA citations + References.
-    subprocess.run(["pandoc", "/tmp/full_cites.tex", *common, "-o", "paper/main.docx"], check=True)
+    subprocess.run([PANDOC, "/tmp/full_cites.tex", *common, "-o", "paper/main.docx"], check=True)
     subprocess.run([sys.executable, "scripts/build_pdf.py", "--md", "PAPER_DRAFT_FULL.md",
                     "--out", "paper/main.pdf"], check=True)
     print("rendered: PAPER_DRAFT_FULL.md, paper/main.html, paper/main.docx, paper/main.pdf "
