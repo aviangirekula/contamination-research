@@ -3,7 +3,7 @@
 Average the log-probabilities of the k% lowest-probability tokens. Intuition: a
 non-member is more likely to contain a few very-low-probability ("surprising") tokens,
 so the mean over the worst k% separates members (higher) from non-members (lower).
-Reference-free; needs only per-token log-probabilities (gray-box).
+Reference-free. Needs only per-token log-probabilities (gray-box).
 """
 from __future__ import annotations
 

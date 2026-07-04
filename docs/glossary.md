@@ -18,7 +18,7 @@ is missing here, add it here first, then use it.
 | $X_{\text{train}}$ | The model's training corpus (for Pythia: **The Pile**) |
 | member / non-member | $x \in X_{\text{train}}$ vs. $x \notin X_{\text{train}}$ |
 | $\tau$ | Decision threshold on a detector score |
-| $s(x) \to \mathbb{R}$ | A detector's score for sequence $x$ (uniform interface; higher ⇒ more "member-like" unless noted) |
+| $s(x) \to \mathbb{R}$ | A detector's score for sequence $x$ (uniform interface. Higher ⇒ more "member-like" unless noted) |
 
 ## Detector score definitions (as implemented in `detectors/`)
 
@@ -44,11 +44,11 @@ is missing here, add it here first, then use it.
 - **n-gram overlap** (`detectors/ngram_overlap.py`, `NGramOverlapDetector`, after Brown et al. 2020):
   corpus-side contamination score = the **fraction of a text's $N$-grams** (default $N=13$,
   **whitespace-tokenized**, case- and punctuation-sensitive) that are found in a prebuilt index
-  of the corpus's $N$-grams. Range $[0,1]$ (1 = every $N$-gram of the text appears in the corpus;
+  of the corpus's $N$-grams. Range $[0,1]$ (1 = every $N$-gram of the text appears in the corpus.
   texts shorter than $N$ tokens score 0). This is a **model-free, corpus-side** measure: it needs
   corpus access, not model access, and consumes no `TokenStats`. NOTE: its axis is *different* from
-  the membership detectors above — it is "fraction matched in corpus," **not** the
-  "higher ⇒ more member-like" log-prob convention of $s(x)$; do not threshold the two on a shared
+  the membership detectors above, it is "fraction matched in corpus," **not** the
+  "higher ⇒ more member-like" log-prob convention of $s(x)$. Do not threshold the two on a shared
   scale. The strict GPT-3 rule "any shared 13-gram ⇒ contaminated" is the special case
   `contains_overlap(text, threshold=0.0)`.
 
@@ -56,11 +56,11 @@ is missing here, add it here first, then use it.
   a **dataset-level** (not per-text) contamination test over an **ordered set of examples**. For a
   given ordering it concatenates the examples in that order into a single string (joined by `sep`,
   default newline) and re-scores the *whole* string under $f_\theta$, so each example's tokens are
-  conditioned on the running prefix of the earlier examples (**context crosses example boundaries** —
-  this is what makes order matter; a per-example sum of log-likelihoods is order-invariant and would
+  conditioned on the running prefix of the earlier examples (**context crosses example boundaries**, 
+  this is what makes order matter. A per-example sum of log-likelihoods is order-invariant and would
   be vacuous). It compares the canonical-order total log-likelihood against the null distribution from
   `n_permutations` random shufflings and returns a **one-sided permutation p-value**
-  $p = (1 + \#\{\text{perm}: \mathrm{loglik}(\text{perm}) \ge \mathrm{loglik}(\text{canonical})\}) / (\text{n\_permutations} + 1)$;
+  $p = (1 + \#\{\text{perm}: \mathrm{loglik}(\text{perm}) \ge \mathrm{loglik}(\text{canonical})\}) / (\text{n\_permutations} + 1)$.
   small $p$ ⇒ the canonical order is favored beyond chance ⇒ evidence of contamination. It does **not**
   implement the `Detector` ABC and returns a p-value, not a member-like score $s(x)$.
 
@@ -78,13 +78,13 @@ is missing here, add it here first, then use it.
 
 ## Evaluation metrics (as implemented in `eval/metrics.py`)
 
-- **AUC-ROC** — threshold-free ranking quality; reported as a secondary/continuity metric.
-- **TPR @ FPR ∈ {0.1%, 1%}** — PRIMARY metric (Carlini et al. 2022); true-positive rate at a
+- **AUC-ROC**, threshold-free ranking quality. Reported as a secondary/continuity metric.
+- **TPR @ FPR ∈ {0.1%, 1%}**, PRIMARY metric (Carlini et al. 2022). True-positive rate at a
   fixed low false-positive operating point.
-- **log-scale ROC** — ROC with log-log axes so the low-FPR regime is legible.
-- **extraction rate** — fraction of prefixes whose greedy continuation matches the held suffix.
-- **contamination/flag rate** — fraction of benchmark items flagged by a detector at threshold $\tau$.
-- **contamination↔leakage correlation** — the headline analysis: per-item detector score vs.
+- **log-scale ROC**, ROC with log-log axes so the low-FPR regime is legible.
+- **extraction rate**, fraction of prefixes whose greedy continuation matches the held suffix.
+- **contamination/flag rate**, fraction of benchmark items flagged by a detector at threshold $\tau$.
+- **contamination↔leakage correlation**, the headline analysis: per-item detector score vs.
   per-item extraction/leakage outcome (Spearman $\rho$ + bootstrap CI).
 
 ## Threat-model vocabulary

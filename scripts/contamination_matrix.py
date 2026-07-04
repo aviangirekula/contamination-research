@@ -4,7 +4,7 @@
 Runs EXACTLY the Mx pre-registration, nothing more:
 
 Mx-1 (scale-invariant, model-free): n-gram/substring overlap of benchmark items vs a public
-  Pile SAMPLE (NeelNanda/pile-10k). For each benchmark (MMLU, GSM8K, HumanEval; up to 500
+  Pile SAMPLE (NeelNanda/pile-10k). For each benchmark (MMLU, GSM8K, HumanEval. Up to 500
   items, seed 0) and each N in {13 primary, 8 secondary}, report:
     * contamination rate = fraction of items with ANY n-gram overlap (GPT-3 13-gram rule)
     * mean per-item overlap fraction.
@@ -35,7 +35,7 @@ from detectors import NGramOverlapDetector  # noqa: E402
 
 # ---------------------------------------------------------------- benchmark loaders
 def _try_load(names_configs, split):
-    """Try each (name, config) in order; return (dataset, used_name, used_config).
+    """Try each (name, config) in order. Return (dataset, used_name, used_config).
 
     Records which loader name actually worked so it can be reported.
     """

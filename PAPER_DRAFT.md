@@ -1,5 +1,5 @@
 # Benchmark Contamination as a Privacy & Security Vulnerability in LLMs
-### WORKING DRAFT — front matter only (for external assessment)
+### WORKING DRAFT, front matter only (for external assessment)
 
 > **What this file is.** A consolidated draft of the *front matter* of a security paper
 > (target: IEEE S&P / USENIX Security). It contains **Introduction, Background, Related Work,
@@ -18,17 +18,17 @@
 > **CRITICAL FINDING the assessor must know (changes interpretation of the thesis):** a
 > pre-registered statistical control (R6) on the real Pythia-160m data showed the
 > contamination→leakage correlation **does NOT survive controlling for raw loss**. Raw loss
-> predicts leakage (Spearman ρ≈0.28); the calibrated reference-free detectors (Min-K%,
+> predicts leakage (Spearman ρ≈0.28). The calibrated reference-free detectors (Min-K%,
 > Min-K%++, zlib) add **no** predictive value beyond loss (partial ρ|loss: Min-K% −0.18,
-> Min-K%++ −0.15, both FDR-significant and NEGATIVE; zlib ≈0). Robust to deduplication; not a
+> Min-K%++ −0.15, both FDR-significant and NEGATIVE. Zlib ≈0). Robust to deduplication. Not a
 > frequency or zero-inflation artifact. The honest reframed finding is the **divergence between
 > membership-detection and leakage-prediction** (the detectors that are better membership
 > classifiers are worse leakage predictors). Full detail: `docs/controls_report.md`,
-> pre-registration: `docs/pre_analysis.md`. NOTE: this is a *preliminary 160m* result; a GPU
+> pre-registration: `docs/pre_analysis.md`. NOTE: this is a *preliminary 160m* result. A GPU
 > scale-up is pending and could shift it.
 >
 > **Status of numbers:** all results are real, logged, reproducible (Pythia-160m, CPU). The
-> master results table is `docs/results_table.md`; the controls verdict is `docs/controls_report.md`.
+> master results table is `docs/results_table.md`. The controls verdict is `docs/controls_report.md`.
 
 ---
 
@@ -41,11 +41,11 @@ meaningful under one assumption: that the evaluation data was absent
 from pre-training. The assumption is increasingly untenable. Benchmarks
 are small, static, and endlessly redistributed across the web, while
 training corpora are weakly filtered crawls assembled at the scale of
-hundreds of gigabytes to petabytes \[commoncrawl,gao2020pile\];
+hundreds of gigabytes to petabytes \[commoncrawl,gao2020pile\].
 benchmark items are therefore swept into the next crawl by ordinary
 copying, with no adversary required. The resulting *benchmark
-contamination*—the presence of evaluation data in the training
-corpus \[golchin2024timetravel\]—is usually treated as a
+contamination*, the presence of evaluation data in the training
+corpus \[golchin2024timetravel\], is usually treated as a
 measurement-hygiene problem: a contaminated score over-states
 capability \[ravaut2024survey\].
 
@@ -59,7 +59,7 @@ in this view, is a visible symptom of unintended memorization, and
 memorization is the mechanism by which sensitive content leaks. If a
 cheap, model-side contamination signal predicts which items the model
 has memorized, then the act of contaminating a benchmark is not merely
-inflating a metric; it is exposing a leakage channel. We make this
+inflating a metric. It is exposing a leakage channel. We make this
 contamination → memorization → leakage chain the object of empirical
 study, on models whose training corpus is fully public so that
 membership is ground truth rather than a guess.
@@ -74,7 +74,7 @@ not an obstacle. Rather than claim a stronger attack, we ask a sharper,
 security-relevant question: *even where the membership signal is weak,
 does it still predict concrete leakage?* Answering it requires the
 evaluation discipline that security venues expect of a privacy
-attack—true-positive rate at a low, fixed false-positive rate, read off
+attack, true-positive rate at a low, fixed false-positive rate, read off
 a log-scale ROC curve, rather than an average-case AUC that hides
 whether the attack ever fires confidently \[carlini2022lira\]. It also
 exposes a question the membership-inference literature does not ask:
@@ -82,7 +82,7 @@ detectors are tuned and ranked by how well they separate members from
 non-members, but leakage is a property of *how much* the model memorized
 a specific item. We therefore evaluate each detector not only as a
 membership classifier but as a predictor of concrete leakage, and ask
-whether the two objectives coincide—finding that they do not.
+whether the two objectives coincide, finding that they do not.
 
 #### Contributions (and explicit non-contributions).
 
@@ -95,9 +95,9 @@ contributions are:
 
 -   **A security reframing and threat model.** We recast benchmark
     contamination as a membership/exposure vulnerability with an
-    explicit adversary and graded goals—membership inference on a single
+    explicit adversary and graded goals, membership inference on a single
     item, benchmark-level contamination confirmation, and verbatim/PII
-    extraction—rather than as a measurement artifact
+    extraction, rather than as a measurement artifact
     (Section <a href="#sec:background" data-reference-type="ref" data-reference="sec:background">2</a>,
     Section <a href="#sec:eval" data-reference-type="ref" data-reference="sec:eval">4</a>).
 
@@ -113,10 +113,10 @@ contributions are:
     identifies \[biderman2023pythia,gao2020pile,duan2024mia\].
 
 -   **A pre-registered measurement of *which* contamination signal
-    predicts leakage—and which does not.** We correlate per-item
+    predicts leakage, and which does not.** We correlate per-item
     contamination scores against an extraction
-    outcome—prefix-continuation extractable memorization under greedy
-    decoding \[carlini2023quantifying\]—and, on the Enron Emails subset
+    outcome, prefix-continuation extractable memorization under greedy
+    decoding \[carlini2023quantifying\], and, on the Enron Emails subset
     that already sits inside the Pile, against regex-detected PII
     leakage \[lukas2023pii\]. A pre-registered partial-correlation
     control then isolates the role of raw loss. In our ground-truth
@@ -126,14 +126,14 @@ contributions are:
     Min-K%++, zlib) add no predictive value, and Min-K%/Min-K%++ are if
     anything inversely related to extraction. The calibrations that
     improve membership-detection AUC thus discard the loss-magnitude
-    signal that actually predicts leakage—a divergence between
+    signal that actually predicts leakage, a divergence between
     membership detection and leakage prediction that we report as our
     central empirical finding (robust to deduplication, and not
     explained by token frequency or the zero-inflated outcome).
 
 We do not propose internal-probe or other novel detectors as
 contributions, do not train or fine-tune models, and do not attack
-closed production systems for real third-party PII; differential privacy
+closed production systems for real third-party PII. Differential privacy
 and related defenses are discussed as the mitigation direction only.
 
 # Background: LLM Evaluation Benchmarks as an Attack Surface
@@ -141,8 +141,8 @@ and related defenses are discussed as the mitigation direction only.
 ## Benchmarks as proxies for latent capabilities
 
 Large language model (LLM) benchmarks function as *proxies* for latent
-capabilities—reasoning, comprehension, factual knowledge, coding
-proficiency—that cannot be measured directly. By scoring a model on a
+capabilities, reasoning, comprehension, factual knowledge, coding
+proficiency, that cannot be measured directly. By scoring a model on a
 fixed set of standardized tasks, the community infers a model’s likely
 utility (and, increasingly, its safety) in
 deployment \[hendrycks2021mmlu\]. Canonical examples target distinct
@@ -158,15 +158,15 @@ progress.
 The inferential validity of benchmark evaluation rests on one strict
 assumption: *the test data was not seen during pre-training*. Only under
 this assumption does high benchmark performance license the intended
-conclusion—that the model *generalizes* (applies learned regularities to
+conclusion, that the model *generalizes* (applies learned regularities to
 novel inputs) rather than *memorizes* (retrieves specific training
 instances). When the assumption is violated, the benchmark no longer
-measures capability; a memorized test item inflates the score without
+measures capability. A memorized test item inflates the score without
 any corresponding gain in generalization, rendering the metric an
 unreliable estimator of the construct it claims to measure. The
 generalization-versus- memorization distinction is not merely
 conceptual: memorization is directly measurable as the verbatim
-regeneration of training sequences and grows predictably—log-linearly in
+regeneration of training sequences and grows predictably, log-linearly in
 model scale, data duplication, and context
 length \[carlini2023quantifying\]. The same phenomenon has a sharper,
 privacy-relevant form: a planted secret’s *exposure*, the model’s
@@ -183,7 +183,7 @@ The security-relevant tension is structural. Evaluation benchmarks are
 *static, small, widely circulated, and publicly indexed*: once
 published, an MMLU or GSM8K item is copied into papers, blog posts,
 GitHub repositories, and discussion forums. Training corpora, by
-contrast, are *massive web scrapes with weak filtering*—Common
+contrast, are *massive web scrapes with weak filtering*, Common
 Crawl \[commoncrawl\] and The Pile \[gao2020pile\] are assembled at the
 scale of hundreds of gigabytes to petabytes, where exhaustive removal of
 any particular short string is impractical. The natural consequence is
@@ -196,8 +196,8 @@ guarantees its eventual presence in the next corpus crawl.
 We argue this is best understood through a security lens rather than
 purely as a measurement-hygiene problem. Contamination converts an
 evaluation artifact into a channel that (i) invalidates the safety and
-capability claims downstream decisions rely on, and (ii)—the focus of
-this paper—couples directly to *memorization*, and through memorization
+capability claims downstream decisions rely on, and (ii), the focus of
+this paper, couples directly to *memorization*, and through memorization
 to the leakage of sensitive content that co-occurs in the same weakly
 filtered corpora.
 Section <a href="#sec:relatedwork" data-reference-type="ref" data-reference="sec:relatedwork">3</a>
@@ -209,13 +209,13 @@ memorization literature on which our evaluation builds.
 ## Defining benchmark contamination
 
 We adopt the standard definition: *benchmark contamination* is the
-presence of evaluation data—inputs, labels, or accompanying
-metadata—within a model’s pre-training corpus \[golchin2024timetravel\].
+presence of evaluation data, inputs, labels, or accompanying
+metadata, within a model’s pre-training corpus \[golchin2024timetravel\].
 Contamination matters for two reasons that this paper treats as
 inseparable. First, it invalidates evaluation: a contaminated score
 conflates capability with retrieval, so the metric no longer estimates
 generalization. Second, and central to our thesis, contamination is a
-*symptom of, and a measurable proxy for, unintended memorization*—and
+*symptom of, and a measurable proxy for, unintended memorization*, and
 memorization of evaluation data sits on the same mechanism that leaks
 sensitive content from the corpus. We make this
 contamination → memorization → leakage chain the object of empirical
@@ -263,14 +263,14 @@ been formalized along several axes that we reuse as outcome variables:
 
 -   ***k*-eidetic / extractable memorization.** A string is extractable
     if a prefix makes the model regenerate it, and is *k*-eidetic if it
-    occurs in at most *k* training documents \[carlini2021extracting\];
+    occurs in at most *k* training documents \[carlini2021extracting\].
     the prefix-continuation form under greedy decoding makes this
     directly measurable \[carlini2023quantifying\].
 
 -   **Exposure and example-level memorization.** Injecting a canary
-    secret and measuring its *exposure*—its rank against random
-    alternatives—quantifies unintended memorization and its growth with
-    occurrence count \[carlini2019secret\]; this requires control over
+    secret and measuring its *exposure*, its rank against random
+    alternatives, quantifies unintended memorization and its growth with
+    occurrence count \[carlini2019secret\]. This requires control over
     the training process (canary insertion), which our
     pretrained-checkpoint setting does not afford, so we use it for
     definitions rather than as a measurement. Relatedly, memorization is
@@ -285,7 +285,7 @@ been formalized along several axes that we reuse as outcome variables:
 
 -   **PII leakage games.** Leakage of personally identifiable
     information decomposes into extraction, reconstruction, and
-    inference; data scrubbing and differential privacy reduce but do not
+    inference. Data scrubbing and differential privacy reduce but do not
     eliminate it \[lukas2023pii\], models leak PII through memorization
     more than through associative inference \[huang2022leaking\], and
     black-box probing tools can elicit a data subject’s PII directly
@@ -305,11 +305,11 @@ established the threat: by training reference models on data drawn from
 the same distribution, an adversary learns to distinguish members from
 non-members from the target model’s outputs \[shokri2017membership\].
 Yeom et al. tied attack success to overfitting and gave the simplest
-practical baseline—threshold the per-example loss—together with the
+practical baseline, threshold the per-example loss, together with the
 *membership advantage* (TPR−FPR) figure of merit \[yeom2018privacy\].
 Carlini et al.’s *Likelihood Ratio Attack* (LiRA) then reframed MIA from
 first principles as a per-example hypothesis test calibrated with shadow
-models, and—central to our methodology—argued that average-case AUC is
+models, and, central to our methodology, argued that average-case AUC is
 the wrong yardstick for a privacy threat: an attack matters if it
 identifies *some* members with very few false accusations, so the right
 report is TPR at a low, fixed FPR on a log-scale ROC
@@ -322,13 +322,13 @@ For pre-trained LLMs, the field moved to *reference-free* likelihood
 signals that need no shadow models. Min-K% Prob averages the
 log-probabilities of a sequence’s lowest-probability *k*% of tokens, on
 the hypothesis that members lack high-surprise outlier
-tokens \[shi2024detecting\]; Min-K%++ sharpens this by *z*-scoring each
+tokens \[shi2024detecting\]. Min-K%++ sharpens this by *z*-scoring each
 token against the *full* next-token distribution before averaging,
 detecting that the target token sits at a local maximum of the modeled
 distribution \[zhang2025minkpp\]. A parallel reference-free line,
 neighbourhood comparison, calibrates a sample’s score against
 synthetically generated neighbour texts instead of a reference
-model \[mattern2023neighbourhood\]; we treat it as a related approach we
+model \[mattern2023neighbourhood\]. We treat it as a related approach we
 do not evaluate, since it needs many extra masked-LM forward passes per
 example and, in the regime below, underperforms. The reality check on
 this whole line is the MIMIR study: a large-scale audit on Pythia
@@ -338,7 +338,7 @@ their corpus for too few epochs over too large a dataset to memorize in
 the way classical MIA assumes, and that apparent successes frequently
 reflect a temporal or topical *distribution shift* between the splits
 rather than membership \[duan2024mia\]. This finding defines our honesty
-constraint: we do not claim to beat these numbers; we ask whether the
+constraint: we do not claim to beat these numbers. We ask whether the
 weak signal that remains still predicts leakage.
 
 ## Differential privacy as the defense direction
@@ -351,30 +351,30 @@ accountant \[abadi2016deep\]. Applied to language models, DP fine-tuning
 can retain much of the utility of non-private training, particularly
 with large pre-trained backbones \[li2022dpllm\] and parameter-efficient
 adaptation \[yu2022dpfinetuning\]. DP bounds memorization and thereby
-the leakage we measure, but at a privacy–utility cost and—crucially for
-us—it must be applied *at training time*; it is a defense for model
+the leakage we measure, but at a privacy–utility cost and, crucially for
+us, it must be applied *at training time*. It is a defense for model
 producers, not a detector available to an auditor of an already-released
 model. We therefore position DP as the mitigation our threat model
 motivates, and do not implement it (we train no models).
 
 ## Existing detection techniques
 
-We describe the techniques we implement and compare; the comparative
+We describe the techniques we implement and compare. The comparative
 evaluation and the access requirements appear in
 Section <a href="#sec:eval" data-reference-type="ref" data-reference="sec:eval">4</a>.
-All operate without any novel detector of our own—our contribution is
+All operate without any novel detector of our own, our contribution is
 their security-framed, ground-truth evaluation, not a new method.
 
 -   ***n*-gram / substring overlap.** Flag a benchmark item that shares
     an *N*-gram with the corpus \[brown2020gpt3\]. Requires corpus
-    access; misses paraphrased and semantic contamination.
+    access. Misses paraphrased and semantic contamination.
 
 -   **Loss / perplexity thresholding.** The mandatory
     membership-inference baseline: members exhibit lower loss, with
     attack success tied to overfitting \[yeom2018privacy\].
 
 -   **Min-K% Prob.** Average the log-probabilities of the
-    lowest-probability *k*% of tokens; reference-free and
+    lowest-probability *k*% of tokens. Reference-free and
     logprob-only \[shi2024detecting\].
 
 -   **Min-K%++.** Normalizes each token’s log-probability against the
@@ -389,7 +389,7 @@ their security-framed, ground-truth evaluation, not a new method.
 -   **Permutation / exchangeability test.** At the *benchmark* level
     rather than per item, score each ordering of a benchmark’s examples
     by the log-likelihood of their concatenation and compare the
-    canonical (published) order against random shufflings; a model
+    canonical (published) order against random shufflings. A model
     trained on the benchmark in canonical order favours it beyond
     chance, yielding a provable, FPR-controlled contamination
     certificate \[oren2024proving\].
@@ -399,7 +399,7 @@ since our ground-truth, logit-access setting makes likelihood-based
 detectors stronger and cleaner: *guided prompting*, which prompts a
 model with dataset metadata and a partial instance and tests for
 verbatim completion \[golchin2024timetravel\], a black-box signal aimed
-at closed models; and the reference-free *neighbourhood* and
+at closed models, and the reference-free *neighbourhood* and
 shadow-model *reference* attacks discussed in
 Section <a href="#sec:mia-lineage" data-reference-type="ref" data-reference="sec:mia-lineage">3.4</a> \[mattern2023neighbourhood,shokri2017membership\].
 
@@ -427,17 +427,17 @@ duplication, and temporal confounds that prior work identifies.
 ## Threat model and success criteria
 
 We frame contamination detection as a membership/exposure attack with an
-explicit adversary (Section omitted here; see
+explicit adversary (Section omitted here. See
 `docs/experiment_design.md`). Goals range from membership inference on a
 single item, to benchmark-level contamination confirmation, to verbatim
 extraction and PII leakage. Each detector is evaluated at its minimum
-access tier (gray-box logprobs for LOSS/Min-K%/zlib; white-box logits
+access tier (gray-box logprobs for LOSS/Min-K%/zlib. White-box logits
 for Min-K%++). Success is defined by the security-appropriate operating
 point rather than average accuracy.
 
 ## Methods under comparison
 
-We evaluate *existing* detectors only—we propose no new detector. The
+We evaluate *existing* detectors only, we propose no new detector. The
 per-item membership suite is LOSS/perplexity \[yeom2018privacy\], Min-K%
 Prob \[shi2024detecting\], Min-K%++ \[zhang2025minkpp\], and the
 zlib-entropy ratio \[carlini2021extracting\]. Two further tests operate
@@ -449,14 +449,14 @@ benchmark-level test that compares the canonical ordering of a
 benchmark’s examples against random shufflings to certify contamination
 with a controlled false-positive rate. The leakage outcome is
 prefix-continuation extractable memorization under greedy
-decoding \[carlini2023quantifying\]; on the controlled corpus we
+decoding \[carlini2023quantifying\]. On the controlled corpus we
 additionally measure regex-detected PII leakage, framed via the
 PII-leakage games of Lukas et al. \[lukas2023pii\]. Related approaches
-we deliberately *do not* evaluate—guided
+we deliberately *do not* evaluate, guided
 prompting \[golchin2024timetravel\], neighbourhood and shadow-model
 reference attacks \[mattern2023neighbourhood,shokri2017membership\], and
 the divergence-style extraction of production
-models \[nasr2025scalable\]—are discussed in
+models \[nasr2025scalable\], are discussed in
 Section <a href="#sec:relatedwork" data-reference-type="ref" data-reference="sec:relatedwork">3</a>.
 **\[D1\]** An internal-activation probe is reported, if at all, only as
 exploratory analysis in the Discussion, not as a contribution.
@@ -469,26 +469,26 @@ summarizes every corpus and benchmark used or referenced below.
 #### Models and corpus.
 
 The primary model is the Pythia suite \[biderman2023pythia\], trained on
-the public Pile \[gao2020pile\]; its reconstructible training order, 154
+the public Pile \[gao2020pile\]. Its reconstructible training order, 154
 checkpoints, multiple sizes, and deduplicated variant provide exact
 membership ground truth. We use the released MIMIR member/ non-member
 splits \[duan2024mia\], which control *n*-gram overlap between members
 and non-members. OLMo \[groeneveld2024olmo\] on
 Dolma \[soldaini2024dolma\] is a secondary replication target. The Pile
-sits within the broader weakly filtered web-scrape regime—Common
+sits within the broader weakly filtered web-scrape regime, Common
 Crawl \[commoncrawl\] and its filtered derivatives
 C4 \[raffel2020c4,dodge2021c4\] and
-RedPajama \[weber2024redpajama\]—that makes benchmark contamination
+RedPajama \[weber2024redpajama\], that makes benchmark contamination
 structural rather than adversarial.
 
 <div class="table*">
 
 | **Dataset**  | **Type**  | **What it is**                                                                                        | **Size**                 | **Cite**                     |
 |:-------------|:----------|:------------------------------------------------------------------------------------------------------|:-------------------------|:-----------------------------|
-| The Pile     | corpus    | Curated 22-subset English corpus; Pythia’s training data and our membership ground truth              | 825 GB                   | \[gao2020pile\]              |
-| Common Crawl | corpus    | Open, continually updated repository of raw web-crawl data; the base of most LLM pre-training scrapes | petabyte-scale (growing) | \[commoncrawl\]              |
+| The Pile     | corpus    | Curated 22-subset English corpus. Pythia’s training data and our membership ground truth              | 825 GB                   | \[gao2020pile\]              |
+| Common Crawl | corpus    | Open, continually updated repository of raw web-crawl data. The base of most LLM pre-training scrapes | petabyte-scale (growing) | \[commoncrawl\]              |
 | C4           | corpus    | Colossal Clean Crawled Corpus: a filtered Common Crawl snapshot introduced with T5                    | ∼<!-- -->750 GB          | \[raffel2020c4,dodge2021c4\] |
-| Dolma        | corpus    | Open pre-training corpus; OLMo’s training data (replication target)                                   | 3 T tokens               | \[soldaini2024dolma\]        |
+| Dolma        | corpus    | Open pre-training corpus. OLMo’s training data (replication target)                                   | 3 T tokens               | \[soldaini2024dolma\]        |
 | RedPajama    | corpus    | Open reproduction of an LLaMA-style pre-training mixture                                              | ∼<!-- -->30 T tokens     | \[weber2024redpajama\]       |
 | MMLU         | benchmark | Multiple-choice knowledge/reasoning across 57 subjects                                                | 15,908 questions         | \[hendrycks2021mmlu\]        |
 | GSM8K        | benchmark | Grade-school multi-step math word problems                                                            | 8,500 problems           | \[cobbe2021gsm8k\]           |
@@ -506,23 +506,23 @@ TruthfulQA, and BoolQ. **\[D3\]** For PII leakage we use the Enron
 Emails data *as a Pile subset already present in Pythia’s training
 data*, plus a synthetic PII set for controlled structure, rather than
 fine-tuning a model to memorize PII. All PII results are reported in
-aggregate; no real PII is reproduced in the paper.
+aggregate. No real PII is reproduced in the paper.
 
 ## Metrics (each justified)
 
 **\[D2\]** Following the membership-inference-from-first-principles
 convention \[carlini2022lira\], the primary metric is *true-positive
 rate at a fixed low false-positive rate* (TPR @ 0.1% and 1% FPR)
-reported with *log-scale ROC*; AUC-ROC is reported secondarily. These
-capture whether a detector *confidently* identifies members—the
-privacy-relevant regime—which average-case accuracy hides. For benchmark
+reported with *log-scale ROC*. AUC-ROC is reported secondarily. These
+capture whether a detector *confidently* identifies members, the
+privacy-relevant regime, which average-case accuracy hides. For benchmark
 flagging at a chosen operating threshold we additionally report
 precision/recall/F1 as a secondary, application-facing view. The leakage
 outcome is the *extraction rate* \[carlini2023quantifying\]. The
 headline analysis is the *Spearman correlation between per-item
 contamination score and per-item extraction/leakage outcome*, with
 bootstrap confidence intervals and a pre-registered partial-correlation
-control that isolates the contribution of raw loss—the quantitative form
+control that isolates the contribution of raw loss, the quantitative form
 of the paper’s central question.
 
 ## Validation and controls
@@ -542,9 +542,9 @@ direction
 not implemented, since it is a producer-side defense applied at training
 time rather than an auditor-side detector.
 
-This section fixes the threat model, methods, data, and metrics; the
-empirical results under this protocol—per-detector TPR at low FPR with
+This section fixes the threat model, methods, data, and metrics. The
+empirical results under this protocol, per-detector TPR at low FPR with
 log-scale ROC, extraction rates, and the headline contamination→leakage
-correlation with confidence intervals—are reported in the results
+correlation with confidence intervals, are reported in the results
 section, with every reported number tracing to a logged harness run.
 

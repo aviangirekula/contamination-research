@@ -37,7 +37,7 @@ def test_disjoint_text_scores_zero():
 
 def test_partial_overlap_is_fractional():
     det = NGramOverlapDetector(n=3).build_index(CORPUS)
-    # 4 tokens -> two 3-grams. "the quick brown" is in corpus; "quick brown zzz" is not.
+    # 4 tokens -> two 3-grams. "the quick brown" is in corpus. "quick brown zzz" is not.
     text = "the quick brown zzz"
     assert det.score(text) == pytest.approx(0.5)
 
@@ -84,7 +84,7 @@ class CanonicalFavoringScorer(ModelScorer):
     """Deterministic scorer that rewards one specific concatenation (the canonical order).
 
     Simulates a model that memorized the canonical ordering: the canonical concatenation gets
-    a high total log-likelihood; every other ordering gets a lower (more negative) baseline.
+    a high total log-likelihood. Every other ordering gets a lower (more negative) baseline.
     Per-token logprobs are returned (one per whitespace token) so summing them gives the
     sequence log-likelihood the Oren test consumes.
     """

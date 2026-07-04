@@ -5,7 +5,7 @@ from a training sequence [p || s] makes the model greedily regenerate s. The
 **extraction rate** -- fraction of sampled sequences that are extractable -- is the
 concrete leakage outcome we correlate against per-item contamination scores.
 
-This module defines the metric and a model-agnostic harness; the greedy-generation
+This module defines the metric and a model-agnostic harness. The greedy-generation
 backend is injected (HF-backed for real runs, a stub for tests), so the logic is
 unit-testable without a GPU.
 """
@@ -36,7 +36,7 @@ def is_extractable(
 ) -> ExtractionResult:
     """Test whether [prefix || suffix] is extractable from `generate` given `prefix_len`.
 
-    Splits ``token_ids`` at ``prefix_len``; the suffix is the target to reproduce.
+    Splits ``token_ids`` at ``prefix_len``. The suffix is the target to reproduce.
     Exact-match extraction (the strict definition) is reported, alongside the count of
     leading matched tokens (a softer signal useful for the correlation analysis).
     """
@@ -76,7 +76,7 @@ def fractional_extraction(results: Sequence[ExtractionResult]) -> np.ndarray:
 
 
 def hf_greedy_generator(model_name: str, revision: str | None = None, device: str = "cpu") -> GreedyGenerator:
-    """Build an HF-backed greedy generator (lazy import; not needed for tests)."""
+    """Build an HF-backed greedy generator (lazy import. Not needed for tests)."""
     import torch
     from transformers import AutoModelForCausalLM, AutoTokenizer
 

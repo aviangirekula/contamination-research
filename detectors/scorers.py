@@ -1,7 +1,7 @@
 """Concrete `ModelScorer` implementations.
 
 `HFScorer`   -- real causal LM via Hugging Face transformers (used for Pythia/OLMo).
-`MockScorer` -- deterministic, torch-free; lets the whole pipeline + tests run on CPU
+`MockScorer` -- deterministic, torch-free. Lets the whole pipeline + tests run on CPU
                 with no model download. Useful for CI and for milestone-0 validation.
 """
 from __future__ import annotations
@@ -25,7 +25,7 @@ class HFScorer(ModelScorer):
     device : str
         "cpu", "cuda", or "mps".
     max_length : int
-        Truncate inputs to this many tokens (memory bound; mu/sigma are O(vocab) per pos).
+        Truncate inputs to this many tokens (memory bound. Mu/sigma are O(vocab) per pos).
     """
 
     def __init__(

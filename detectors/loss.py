@@ -16,7 +16,7 @@ class LossDetector(Detector):
     access = "gray-box"
 
     def score_from_stats(self, stats: TokenStats, text: str) -> float:
-        # mean log p(x_t | x_<t) ; equals -cross_entropy ; higher => member-like
+        # mean log p(x_t | x_<t) . Equals -cross_entropy . Higher => member-like
         return float(np.mean(stats.token_logprob))
 
 

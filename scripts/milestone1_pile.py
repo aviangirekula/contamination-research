@@ -8,7 +8,7 @@ Ground truth WITHOUT the gated MIMIR dataset:
 Both are drawn from The Pile, so stratifying by `meta.pile_set_name` matches the domain
 distribution of members and non-members. This controls the topic/temporal confound that
 WikiMIA carries (members pre-cutoff, non-members post-cutoff). It is the same train-vs-held-out
-construction MIMIR refines with extra n-gram-overlap filtering; we approximate that with
+construction MIMIR refines with extra n-gram-overlap filtering. We approximate that with
 per-subset stratification and document the residual near-duplicate risk as a limitation.
 
 Run:
@@ -164,8 +164,10 @@ def _plots(per_det, y, out, model):
         fpr, tpr, _ = roc_curve(np.array(per_det[name]), y)
         ax2.plot(np.clip(fpr, 1e-3, 1), np.clip(tpr, 1e-3, 1), label=name)
     ax2.plot([1e-3, 1], [1e-3, 1], "k--", lw=0.6)
-    ax2.set_xscale("log"); ax2.set_yscale("log")
-    ax2.set_xlabel("FPR"); ax2.set_ylabel("TPR")
+    ax2.set_xscale("log")
+    ax2.set_yscale("log")
+    ax2.set_xlabel("FPR")
+    ax2.set_ylabel("TPR")
     ax2.set_title(f"Log-scale ROC ({tag}, Pile train-vs-val)", fontsize=10)
     ax2.legend(fontsize=7)
     fig2.tight_layout()

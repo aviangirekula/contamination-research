@@ -4,7 +4,7 @@ Synthetic items are given a latent 'contamination strength'. A detector signal a
 extraction outcome are both generated as noisy monotone functions of that strength.
 The test asserts the headline analysis (Spearman rho between detector score and
 extraction) recovers a strong positive correlation -- i.e. the harness is wired
-correctly. This is NOT a scientific result; it validates the pipeline plumbing.
+correctly. This is NOT a scientific result. It validates the pipeline plumbing.
 """
 import numpy as np
 

@@ -2,25 +2,20 @@
 % datasets_table.tex -- corpora + benchmarks used or referenced in the evaluation.
 % Owner: Subagent L. Included by evaluation.tex. Requires \usepackage{booktabs}.
 % Every row carries >=1 verified citation (see ../references.bib verification comments).
-% Sizes are the figures reported by each artifact's primary source; "approx." where the
+% Sizes are the figures reported by each artifact's primary source. "approx." where the
 % source states an order-of-magnitude or the corpus is continuously growing.
 % =============================================================================
-\begin{table*}[t]
+\begin{table}[t]
  \centering
- \caption{Corpora and benchmarks used in or referenced by the evaluation. The Pile is
- our ground-truth training corpus; Common Crawl and C4/Dolma/RedPajama frame the
- weakly filtered web-scrape regime; the lower block lists the contamination benchmarks
- whose items we label by corpus-side overlap.}
- \label{tab:datasets}
  \small
- \begin{tabular}{@{}llp{0.40\linewidth}ll@{}}
+ \begin{tabular}{@{}llp{7cm}ll@{}}
  \toprule
  \textbf{Dataset} & \textbf{Type} & \textbf{What it is} & \textbf{Size} & \textbf{Cite} \\
  \midrule
- The Pile & corpus & Curated 22-subset English corpus; Pythia's training data and our membership ground truth & 825\,GB & \citep{gao2020pile} \\
- Common Crawl & corpus & Open, continually updated repository of raw web-crawl data; the base of most LLM pre-training scrapes & petabyte-scale (growing) & \citep{commoncrawl} \\
+ The Pile & corpus & Curated 22-subset English corpus. Pythia's training data and our membership ground truth & 825\,GB & \citep{gao2020pile} \\
+ Common Crawl & corpus & Open, continually updated repository of raw web-crawl data, the base of most LLM pre-training scrapes & petabyte-scale (growing) & \citep{commoncrawl} \\
  C4 & corpus & Colossal Clean Crawled Corpus: a filtered Common Crawl snapshot introduced with T5 & $\sim$750\,GB & \citep{raffel2020c4,dodge2021c4} \\
- Dolma & corpus & Open pre-training corpus; OLMo's training data (replication target) & 3\,T tokens & \citep{soldaini2024dolma} \\
+ Dolma & corpus & Open pre-training corpus, OLMo's training data (replication target) & 3\,T tokens & \citep{soldaini2024dolma} \\
  RedPajama & corpus & Open reproduction of an LLaMA-style pre-training mixture & $\sim$30\,T tokens & \citep{weber2024redpajama} \\
  \midrule
  MMLU & benchmark & Multiple-choice knowledge/reasoning across 57 subjects & 15{,}908 questions & \citep{hendrycks2021mmlu} \\
@@ -31,4 +26,9 @@
  BoolQ & benchmark & Naturally occurring yes/no reading-comprehension questions & 15{,}942 questions & \citep{clark2019boolq} \\
  \bottomrule
  \end{tabular}
-\end{table*}
+ \caption{Corpora and benchmarks used in or referenced by the evaluation. The Pile is
+ our ground-truth training corpus. Common Crawl and C4/Dolma/RedPajama frame the
+ weakly filtered web-scrape regime. The lower block lists the contamination benchmarks
+ whose items we label by corpus-side overlap.}
+ \label{tab:datasets}
+\end{table}

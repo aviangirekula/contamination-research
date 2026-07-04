@@ -2,7 +2,7 @@
 % evaluation.tex -- reconciled "Evaluation Overview".
 % Owner: Subagent A, reconciled with docs/experiment_design.md + method memo.
 %
-% MAJOR DIVERGENCES FROM THE PASTED DRAFT (each flagged; please review):
+% MAJOR DIVERGENCES FROM THE PASTED DRAFT (each flagged. Please review):
 % [D1] REMOVED the "Proposed Method: Internal Activation Analysis" as a claimed
 % contribution. The advisor constraint forbids proposing a novel detector. It
 % survives only as an optional exploratory probe in the Discussion, not a result.
@@ -25,15 +25,15 @@
 
 \subsection{Threat model and success criteria}
 We frame contamination detection as a membership/exposure attack with an explicit
-adversary (Section omitted here; see \texttt{docs/experiment\_design.md}). Goals range
+adversary (Section omitted here, see \texttt{docs/experiment\_design.md}). Goals range
 from membership inference on a single item, to benchmark-level contamination
 confirmation, to verbatim extraction and PII leakage. Each detector is evaluated at its
-minimum access tier (gray-box logprobs for LOSS/Min-K\%/zlib; white-box logits for
+minimum access tier (gray-box logprobs for LOSS/Min-K\%/zlib, white-box logits for
 Min-K\%++). Success is defined by the security-appropriate operating point rather than
 average accuracy.
 
 \subsection{Methods under comparison}
-We evaluate \emph{existing} detectors only; we propose no new detector. The
+We evaluate \emph{existing} detectors only. We propose no new detector. The
 per-item membership suite is LOSS/perplexity~\citep{yeom2018privacy}, Min-K\%
 Prob~\citep{shi2024detecting}, Min-K\%++~\citep{zhang2025minkpp}, and the zlib-entropy
 ratio~\citep{carlini2021extracting}. Two further tests operate off the per-item
@@ -43,7 +43,7 @@ and the Oren permutation/exchangeability test~\citep{oren2024proving}, a benchma
 test that compares the canonical ordering of a benchmark's examples against random
 shufflings to certify contamination with a controlled false-positive rate. The leakage
 outcome is prefix-continuation extractable memorization under greedy
-decoding~\citep{carlini2023quantifying}; on the controlled corpus we additionally measure
+decoding~\citep{carlini2023quantifying}. On the controlled corpus we additionally measure
 regex-detected PII leakage, framed via the PII-leakage games of
 \citet{lukas2023pii}. Related approaches we deliberately \emph{do not}
 evaluate, guided prompting~\citep{golchin2024timetravel}, neighbourhood and shadow-model
@@ -57,7 +57,7 @@ analysis in the Discussion, not as a contribution.
 Table~\ref{tab:datasets} summarizes every corpus and benchmark used or referenced below.
 
 \paragraph{Models and corpus.} The primary model is the Pythia
-suite~\citep{biderman2023pythia}, trained on the public Pile~\citep{gao2020pile}; its
+suite~\citep{biderman2023pythia}, trained on the public Pile~\citep{gao2020pile}. Its
 reconstructible training order, $154$ checkpoints, multiple sizes, and deduplicated
 variant provide exact membership ground truth. We use the released MIMIR member/
 non-member splits~\citep{duan2024mia}, which control $n$-gram overlap between members and
@@ -73,13 +73,13 @@ benchmark contamination structural rather than adversarial.
 HellaSwag, TruthfulQA, and BoolQ. \textbf{[D3]} For PII leakage we use the Enron Emails
 data \emph{as a Pile subset already present in Pythia's training data}, plus a synthetic
 PII set for controlled structure, rather than fine-tuning a model to memorize PII. All
-PII results are reported in aggregate; no real PII is reproduced in the paper.
+PII results are reported in aggregate. No real PII is reproduced in the paper.
 
 \subsection{Metrics (each justified)}
 \textbf{[D2]} Following the membership-inference-from-first-principles
 convention~\citep{carlini2022lira}, the primary metric is \emph{true-positive rate at a
 fixed low false-positive rate} (TPR @ $0.1\%$ and $1\%$ FPR) reported with
-\emph{log-scale ROC}; AUC-ROC is reported secondarily. These capture whether a detector
+\emph{log-scale ROC}. AUC-ROC is reported secondarily. These capture whether a detector
 \emph{confidently} identifies members, the privacy-relevant regime, which average-case
 accuracy hides. For benchmark flagging at a chosen operating threshold we additionally
 report precision/recall/F1 as a secondary, application-facing view. The leakage outcome
@@ -102,7 +102,7 @@ training~\citep{abadi2016deep,li2022dpllm} is discussed as the mitigation direct
 (Section~\ref{sec:dp}), not implemented, since it is a producer-side defense applied at
 training time rather than an auditor-side detector.
 
-This section fixes the threat model, methods, data, and metrics; the empirical results
+This section fixes the threat model, methods, data, and metrics. The empirical results
 under this protocol, per-detector TPR at low FPR with log-scale ROC, extraction rates,
 and the headline contamination$\rightarrow$leakage correlation with confidence
 intervals, are reported in the results section, with every reported number tracing to a

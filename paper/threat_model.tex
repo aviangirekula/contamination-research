@@ -13,17 +13,17 @@ low false-positive operating point rather than on average~\citep{carlini2022lira
  \item \textbf{G2: benchmark-level contamination confirmation.} Decide, with a controlled
  false-positive rate, whether an entire benchmark was trained on.
  \item \textbf{G3: extraction / leakage.} Recover verbatim content (and, on a controlled
- corpus, PII) that was in training. This is the concrete harm; G1--G2 are of interest largely
+ corpus, PII) that was in training. This is the concrete harm, and G1--G2 are of interest largely
  insofar as they predict G3.
 \end{itemize}
 
 \paragraph{Adversary knowledge and access.} We grade detectors by the minimum access each requires:
-\emph{black-box} (text in, text out; e.g.\ guided prompting, which we do not evaluate),
-\emph{gray-box} (per-token log-probabilities / loss; LOSS, Min-K\%, zlib), and \emph{white-box}
-(the full next-token distribution; Min-K\%++). The corpus-side $n$-gram test instead assumes access
+\emph{black-box} (text in, text out, e.g.\ guided prompting, which we do not evaluate),
+\emph{gray-box} (per-token log-probabilities / loss, e.g.\ LOSS, Min-K\%, zlib), and \emph{white-box}
+(the full next-token distribution, e.g.\ Min-K\%++). The corpus-side $n$-gram test instead assumes access
 to the training corpus (available here because the Pile is public) and is used to construct
 ground-truth contamination labels, not as a model-access attack. For our ground-truth experiments
-the \emph{auditor} additionally knows the public training corpus; the modelled attacker does not
+the \emph{auditor} additionally knows the public training corpus. The modelled attacker does not
 need corpus access for G1/G3.
 
 \paragraph{Success criteria.} G1: true-positive rate at $0.1\%$ and $1\%$ false-positive rate

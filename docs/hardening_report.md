@@ -1,18 +1,18 @@
-# Statistical Hardening Report (St) — non-linear loss control + mediation
+# Statistical Hardening Report (St), non-linear loss control + mediation
 
-**Date:** 2026-06-20. Pre-registered: `docs/pre_analysis.md` (Round 2, St; incl. the 2026-06-20
+**Date:** 2026-06-20. Pre-registered: `docs/pre_analysis.md` (Round 2, St. Incl. the 2026-06-20
 amendment swapping cubic-residualization to PRIMARY after synthetic validation). Data: cached
 per-example scores `results/controls_scores_pythia-160m{,-deduped}.jsonl`, N=300 Pile members, no
-new inference. Seed 0, bootstrap/permutation n=2000. Outcome = `frac_extracted`; control = `loss`.
+new inference. Seed 0, bootstrap/permutation n=2000. Outcome = `frac_extracted`. Control = `loss`.
 
 ## Headline
 **The Round-1 negative result survives a non-linear loss control and a formal mediation analysis.**
-No calibrated detector predicts leakage beyond loss; the contamination→leakage association is
+No calibrated detector predicts leakage beyond loss. The contamination→leakage association is
 loss-mediated, with detector direct effects null-to-negative. The result is NOT a linearity artifact.
 
-## St-1 — non-linear loss control (PRIMARY = cubic-residual; SECONDARY = decile)
+## St-1, non-linear loss control (PRIMARY = cubic-residual. SECONDARY = decile)
 Spearman ρ(detector, frac_extracted) under progressively stricter loss control. Cubic CI = bootstrap
-95%; BH-q over the 3 cubic-residual permutation p-values (confirmatory family).
+95%. BH-q over the 3 cubic-residual permutation p-values (confirmatory family).
 
 **Non-deduped (`pythia-160m`):**
 | Detector | zero-order ρ | linear partial ρ\|loss | **cubic-residual ρ [95% CI]** | decile ρ (coarse) | BH-q |
@@ -32,22 +32,22 @@ Spearman ρ(detector, frac_extracted) under progressively stricter loss control.
 calibrated detector has a positive cubic-residual ρ with CI excluding 0 and FDR-significant). The
 positive zero-order correlations collapse to ≈0 or significantly negative under the clean non-linear
 control. The Round-1 finding is **confirmed not to be a linearity artifact.** Min-K%++ remains
-significantly negative (FDR-sig) non-deduped; effects attenuate but never reverse sign on deduped.
+significantly negative (FDR-sig) non-deduped. Effects attenuate but never reverse sign on deduped.
 
-## St-1b — collinearity diagnostic (reviewer concern W3; `results/collinearity_pythia-160m.json`)
+## St-1b, collinearity diagnostic (reviewer concern W3. `results/collinearity_pythia-160m.json`)
 The calibrated detectors are deterministic transforms of the same per-token log-probabilities as
 loss, hence collinear with it: Spearman ρ(loss,·) = **0.90** (Min-K%), **0.74** (Min-K%++), **0.74**
-(zlib); VIF = **6.2 / 2.6 / 2.4**; condition number of [loss, detector] = 4.8 / 2.9 / 2.7.
+(zlib). VIF = **6.2 / 2.6 / 2.4**. Condition number of [loss, detector] = 4.8 / 2.9 / 2.7.
 **Implication:** the strongest negative partial (Min-K%, VIF 6.2) is consistent with a *suppression
 artifact* of near-collinearity, not substantive inverse prediction. We therefore claim only the
-conservative result — the calibrated detectors carry **no positive** leakage signal independent of
-loss — and do NOT assert they negatively predict leakage. Min-K%++/zlib (VIF < 3) are less
-collinearity-confounded; their residuals are null/near-null. Mediation (St-2) is reported descriptively
+conservative result, the calibrated detectors carry **no positive** leakage signal independent of
+loss, and do NOT assert they negatively predict leakage. Min-K%++/zlib (VIF < 3) are less
+collinearity-confounded. Their residuals are null/near-null. Mediation (St-2) is reported descriptively
 for the same reason. Power: with N=300 and a near-degenerate outcome (3/300), the analysis is
-well-powered only for moderate-to-large positive residuals; a small positive effect at scale is not
+well-powered only for moderate-to-large positive residuals. A small positive effect at scale is not
 excluded (→ GPU).
 
-## St-2 — formal mediation (loss as mediator), non-deduped [DESCRIPTIVE]
+## St-2, formal mediation (loss as mediator), non-deduped [DESCRIPTIVE]
 Rank-based decomposition of the total detector→leakage effect into direct + indirect (through loss).
 | Detector | total [95% CI] | direct (c′) [95% CI] | indirect (loss-mediated) [95% CI] |
 |---|---|---|---|
@@ -62,10 +62,10 @@ significantly positive**, while the **direct effect is null (zlib) or significan
 the detectors' own residual contribution is null-to-negative. This is a stronger statement than
 "fully mediated": the calibrated detectors carry **no** independent positive leakage signal, and
 Min-K%/Min-K%++ carry a small negative one. (Per pre-registration, the proportion-mediated scalar is
-not reported as a clean fraction because the direct/total signs differ; we report direct/indirect/
+not reported as a clean fraction because the direct/total signs differ. We report direct/indirect/
 total with CIs instead.)
 
-## St-3 — per-domain breakdown (descriptive; low per-domain power)
+## St-3, per-domain breakdown (descriptive. Low per-domain power)
 Spearman ρ(·, frac_extracted) within Pile domains with n≥10 (non-deduped). The loss↔leakage link is
 strongly **heterogeneous** and detectors track loss within domains:
 | Domain | n | loss | Min-K% | Min-K%++ | zlib |
@@ -90,10 +90,10 @@ strongly **heterogeneous** and detectors track loss within domains:
 **Reading (honest):** the loss↔extraction correlation is strongest in templated/structured domains
 (GitHub +0.60, StackExchange +0.54) and reverses in some prose/abstract domains (PubMed Abstracts
 −0.48). Detectors mostly co-move with loss within a domain rather than adding independent signal.
-**Caveat:** per-domain n is small (11–27), so these are directional, not powered estimates; no
+**Caveat:** per-domain n is small (11–27), so these are directional, not powered estimates. No
 per-domain FDR claim is made. NOTE: this per-domain heterogeneity concerns the detector↔*extraction*
 correlation, which is a different axis than the detector-vs-loss *membership-AUC* domain effect
-reported by Chen/Han/Miyao (arXiv:2412.13475); the relationship is suggestive and will be tied to
+reported by Chen/Han/Miyao (arXiv:2412.13475). The relationship is suggestive and will be tied to
 that literature only as far as Subagent N's verification supports (do not overclaim corroboration).
 
 ## Artifacts

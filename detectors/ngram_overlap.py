@@ -15,14 +15,14 @@ Tokenization choice
 -------------------
 The default tokenizer is **whitespace splitting** (``text.split()``). This is simple,
 model-free, reproducible, and matches the spirit of the GPT-3 word-level n-gram filter. It is
-*not* lowercased or punctuation-stripped, so the check is case- and punctuation-sensitive; a
+*not* lowercased or punctuation-stripped, so the check is case- and punctuation-sensitive. A
 caller wanting looser matching should normalize texts before passing them in.
 
 A tokenizer-based variant (e.g. feeding a model's BPE token ids instead of whitespace words)
 would make the n-grams align with the units the model actually sees and is the right choice
 when reproducing a specific model's contamination report. To use it, pass a ``tokenize``
 callable ``str -> list[str]`` at construction (e.g. one wrapping a HF tokenizer's
-``.tokenize``); the index/scoring logic is identical. Whitespace is the documented default.
+``.tokenize``). The index/scoring logic is identical. Whitespace is the documented default.
 """
 from __future__ import annotations
 
@@ -74,7 +74,7 @@ class NGramOverlapDetector:
     def build_index(self, corpus_texts: Iterable[str]) -> "NGramOverlapDetector":
         """Store the set of all n-grams occurring in ``corpus_texts``.
 
-        Idempotent-ish: may be called more than once; each call *adds* to the index, so a
+        Idempotent-ish: may be called more than once. Each call *adds* to the index, so a
         corpus can be streamed in chunks. Returns ``self`` for chaining.
         """
         for text in corpus_texts:

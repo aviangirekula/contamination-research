@@ -1,6 +1,6 @@
 """Partial / semipartial rank correlations, Kendall tau-b, permutation p, BH-FDR.
 
-Used only by the controls run (R6 circularity etc.). Pure numpy; correctness checked
+Used only by the controls run (R6 circularity etc.). Pure numpy. Correctness checked
 against constructed cases in tests/test_partial.py. Conventions match eval/metrics.py
 (higher detector score = more member-like).
 """
@@ -43,7 +43,7 @@ def semipartial_spearman(x, y, z) -> float:
 
 
 def kendall_tau(x, y) -> float:
-    """Kendall tau-b (tie-corrected). O(n^2); fine for n in the hundreds."""
+    """Kendall tau-b (tie-corrected). O(n^2). Fine for n in the hundreds."""
     x = np.asarray(x, dtype=np.float64)
     y = np.asarray(y, dtype=np.float64)
     n = len(x)
@@ -66,7 +66,9 @@ def kendall_tau(x, y) -> float:
 
 def permutation_p_partial(x, y, z, n_perm=2000, seed=0) -> float:
     """Two-sided permutation p for partial_spearman(x,y|z): permute y, recompute."""
-    x = np.asarray(x, float); y = np.asarray(y, float); z = np.asarray(z, float)
+    x = np.asarray(x, float)
+    y = np.asarray(y, float)
+    z = np.asarray(z, float)
     rng = np.random.default_rng(seed)
     obs = abs(partial_spearman(x, y, z))
     count = 0
@@ -78,7 +80,8 @@ def permutation_p_partial(x, y, z, n_perm=2000, seed=0) -> float:
 
 
 def permutation_p_spearman(x, y, n_perm=2000, seed=0) -> float:
-    x = np.asarray(x, float); y = np.asarray(y, float)
+    x = np.asarray(x, float)
+    y = np.asarray(y, float)
     rng = np.random.default_rng(seed)
     obs = abs(spearman(x, y))
     count = sum(abs(spearman(x, rng.permutation(y))) >= obs - 1e-12 for _ in range(n_perm))
@@ -86,7 +89,7 @@ def permutation_p_spearman(x, y, n_perm=2000, seed=0) -> float:
 
 
 def bootstrap_ci(stat_fn, arrays, n_boot=2000, seed=0, alpha=0.05):
-    """Percentile bootstrap CI. `arrays` is a tuple of equal-length arrays; stat_fn(*arrays)."""
+    """Percentile bootstrap CI. `arrays` is a tuple of equal-length arrays. Stat_fn(*arrays)."""
     arrays = [np.asarray(a, float) for a in arrays]
     n = len(arrays[0])
     rng = np.random.default_rng(seed)

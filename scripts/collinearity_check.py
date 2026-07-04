@@ -2,7 +2,7 @@
 """Collinearity diagnostic (reviewer concern V/W3): the calibrated detectors are functions of
 the same per-token logprobs as loss, so a negative PARTIAL correlation may be a suppression
 artifact rather than substantive inverse prediction. Reports detector~loss correlation, VIF,
-and the condition number of the [loss, detector] design. Cached data; no model inference.
+and the condition number of the [loss, detector] design. Cached data. No model inference.
 
 Run: python scripts/collinearity_check.py --scores results/controls_scores_pythia-160m.jsonl --tag pythia-160m
 """
@@ -17,7 +17,8 @@ CAL = ["min_20_prob", "min_20_plusplus", "zlib_ratio"]
 
 
 def pearson(a, b):
-    a = a - a.mean(); b = b - b.mean()
+    a = a - a.mean()
+    b = b - b.mean()
     return float((a * b).sum() / np.sqrt((a**2).sum() * (b**2).sum()))
 
 
@@ -34,7 +35,9 @@ def main():
     print(f"{'detector':<16}{'pearson_loss':>14}{'spearman_loss':>15}{'VIF':>8}{'cond':>8}")
     for n in CAL:
         d = np.array([r[n] for r in rows], float)
-        rp = pearson(loss, d); rs = spearman(loss, d); vif = 1 / (1 - rp**2)
+        rp = pearson(loss, d)
+        rs = spearman(loss, d)
+        vif = 1 / (1 - rp**2)
         A = np.column_stack([(loss - loss.mean()) / loss.std(), (d - d.mean()) / d.std()])
         cond = float(np.linalg.cond(A))
         out["detector_vs_loss"][n] = {"pearson": rp, "spearman": rs, "vif": vif, "cond": cond}

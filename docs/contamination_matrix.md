@@ -1,15 +1,15 @@
-# Contamination Matrix (Mx) — model-free n-gram + Oren permutation (small scale)
+# Contamination Matrix (Mx), model-free n-gram + Oren permutation (small scale)
 
 **Date:** 2026-06-20. Pre-registered: `docs/pre_analysis.md` (Round 2, Mx). Seed 0, Pythia-160m, CPU.
 Run: `python scripts/contamination_matrix.py --model EleutherAI/pythia-160m --device cpu`.
 Raw: `results/contamination_matrix.json`.
 
-Loaders used (verified at runtime): MMLU = `cais/mmlu` config `all` test (14,042 items; 500 sampled;
-text = question+choices); GSM8K = `openai/gsm8k` main test (1,319; 500 sampled; text = question);
-HumanEval = `openai_humaneval` test (164; all; text = prompt).
+Loaders used (verified at runtime): MMLU = `cais/mmlu` config `all` test (14,042 items. 500 sampled.
+text = question+choices). GSM8K = `openai/gsm8k` main test (1,319. 500 sampled. Text = question).
+HumanEval = `openai_humaneval` test (164. All. Text = prompt).
 
-## Mx-1 — n-gram/substring overlap vs the Pile (SCALE-INVARIANT method, but LOWER-BOUND reference)
-Reference index = `NeelNanda/pile-10k` (10,000 docs; 13-gram index 8.84M grams, 8-gram 8.83M).
+## Mx-1, n-gram/substring overlap vs the Pile (SCALE-INVARIANT method, but LOWER-BOUND reference)
+Reference index = `NeelNanda/pile-10k` (10,000 docs. 13-gram index 8.84M grams, 8-gram 8.83M).
 **Caveat (pre-registered):** this is a *sample* of the Pile (~210M docs), so the numbers below are a
 **loose LOWER BOUND** on true benchmark↔Pile overlap, not a contamination rate of the full corpus. A
 full-Pile index (infra-gated, not model-gated) is required for a real rate.
@@ -21,11 +21,11 @@ full-Pile index (infra-gated, not model-gated) is required for a real rate.
 | HumanEval | 164 | 0.0% (0) | 0.000 | 1.8% (3) | 0.0004 | 0.03 |
 
 **Reading (honest):** against a 10k-doc Pile sample, measured overlap is near-zero for all three
-benchmarks. This is expected from the sample size and is **uninformative about true contamination** —
-it only certifies that overlap is *at least* this much. The method is scale-invariant; the *reference*
+benchmarks. This is expected from the sample size and is **uninformative about true contamination**, 
+it only certifies that overlap is *at least* this much. The method is scale-invariant. The *reference*
 is the bottleneck. Do not report these as contamination rates.
 
-## Mx-2 — Oren permutation/exchangeability test (UNDERPOWERED at 160m; GPU-gated)
+## Mx-2, Oren permutation/exchangeability test (UNDERPOWERED at 160m. GPU-gated)
 Pythia-160m, n_permutations=1000, k=30 items/benchmark, 20 words/item. One-sided p = fraction of
 random orderings whose concatenation log-likelihood ≥ the canonical order's.
 
@@ -36,7 +36,7 @@ random orderings whose concatenation log-likelihood ≥ the canonical order's.
 | HumanEval | 0.875 | −2152.8 | −2125.7 ± 23.4 |
 
 **Reading (honest, pre-registered):** MMLU and GSM8K show the canonical order favored beyond chance
-(p<0.05) even at 160m; HumanEval does not. **We draw NO contamination conclusion from this.** The test
+(p<0.05) even at 160m. HumanEval does not. **We draw NO contamination conclusion from this.** The test
 is membership-based and run at sanity scale (small k, smallest model, single seed of the permutation
 null), and is subject to an orientation/ordering artifact (a benchmark whose canonical concatenation
 is simply more fluent than a shuffle can score low p without training-time contamination). It is
@@ -47,5 +47,5 @@ exercise the harness end-to-end.
 ## Matrix cell status
 | Cell | Scale-invariant? | Status |
 |---|---|---|
-| n-gram overlap (method) | yes | computed; **reference is a lower-bound sample** → needs full-Pile index |
-| Oren permutation | no (membership-based) | computed at 160m; **underpowered, GPU-gated, no conclusion** |
+| n-gram overlap (method) | yes | computed. **reference is a lower-bound sample** → needs full-Pile index |
+| Oren permutation | no (membership-based) | computed at 160m. **underpowered, GPU-gated, no conclusion** |

@@ -40,7 +40,7 @@ def build_default_detectors(scorer: ModelScorer):
 
 
 #: Corpus-/dataset-level contamination tests that are NOT part of the per-text membership
-#: suite above. They do not share the Detector/TokenStats interface; see each class's docstring.
+#: suite above. They do not share the Detector/TokenStats interface. See each class's docstring.
 CONTAMINATION_TESTS = {
     "ngram_overlap": NGramOverlapDetector,
     "oren_permutation": OrenPermutationTest,

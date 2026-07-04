@@ -8,7 +8,7 @@ Spearman correlation between each detector's contamination score and the leakage
 (fractional extraction). Bootstrap CIs included. This is the paper's thesis as a number.
 
 The leakage signal at 160m is heavily zero-inflated (small model, 32-token prefixes), so
-a weak correlation with a wide CI is the EXPECTED preliminary result; model size is a
+a weak correlation with a wide CI is the EXPECTED preliminary result. Model size is a
 single --model flag for the GPU scale-up.
 
 Run:

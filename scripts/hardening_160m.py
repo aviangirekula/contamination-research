@@ -1,9 +1,9 @@
 #!/usr/bin/env python
-"""St — statistical hardening on cached per-example controls scores (no model inference).
+"""St, statistical hardening on cached per-example controls scores (no model inference).
 
 For each calibrated detector D in {Min-K%, Min-K%++, zlib}, vs leakage outcome frac_extracted,
 controlling for loss: zero-order rho, linear partial rho|loss, NON-LINEAR partial controls
-(PRIMARY = cubic-polynomial residualization; SECONDARY = decile-of-loss stratification), and
+(PRIMARY = cubic-polynomial residualization. SECONDARY = decile-of-loss stratification), and
 rank mediation (direct/indirect/proportion). FDR over the 3 cubic-residual permutation p-values
 (St-1 confirmatory family). Plus per-domain breakdown. See docs/pre_analysis.md (Round 2, St).
 

@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 """Forest plot of St hardening: zero-order vs linear-partial vs cubic-residual ρ (with CI)
-per calibrated detector. Reads results/hardening_<tag>.json. Seeded upstream; this only plots.
+per calibrated detector. Reads results/hardening_<tag>.json. Seeded upstream. This only plots.
 
 Run: python scripts/plot_hardening.py --tag pythia-160m
 """

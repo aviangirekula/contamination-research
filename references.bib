@@ -1,5 +1,5 @@
 % =============================================================================
-% references.bib  —  SHARED bibliography for the benchmark-contamination /
+% references.bib - SHARED bibliography for the benchmark-contamination /
 % privacy-leakage security paper.  All entries verified by literature subagents
 % against arXiv ID / DOI / official venue URL (verification noted in the comment
 % above each entry).  Fields flagged "[VERIFY]" are the weakest (usually page
@@ -11,7 +11,7 @@
 % A. Contamination / membership-inference / data-detection methods
 % ----------------------------------------------------------------------------
 
-% VERIFIED arXiv:1709.01604 ; IEEE CSF 2018 pp.268-282 (DBLP YeomGFJ18). Defines membership advantage = TPR-FPR; ties MIA to overfitting.
+% VERIFIED arXiv:1709.01604 . IEEE CSF 2018 pp.268-282 (DBLP YeomGFJ18). Defines membership advantage = TPR-FPR. Ties MIA to overfitting.
 @inproceedings{yeom2018privacy,
   title     = {Privacy Risk in Machine Learning: Analyzing the Connection to Overfitting},
   author    = {Yeom, Samuel and Giacomelli, Irene and Fredrikson, Matt and Jha, Somesh},
@@ -22,7 +22,7 @@
   doi       = {10.1109/CSF.2018.00027}
 }
 
-% VERIFIED arXiv:2310.16789 ; ICLR 2024 (OpenReview zWqr3MQuNs; iclr.cc/virtual/2024/poster/17381). Introduces WikiMIA + Min-K% Prob.
+% VERIFIED arXiv:2310.16789 . ICLR 2024 (OpenReview zWqr3MQuNs. Iclr.cc/virtual/2024/poster/17381). Introduces WikiMIA + Min-K% Prob.
 @inproceedings{shi2024detecting,
   title     = {Detecting Pretraining Data from Large Language Models},
   author    = {Shi, Weijia and Ajith, Anirudh and Xia, Mengzhou and Huang, Yangsibo and Liu, Daogao and Blevins, Terra and Chen, Danqi and Zettlemoyer, Luke},
@@ -32,7 +32,7 @@
   archivePrefix = {arXiv}
 }
 
-% VERIFIED arXiv:2404.02936 ; ICLR 2025 Spotlight (OpenReview ZGkfoufDaU). Successor to Min-K%.
+% VERIFIED arXiv:2404.02936 . ICLR 2025 Spotlight (OpenReview ZGkfoufDaU). Successor to Min-K%.
 @inproceedings{zhang2025minkpp,
   title     = {Min-K\%++: Improved Baseline for Detecting Pre-Training Data from Large Language Models},
   author    = {Zhang, Jingyang and Sun, Jingwei and Yeats, Eric and Ouyang, Yang and Kuo, Martin and Zhang, Jianyi and Yang, Hao Frank and Li, Hai},
@@ -42,7 +42,7 @@
   archivePrefix = {arXiv}
 }
 
-% VERIFIED arXiv:2112.03570 ; DOI 10.1109/SP46214.2022.9833649 ; IEEE S&P 2022 pp.1897-1914. LiRA + TPR@lowFPR convention.
+% VERIFIED arXiv:2112.03570 . DOI 10.1109/SP46214.2022.9833649 . IEEE S&P 2022 pp.1897-1914. LiRA + TPR@lowFPR convention.
 @inproceedings{carlini2022lira,
   title     = {Membership Inference Attacks From First Principles},
   author    = {Carlini, Nicholas and Chien, Steve and Nasr, Milad and Song, Shuang and Terzis, Andreas and Tram{\`e}r, Florian},
@@ -53,7 +53,7 @@
   doi       = {10.1109/SP46214.2022.9833649}
 }
 
-% VERIFIED arXiv:2402.07841 ; COLM 2024 (OpenReview av0D19pSkU; authors' MIMIR site iamgroot42.github.io/mimir.github.io). Venue confirmed COLM, not NAACL Findings. MIMIR benchmark on Pythia/Pile.
+% VERIFIED arXiv:2402.07841 . COLM 2024 (OpenReview av0D19pSkU. Authors' MIMIR site iamgroot42.github.io/mimir.github.io). Venue confirmed COLM, not NAACL Findings. MIMIR benchmark on Pythia/Pile.
 @inproceedings{duan2024mia,
   title     = {Do Membership Inference Attacks Work on Large Language Models?},
   author    = {Duan, Michael and Suri, Anshuman and Mireshghallah, Niloofar and Min, Sewon and Shi, Weijia and Zettlemoyer, Luke and Tsvetkov, Yulia and Choi, Yejin and Evans, David and Hajishirzi, Hannaneh},
@@ -63,7 +63,7 @@
   archivePrefix = {arXiv}
 }
 
-% VERIFIED arXiv:2305.18462 ; Findings of ACL 2023 pp.11330-11343 (ACL Anthology 2023.findings-acl.719). Neighbourhood-calibrated MIA (reference-free).
+% VERIFIED arXiv:2305.18462 . Findings of ACL 2023 pp.11330-11343 (ACL Anthology 2023.findings-acl.719). Neighbourhood-calibrated MIA (reference-free).
 @inproceedings{mattern2023neighbourhood,
   title     = {Membership Inference Attacks against Language Models via Neighbourhood Comparison},
   author    = {Mattern, Justus and Mireshghallah, Fatemehsadat and Jin, Zhijing and Sch{\"o}lkopf, Bernhard and Sachan, Mrinmaya and Berg-Kirkpatrick, Taylor},
@@ -72,7 +72,7 @@
   year      = {2023}
 }
 
-% VERIFIED arXiv:2012.07805 ; USENIX Security 2021 pp.2633-2650 (DBLP CarliniTWJHLRBS21). Extraction attack + zlib-entropy ratio baseline.
+% VERIFIED arXiv:2012.07805 . USENIX Security 2021 pp.2633-2650 (DBLP CarliniTWJHLRBS21). Extraction attack + zlib-entropy ratio baseline.
 @inproceedings{carlini2021extracting,
   title     = {Extracting Training Data from Large Language Models},
   author    = {Carlini, Nicholas and Tram{\`e}r, Florian and Wallace, Eric and Jagielski, Matthew and Herbert-Voss, Ariel and Lee, Katherine and Roberts, Adam and Brown, Tom and Song, Dawn and Erlingsson, {\'U}lfar and Oprea, Alina and Raffel, Colin},
@@ -81,7 +81,7 @@
   year      = {2021}
 }
 
-% VERIFIED arXiv:2005.14165 ; NeurIPS 2020. 13-gram contamination/decontamination method. Full 31-author list de-truncated from arXiv:2005.14165 abstract page.
+% VERIFIED arXiv:2005.14165 . NeurIPS 2020. 13-gram contamination/decontamination method. Full 31-author list de-truncated from arXiv:2005.14165 abstract page.
 @inproceedings{brown2020gpt3,
   title     = {Language Models are Few-Shot Learners},
   author    = {Brown, Tom B. and Mann, Benjamin and Ryder, Nick and Subbiah, Melanie and Kaplan, Jared and Dhariwal, Prafulla and Neelakantan, Arvind and Shyam, Pranav and Sastry, Girish and Askell, Amanda and Agarwal, Sandhini and Herbert-Voss, Ariel and Krueger, Gretchen and Henighan, Tom and Child, Rewon and Ramesh, Aditya and Ziegler, Daniel M. and Wu, Jeffrey and Winter, Clemens and Hesse, Christopher and Chen, Mark and Sigler, Eric and Litwin, Mateusz and Gray, Scott and Chess, Benjamin and Clark, Jack and Berner, Christopher and McCandlish, Sam and Radford, Alec and Sutskever, Ilya and Amodei, Dario},
@@ -91,7 +91,7 @@
   archivePrefix = {arXiv}
 }
 
-% VERIFIED arXiv:2308.08493 ; ICLR 2024 (OpenReview 2Rwq6c3tvr). Guided-instruction / completion contamination test.
+% VERIFIED arXiv:2308.08493 . ICLR 2024 (OpenReview 2Rwq6c3tvr). Guided-instruction / completion contamination test.
 @inproceedings{golchin2024timetravel,
   title     = {Time Travel in {LLMs}: Tracing Data Contamination in Large Language Models},
   author    = {Golchin, Shahriar and Surdeanu, Mihai},
@@ -101,7 +101,7 @@
   archivePrefix = {arXiv}
 }
 
-% VERIFIED arXiv:2310.17623 ; ICLR 2024. Exchangeability/permutation test; provable contamination certificate.
+% VERIFIED arXiv:2310.17623 . ICLR 2024. Exchangeability/permutation test. Provable contamination certificate.
 @inproceedings{oren2024proving,
   title     = {Proving Test Set Contamination in Black-Box Language Models},
   author    = {Oren, Yonatan and Meister, Nicole and Chatterji, Niladri and Ladhak, Faisal and Hashimoto, Tatsunori B.},
@@ -123,7 +123,7 @@
 % B. Memorization / extraction / privacy leakage
 % ----------------------------------------------------------------------------
 
-% VERIFIED arXiv:2202.07646 ; ICLR 2023 (OpenReview TatRHT_1cK). Extractable memorization (prefix-continuation) + scaling laws.
+% VERIFIED arXiv:2202.07646 . ICLR 2023 (OpenReview TatRHT_1cK). Extractable memorization (prefix-continuation) + scaling laws.
 @inproceedings{carlini2023quantifying,
   title     = {Quantifying Memorization Across Neural Language Models},
   author    = {Carlini, Nicholas and Ippolito, Daphne and Jagielski, Matthew and Lee, Katherine and Tram{\`e}r, Florian and Zhang, Chiyuan},
@@ -133,7 +133,7 @@
   archivePrefix = {arXiv}
 }
 
-% VERIFIED arXiv:2311.17035 ; ICLR 2025 (preprint first appeared 2023). Divergence attack on production LMs.
+% VERIFIED arXiv:2311.17035 . ICLR 2025 (preprint first appeared 2023). Divergence attack on production LMs.
 @inproceedings{nasr2025scalable,
   title     = {Scalable Extraction of Training Data from (Production) Language Models},
   author    = {Nasr, Milad and Carlini, Nicholas and Hayase, Jonathan and Jagielski, Matthew and Cooper, A. Feder and Ippolito, Daphne and Choquette-Choo, Christopher A. and Wallace, Eric and Tram{\`e}r, Florian and Lee, Katherine},
@@ -143,12 +143,12 @@
   archivePrefix = {arXiv}
 }
 
-% VERIFIED arXiv:2512.13352 (submitted 15 Dec 2025; abs + arXiv HTML v1 read). CLOSEST PRIOR WORK. Integrates MIA scores
-% (LOSS, Min-K%, Min-K%++, zlib, S-ReCaLL, lowercase, ...) into a targeted-extraction pipeline; evaluates by ranking
+% VERIFIED arXiv:2512.13352 (submitted 15 Dec 2025, abs + arXiv HTML v1 read). CLOSEST PRIOR WORK. Integrates MIA scores
+% (LOSS, Min-K%, Min-K%++, zlib, S-ReCaLL, lowercase, ...) into a targeted-extraction pipeline. Evaluates by ranking
 % precision (proportion of correctly extracted suffixes among top-ranked outputs) and an AdaBoost ensemble over all MIA
-% features. Verified quotes: "complex MIA techniques yield only marginal improvements over simple likelihood-based ranking";
+% features. Verified quotes: "complex MIA techniques yield only marginal improvements over simple likelihood-based ranking".
 % "while certain methods (e.g., S-ReCaLL, Min K%) achieve consistent but marginal gains over the baseline ranking, most
-% approaches perform comparably to the baseline"; "methods such as lowercase and Min-K%++ systematically underperform".
+% approaches perform comparably to the baseline". "methods such as lowercase and Min-K%++ systematically underperform".
 % Does NOT use partial correlation / residualization / mediation (verified NOT FOUND). Venue: arXiv preprint only as of read.
 @misc{alsahili2025effectiveness,
   title         = {On the Effectiveness of Membership Inference in Targeted Data Extraction from Large Language Models},
@@ -159,12 +159,12 @@
   primaryClass  = {cs.CR}
 }
 
-% VERIFIED arXiv:2505.18773 ; NeurIPS 2025 (comment field states NeurIPS 2025; v1 24 May 2025, v2 2 Nov 2025, v3 8 Jan 2026).
-% NOTE: TITLE CHANGED across versions — arXiv v1 header was "Strong Membership Inference Attacks on Massive Datasets and
-% (Moderately) Large LLMs"; current/published title (v3, used here) is below. Scales LiRA to GPT-2-style LMs (10M-1B).
+% VERIFIED arXiv:2505.18773 . NeurIPS 2025 (comment field states NeurIPS 2025, v1 24 May 2025, v2 2 Nov 2025, v3 8 Jan 2026).
+% NOTE: TITLE CHANGED across versions - arXiv v1 header was "Strong Membership Inference Attacks on Massive Datasets and
+% (Moderately) Large LLMs". Current/published title (v3, used here) is below. Scales LiRA to GPT-2-style LMs (10M-1B).
 % Verified quotes: "We also study if there is any relationship between training data extraction and MIA, and observe no
-% correlation with MIA success"; "This suggests that the two privacy attacks may capture different signals related to
-% memorization"; "we observe no correlation between MIA and standard extraction methodology". Direct correlation, not
+% correlation with MIA success". "This suggests that the two privacy attacks may capture different signals related to
+% memorization". "we observe no correlation between MIA and standard extraction methodology". Direct correlation, not
 % partial/residualized.
 @inproceedings{hayes2025strong,
   title     = {Exploring the Limits of Strong Membership Inference Attacks on Large Language Models},
@@ -175,12 +175,12 @@
   archivePrefix = {arXiv}
 }
 
-% VERIFIED arXiv:2412.13475 (submitted 18 Dec 2024) ; ACL 2025 (Proc. 63rd ACL, Vol. 1: Long Papers, Vienna), pp. 22854--22874.
+% VERIFIED arXiv:2412.13475 (submitted 18 Dec 2024) . ACL 2025 (Proc. 63rd ACL, Vol. 1: Long Papers, Vienna), pp. 22854--22874.
 % Statistical re-analysis of MIA on LLMs over thousands of runs. Verified quotes: "Loss baseline is only outperformed by
-% Min-k% ++, Min-k%, and ReCaLL" BUT "their performance gap is within the variance from random seeds"; per-domain:
-% "Wikipedia (en) and FreeLaw show statistically better performance compared to other domains"; "GitHub and StackExchange
+% Min-k% ++, Min-k%, and ReCaLL" BUT "their performance gap is within the variance from random seeds". Per-domain:
+% "Wikipedia (en) and FreeLaw show statistically better performance compared to other domains". "GitHub and StackExchange
 % are related to codes that have less token diversity compared to FreeLaw and Wikipedia". Corroborates loss-baseline parity +
-% per-domain strata. [VERIFY] exact ACL Anthology ID (pages/venue confirmed; e.g. anthology page 22854 lands in this paper).
+% per-domain strata. [VERIFY] exact ACL Anthology ID (pages/venue confirmed. E.g. anthology page 22854 lands in this paper).
 @inproceedings{chen2025statistical,
   title     = {A Statistical and Multi-Perspective Revisiting of the Membership Inference Attack in Large Language Models},
   author    = {Chen, Bowen and Han, Namgi and Miyao, Yusuke},
@@ -191,9 +191,9 @@
   archivePrefix = {arXiv}
 }
 
-% VERIFIED arXiv:2406.16201 (submitted 23 Jun 2024; rev 30 Mar 2025) ; DATA-FM @ ICLR 2025 / IEEE DLSP Workshop 2025.
+% VERIFIED arXiv:2406.16201 (submitted 23 Jun 2024, rev 30 Mar 2025) . DATA-FM @ ICLR 2025 / IEEE DLSP Workshop 2025.
 % Verified claim: "blind attacks -- that distinguish the member and non-member distributions without looking at any trained
-% model -- outperform state-of-the-art MI attacks", across 8 published MIA-for-foundation-model datasets; evaluation flaw =
+% model -- outperform state-of-the-art MI attacks", across 8 published MIA-for-foundation-model datasets. Evaluation flaw =
 % member/non-member sampled from different distributions. [VERIFY] precise workshop proceedings string for camera-ready.
 @misc{das2024blind,
   title         = {Blind Baselines Beat Membership Inference Attacks for Foundation Models},
@@ -204,7 +204,7 @@
   primaryClass  = {cs.LG}
 }
 
-% VERIFIED arXiv:2406.17975 (submitted 25 Jun 2024; rev 7 Mar 2025) ; IEEE Conf. on Secure and Trustworthy ML (SaTML) 2025.
+% VERIFIED arXiv:2406.17975 (submitted 25 Jun 2024, rev 7 Mar 2025) . IEEE Conf. on Secure and Trustworthy ML (SaTML) 2025.
 % SoK: most recent LLM-MIA work suffers from post-hoc dataset construction inducing member/non-member distribution shift.
 % Verified quote: shifts "invalidate the claims of LLMs memorizing strongly in real-world scenarios and, potentially, also the
 % methodological contributions of the recent papers based on these datasets". Motivates ground-truth membership (we use Pile).
@@ -217,7 +217,7 @@
   archivePrefix = {arXiv}
 }
 
-% VERIFIED arXiv:1610.05820 ; IEEE S&P 2017 pp.3-18. Canonical shadow-model MIA.
+% VERIFIED arXiv:1610.05820 . IEEE S&P 2017 pp.3-18. Canonical shadow-model MIA.
 @inproceedings{shokri2017membership,
   title     = {Membership Inference Attacks Against Machine Learning Models},
   author    = {Shokri, Reza and Stronati, Marco and Song, Congzheng and Shmatikov, Vitaly},
@@ -227,7 +227,7 @@
   publisher = {IEEE}
 }
 
-% VERIFIED arXiv:2302.00539 ; IEEE S&P 2023 pp.346-363 (Microsoft Research / Semantic Scholar). PII extraction/reconstruction/inference games.
+% VERIFIED arXiv:2302.00539 . IEEE S&P 2023 pp.346-363 (Microsoft Research / Semantic Scholar). PII extraction/reconstruction/inference games.
 @inproceedings{lukas2023pii,
   title     = {Analyzing Leakage of Personally Identifiable Information in Language Models},
   author    = {Lukas, Nils and Salem, Ahmed and Sim, Robert and Tople, Shruti and Wutschitz, Lukas and Zanella-B{\'e}guelin, Santiago},
@@ -237,7 +237,7 @@
   publisher = {IEEE}
 }
 
-% VERIFIED arXiv:2205.12628 ; Findings of EMNLP 2022 pp.2038-2047 (ACL Anthology 2022.findings-emnlp.148). Memorization vs. association decomposition of PII leakage.
+% VERIFIED arXiv:2205.12628 . Findings of EMNLP 2022 pp.2038-2047 (ACL Anthology 2022.findings-emnlp.148). Memorization vs. association decomposition of PII leakage.
 @inproceedings{huang2022leaking,
   title     = {Are Large Pre-Trained Language Models Leaking Your Personal Information?},
   author    = {Huang, Jie and Shao, Hanyin and Chang, Kevin Chen-Chuan},
@@ -246,7 +246,7 @@
   year      = {2022}
 }
 
-% VERIFIED arXiv:2307.01881 ; NeurIPS 2023. ProPILE data-subject probing tool.
+% VERIFIED arXiv:2307.01881 . NeurIPS 2023. ProPILE data-subject probing tool.
 @inproceedings{kim2023propile,
   title     = {{ProPILE}: Probing Privacy Leakage in Large Language Models},
   author    = {Kim, Siwon and Yun, Sangdoo and Lee, Hwaran and Gubri, Martin and Yoon, Sungroh and Oh, Seong Joon},
@@ -255,7 +255,7 @@
   year      = {2023}
 }
 
-% VERIFIED arXiv:1607.00133 ; ACM CCS 2016 ; DOI 10.1145/2976749.2978318. DP-SGD + moments accountant.
+% VERIFIED arXiv:1607.00133 . ACM CCS 2016 . DOI 10.1145/2976749.2978318. DP-SGD + moments accountant.
 @inproceedings{abadi2016deep,
   title     = {Deep Learning with Differential Privacy},
   author    = {Abadi, Martin and Chu, Andy and Goodfellow, Ian and McMahan, H. Brendan and Mironov, Ilya and Talwar, Kunal and Zhang, Li},
@@ -265,7 +265,7 @@
   doi       = {10.1145/2976749.2978318}
 }
 
-% VERIFIED arXiv:2110.05679 ; ICLR 2022 (oral). DP-SGD fine-tuning of LLMs + ghost clipping.
+% VERIFIED arXiv:2110.05679 . ICLR 2022 (oral). DP-SGD fine-tuning of LLMs + ghost clipping.
 @inproceedings{li2022dpllm,
   title     = {Large Language Models Can Be Strong Differentially Private Learners},
   author    = {Li, Xuechen and Tram{\`e}r, Florian and Liang, Percy and Hashimoto, Tatsunori},
@@ -275,7 +275,7 @@
   archivePrefix = {arXiv}
 }
 
-% VERIFIED arXiv:2110.06500 ; ICLR 2022. Parameter-efficient DP fine-tuning.
+% VERIFIED arXiv:2110.06500 . ICLR 2022. Parameter-efficient DP fine-tuning.
 @inproceedings{yu2022dpfinetuning,
   title     = {Differentially Private Fine-tuning of Language Models},
   author    = {Yu, Da and Naik, Saurabh and Backurs, Arturs and Gopi, Sivakanth and Inan, Huseyin A. and Kamath, Gautam and Kulkarni, Janardhan and Lee, Yin Tat and Manoel, Andre and Wutschitz, Lukas and Yekhanin, Sergey and Zhang, Huishuai},
@@ -293,7 +293,7 @@
   year    = {2021}
 }
 
-% VERIFIED arXiv:2112.12938 ; NeurIPS 2023. Counterfactual memorization (Feldman-style).
+% VERIFIED arXiv:2112.12938 . NeurIPS 2023. Counterfactual memorization (Feldman-style).
 @inproceedings{zhang2023counterfactual,
   title     = {Counterfactual Memorization in Neural Language Models},
   author    = {Zhang, Chiyuan and Ippolito, Daphne and Lee, Katherine and Jagielski, Matthew and Tram{\`e}r, Florian and Carlini, Nicholas},
@@ -302,7 +302,7 @@
   year      = {2023}
 }
 
-% VERIFIED arXiv:1802.08232 ; USENIX Security 2019 pp.267-284. Secret Sharer: canary exposure metric.
+% VERIFIED arXiv:1802.08232 . USENIX Security 2019 pp.267-284. Secret Sharer: canary exposure metric.
 @inproceedings{carlini2019secret,
   title     = {The Secret Sharer: Evaluating and Testing Unintended Memorization in Neural Networks},
   author    = {Carlini, Nicholas and Liu, Chang and Erlingsson, {\'U}lfar and Kos, Jernej and Song, Dawn},
@@ -311,7 +311,7 @@
   year      = {2019}
 }
 
-% VERIFIED arXiv:2210.17546 ; INLG 2023 pp.28-53 (ACL Anthology 2023.inlg-main.3). NOTE published title is "Preventing GENERATION OF Verbatim Memorization..."; corrected here.
+% VERIFIED arXiv:2210.17546 . INLG 2023 pp.28-53 (ACL Anthology 2023.inlg-main.3). NOTE published title is "Preventing GENERATION OF Verbatim Memorization...". Corrected here.
 @inproceedings{ippolito2023verbatim,
   title     = {Preventing Generation of Verbatim Memorization in Language Models Gives a False Sense of Privacy},
   author    = {Ippolito, Daphne and Tram{\`e}r, Florian and Nasr, Milad and Zhang, Chiyuan and Jagielski, Matthew and Lee, Katherine and Choquette-Choo, Christopher A. and Carlini, Nicholas},
@@ -335,7 +335,7 @@
   year      = {2023}
 }
 
-% VERIFIED arXiv:2502.18943 ; USENIX Security 2025. PETAL: label-only MIA on pretrained LLMs.
+% VERIFIED arXiv:2502.18943 . USENIX Security 2025. PETAL: label-only MIA on pretrained LLMs.
 @inproceedings{he2025labelonly,
   title     = {Towards Label-Only Membership Inference Attack against Pre-trained Large Language Models},
   author    = {He, Yu and Li, Boheng and Liu, Liu and Ba, Zhongjie and Dong, Wei and Li, Yiming and Qin, Zhan and Ren, Kui and Chen, Chun},
@@ -343,7 +343,7 @@
   year      = {2025}
 }
 
-% VERIFIED USENIX Security 2025 pp.8155-8173 (usenix.org presentation/cheng-shuai; ACM DL 10.5555/3766078.3766496) ; DOI 10.5281/zenodo.15544879. Few-shot PII extraction.
+% VERIFIED USENIX Security 2025 pp.8155-8173 (usenix.org presentation/cheng-shuai. ACM DL 10.5555/3766078.3766496) . DOI 10.5281/zenodo.15544879. Few-shot PII extraction.
 @inproceedings{cheng2025piiextraction,
   title     = {Effective {PII} Extraction from {LLMs} through Augmented Few-Shot Learning},
   author    = {Cheng, Shuai and Meng, Shu and Xu, Haitao and Zhang, Haoran and Hao, Shuai and Yue, Chuan and Ma, Wenrui and Han, Meng and Zhang, Fan and Li, Zhao},
@@ -352,7 +352,7 @@
   year      = {2025}
 }
 
-% VERIFIED arXiv:2506.10424 ; USENIX Security 2025. MIA on fine-tuned LLMs + obfuscation defense.
+% VERIFIED arXiv:2506.10424 . USENIX Security 2025. MIA on fine-tuned LLMs + obfuscation defense.
 @inproceedings{zhang2025soft,
   title     = {{SOFT}: Selective Data Obfuscation for Protecting {LLM} Fine-tuning against Membership Inference Attacks},
   author    = {Zhang, Kaiyuan and Cheng, Siyuan and Guo, Hanxi and Chen, Yuetian and Su, Zian and An, Shengwei and Du, Yuntao and Fleming, Charles and Kundu, Ashish and Zhang, Xiangyu and Li, Ninghui},
@@ -364,7 +364,7 @@
 % C. Models with auditable training data
 % ----------------------------------------------------------------------------
 
-% VERIFIED arXiv:2304.01373 ; ICML 2023 (PMLR v202). PRIMARY MODEL: Pythia suite on the Pile.
+% VERIFIED arXiv:2304.01373 . ICML 2023 (PMLR v202). PRIMARY MODEL: Pythia suite on the Pile.
 @inproceedings{biderman2023pythia,
   title     = {Pythia: A Suite for Analyzing Large Language Models Across Training and Scaling},
   author    = {Biderman, Stella and Schoelkopf, Hailey and Anthony, Quentin and Bradley, Herbie and O'Brien, Kyle and Hallahan, Eric and Khan, Mohammad Aflah and Purohit, Shivanshu and Prashanth, USVSN Sai and Raff, Edward and Skowron, Aviya and Sutawika, Lintang and van der Wal, Oskar},
@@ -376,7 +376,7 @@
   archivePrefix = {arXiv}
 }
 
-% VERIFIED arXiv:2204.06745 ; BigScience Workshop @ ACL 2022. GPT-NeoX-20B on the Pile.
+% VERIFIED arXiv:2204.06745 . BigScience Workshop @ ACL 2022. GPT-NeoX-20B on the Pile.
 @inproceedings{black2022gptneox,
   title     = {{GPT-NeoX-20B}: An Open-Source Autoregressive Language Model},
   author    = {Black, Sid and Biderman, Stella and Hallahan, Eric and Anthony, Quentin and Gao, Leo and Golding, Laurence and He, Horace and Leahy, Connor and McDonell, Kyle and Phang, Jason and Pieler, Michael and Prashanth, USVSN Sai and Purohit, Shivanshu and Reynolds, Laria and Tow, Jonathan and Wang, Ben and Weinbach, Samuel},
@@ -405,7 +405,7 @@
   year         = {2021}
 }
 
-% VERIFIED arXiv:2402.00838 ; ACL 2024. OLMo on Dolma (secondary replication model).
+% VERIFIED arXiv:2402.00838 . ACL 2024. OLMo on Dolma (secondary replication model).
 @inproceedings{groeneveld2024olmo,
   title     = {{OLMo}: Accelerating the Science of Language Models},
   author    = {Groeneveld, Dirk and Beltagy, Iz and Walsh, Pete and Bhagia, Akshita and Kinney, Rodney and Tafjord, Oyvind and Jha, Ananya Harsh and Ivison, Hamish and Magnusson, Ian and Wang, Yizhong and Arora, Shane and Atkinson, David and Authur, Russell and Chandu, Khyathi Raghavi and Cohan, Arman and Dumas, Jennifer and Elazar, Yanai and Gu, Yuling and Hessel, Jack and Khot, Tushar and Merrill, William and Morrison, Jacob and Muennighoff, Niklas and Naik, Aakanksha and Nam, Crystal and Peters, Matthew E. and Pyatkin, Valentina and Ravichander, Abhilasha and Schwenk, Dustin and Shah, Saurabh and Smith, Will and Strubell, Emma and Subramani, Nishant and Wortsman, Mitchell and Dasigi, Pradeep and Lambert, Nathan and Richardson, Kyle and Zettlemoyer, Luke and Dodge, Jesse and Lo, Kyle and Soldaini, Luca and Smith, Noah A. and Hajishirzi, Hannaneh},
@@ -423,7 +423,7 @@
   year    = {2019}
 }
 
-% VERIFIED arXiv:2211.05100. BLOOM / ROOTS. The official paper has 392 listed contributors under the corporate author "BigScience Workshop"; we keep the corporate-author form with the canonical lead-author tail (de-truncation to all 392 names is neither feasible nor standard for this paper).
+% VERIFIED arXiv:2211.05100. BLOOM / ROOTS. The official paper has 392 listed contributors under the corporate author "BigScience Workshop". We keep the corporate-author form with the canonical lead-author tail (de-truncation to all 392 names is neither feasible nor standard for this paper).
 @article{bigscience2022bloom,
   title   = {{BLOOM}: A 176B-Parameter Open-Access Multilingual Language Model},
   author  = {{BigScience Workshop} and Le Scao, Teven and Fan, Angela and Akiki, Christopher and Pavlick, Ellie and Ili{\'c}, Suzana and Hesslow, Daniel and Castagn{\'e}, Roman and Luccioni, Alexandra Sasha and Yvon, Fran{\c{c}}ois and Gall{\'e}, Matthias and others},
@@ -431,7 +431,7 @@
   year    = {2022}
 }
 
-% VERIFIED arXiv:2302.13971. LLaMA — corpus NOT released; excluded from ground-truth experiments.
+% VERIFIED arXiv:2302.13971. LLaMA - corpus NOT released. Excluded from ground-truth experiments.
 @article{touvron2023llama,
   title   = {{LLaMA}: Open and Efficient Foundation Language Models},
   author  = {Touvron, Hugo and Lavril, Thibaut and Izacard, Gautier and Martinet, Xavier and Lachaux, Marie-Anne and Lacroix, Timoth{\'e}e and Rozi{\`e}re, Baptiste and Goyal, Naman and Hambro, Eric and Azhar, Faisal and Rodriguez, Aurelien and Joulin, Armand and Grave, Edouard and Lample, Guillaume},
@@ -443,7 +443,7 @@
 % D. Corpora and benchmarks
 % ----------------------------------------------------------------------------
 
-% VERIFIED arXiv:2101.00027. The Pile (Pythia's training corpus; our ground truth).
+% VERIFIED arXiv:2101.00027. The Pile (Pythia's training corpus. Our ground truth).
 @article{gao2020pile,
   title   = {The {Pile}: An 800GB Dataset of Diverse Text for Language Modeling},
   author  = {Gao, Leo and Biderman, Stella and Black, Sid and Golding, Laurence and Hoppe, Travis and Foster, Charles and Phang, Jason and He, Horace and Thite, Anish and Nabeshima, Noa and Presser, Shawn and Leahy, Connor},
@@ -451,7 +451,7 @@
   year    = {2020}
 }
 
-% VERIFIED organization/website. No canonical paper; papers cite the site.
+% VERIFIED organization/website. No canonical paper. Papers cite the site.
 @misc{commoncrawl,
   title        = {Common Crawl},
   author       = {{Common Crawl Foundation}},
@@ -459,7 +459,7 @@
   note         = {Open repository of web crawl data}
 }
 
-% VERIFIED JMLR 21(140):1-67, 2020 ; arXiv:1910.10683. C4 introduced with T5.
+% VERIFIED JMLR 21(140):1-67, 2020 . ArXiv:1910.10683. C4 introduced with T5.
 @article{raffel2020c4,
   title   = {Exploring the Limits of Transfer Learning with a Unified Text-to-Text Transformer},
   author  = {Raffel, Colin and Shazeer, Noam and Roberts, Adam and Lee, Katherine and Narang, Sharan and Matena, Michael and Zhou, Yanqi and Li, Wei and Liu, Peter J.},
@@ -470,7 +470,7 @@
   year    = {2020}
 }
 
-% VERIFIED arXiv:2104.08758 ; EMNLP 2021. Documents the C4 corpus.
+% VERIFIED arXiv:2104.08758 . EMNLP 2021. Documents the C4 corpus.
 @inproceedings{dodge2021c4,
   title     = {Documenting Large Webtext Corpora: A Case Study on the Colossal Clean Crawled Corpus},
   author    = {Dodge, Jesse and Sap, Maarten and Marasovi{\'c}, Ana and Agnew, William and Ilharco, Gabriel and Groeneveld, Dirk and Mitchell, Margaret and Gardner, Matt},
@@ -480,7 +480,7 @@
   archivePrefix = {arXiv}
 }
 
-% VERIFIED arXiv:2411.12372 ; NeurIPS 2024 Datasets & Benchmarks Track.
+% VERIFIED arXiv:2411.12372 . NeurIPS 2024 Datasets & Benchmarks Track.
 @inproceedings{weber2024redpajama,
   title     = {{RedPajama}: an Open Dataset for Training Large Language Models},
   author    = {Weber, Maurice and Fu, Daniel and Anthony, Quentin and Oren, Yonatan and Adams, Shane and Alexandrov, Anton and Lyu, Xiaozhong and Nguyen, Huu and Yao, Xiaozhe and Adams, Virginia and Athiwaratkun, Ben and Chalamala, Rahul and Chen, Kezhen and Ryabinin, Max and Dao, Tri and Liang, Percy and R{\'e}, Christopher and Rish, Irina and Zhang, Ce},
@@ -490,7 +490,7 @@
   archivePrefix = {arXiv}
 }
 
-% VERIFIED arXiv:2402.00159 ; ACL 2024. Dolma (OLMo's corpus).
+% VERIFIED arXiv:2402.00159 . ACL 2024. Dolma (OLMo's corpus).
 @inproceedings{soldaini2024dolma,
   title     = {Dolma: an Open Corpus of Three Trillion Tokens for Language Model Pretraining Research},
   author    = {Soldaini, Luca and Kinney, Rodney and Bhagia, Akshita and Schwenk, Dustin and Atkinson, David and Authur, Russell and Bogin, Ben and Chandu, Khyathi and Dumas, Jennifer and Elazar, Yanai and Hofmann, Valentin and Jha, Ananya Harsh and Kumar, Sachin and Lucy, Li and Lyu, Xinxi and Lambert, Nathan and Magnusson, Ian and Morrison, Jacob and Muennighoff, Niklas and Naik, Aakanksha and Nam, Crystal and Peters, Matthew E. and Ravichander, Abhilasha and Richardson, Kyle and Shen, Zejiang and Strubell, Emma and Subramani, Nishant and Tafjord, Oyvind and Walsh, Pete and Zettlemoyer, Luke and Smith, Noah A. and Hajishirzi, Hannaneh and Beltagy, Iz and Groeneveld, Dirk and Dodge, Jesse and Lo, Kyle},
@@ -500,7 +500,7 @@
   archivePrefix = {arXiv}
 }
 
-% VERIFIED arXiv:2009.03300 ; ICLR 2021. MMLU.
+% VERIFIED arXiv:2009.03300 . ICLR 2021. MMLU.
 @inproceedings{hendrycks2021mmlu,
   title     = {Measuring Massive Multitask Language Understanding},
   author    = {Hendrycks, Dan and Burns, Collin and Basart, Steven and Zou, Andy and Mazeika, Mantas and Song, Dawn and Steinhardt, Jacob},
@@ -526,7 +526,7 @@
   year    = {2021}
 }
 
-% VERIFIED arXiv:1905.07830 ; ACL 2019. HellaSwag.
+% VERIFIED arXiv:1905.07830 . ACL 2019. HellaSwag.
 @inproceedings{zellers2019hellaswag,
   title     = {{HellaSwag}: Can a Machine Really Finish Your Sentence?},
   author    = {Zellers, Rowan and Holtzman, Ari and Bisk, Yonatan and Farhadi, Ali and Choi, Yejin},
@@ -536,7 +536,7 @@
   archivePrefix = {arXiv}
 }
 
-% VERIFIED arXiv:2109.07958 ; ACL 2022. TruthfulQA.
+% VERIFIED arXiv:2109.07958 . ACL 2022. TruthfulQA.
 @inproceedings{lin2022truthfulqa,
   title     = {{TruthfulQA}: Measuring How Models Mimic Human Falsehoods},
   author    = {Lin, Stephanie and Hilton, Jacob and Evans, Owain},
@@ -546,7 +546,7 @@
   archivePrefix = {arXiv}
 }
 
-% VERIFIED arXiv:1905.10044 ; NAACL 2019. BoolQ.
+% VERIFIED arXiv:1905.10044 . NAACL 2019. BoolQ.
 @inproceedings{clark2019boolq,
   title     = {{BoolQ}: Exploring the Surprising Difficulty of Natural Yes/No Questions},
   author    = {Clark, Christopher and Lee, Kenton and Chang, Ming-Wei and Kwiatkowski, Tom and Collins, Michael and Toutanova, Kristina},

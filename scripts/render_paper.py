@@ -66,8 +66,24 @@ def main():
                     "-o", "paper/main.html", "--metadata",
                     "title=Benchmark Contamination as a Privacy/Security Vulnerability in LLMs (working draft)"],
                    check=True)
-    # Microsoft Word (.docx): native pandoc writer, no engine needed; APA citations + References.
-    subprocess.run([PANDOC, "/tmp/full_cites.tex", *common, "-o", "paper/main.docx"], check=True)
+    # Microsoft Word (.docx): IEEE-conference styling via a reference doc + Lua filter.
+    # reference.docx sets Times New Roman / justified body / small-caps centered headings /
+    # black links / small-caps centered table captions. Ieee.lua numbers sections (Roman),
+    # subsections (letters), and labels tables ("Table I"...). --no-highlight drops the
+    # colored syntax spans on \texttt code.
+    if not os.path.exists("paper/reference.docx"):
+        subprocess.run([sys.executable, "scripts/build_reference_docx.py"], check=True)
+    title = ("Benchmark Contamination as a Privacy and Security Vulnerability "
+             "in Large Language Models")
+    subprocess.run([PANDOC, "/tmp/full_cites.tex", *common,
+                    "--lua-filter=paper/ieee.lua", "--no-highlight",
+                    "--reference-doc=paper/reference.docx",
+                    "--metadata", f"title={title}",
+                    "-o", "paper/main.docx"], check=True)
+    # pandoc 2.12 writes zero-width tables (w:tblW pct 0.0, no grid). Give every table a
+    # fixed full-width layout with content-proportional column widths so it renders in
+    # Word, Pages, Quick Look, and Google Docs instead of collapsing to one char per column.
+    subprocess.run([sys.executable, "scripts/fix_docx_tables.py", "paper/main.docx"], check=True)
     subprocess.run([sys.executable, "scripts/build_pdf.py", "--md", "PAPER_DRAFT_FULL.md",
                     "--out", "paper/main.pdf"], check=True)
     print("rendered: PAPER_DRAFT_FULL.md, paper/main.html, paper/main.docx, paper/main.pdf "

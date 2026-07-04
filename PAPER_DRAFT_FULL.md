@@ -24,7 +24,7 @@ by token frequency or the zero-inflated outcome. We frame this as a
 *membership-detection-versus-leakage-prediction divergence*: the
 detectors the field optimizes for membership are not the right
 instrument for the privacy question. **These results are preliminary,
-obtained on the smallest (160M) Pythia model on CPU; the pipeline is
+obtained on the smallest (160M) Pythia model on CPU. The pipeline is
 built so that the GPU-scale replication is a single configuration
 change.** All analyses are pre-registered and every number is
 reproducible from a seeded script.
@@ -38,8 +38,8 @@ one assumption: that the evaluation data was absent from pre-training.
 The assumption is increasingly untenable. Benchmarks are small, static,
 and endlessly redistributed across the web, while training corpora are
 weakly filtered crawls assembled at the scale of hundreds of gigabytes
-to petabytes (Common Crawl Foundation, n.d.; Gao et al., 2020);
-benchmark items are therefore swept into the next crawl by ordinary
+to petabytes (Common Crawl Foundation, n.d.; Gao et al., 2020).
+Benchmark items are therefore swept into the next crawl by ordinary
 copying, with no adversary required. The resulting *benchmark
 contamination*, the presence of evaluation data in the training
 corpus (Golchin & Surdeanu, 2024), is usually treated as a
@@ -56,7 +56,7 @@ this view, is a visible symptom of unintended memorization, and
 memorization is the mechanism by which sensitive content leaks. If a
 cheap, model-side contamination signal predicts which items the model
 has memorized, then the act of contaminating a benchmark is not merely
-inflating a metric; it is exposing a leakage channel. We make this
+inflating a metric. It is exposing a leakage channel. We make this
 contamination → memorization → leakage chain the object of empirical
 study, on models whose training corpus is fully public so that
 membership is ground truth rather than a guess.
@@ -137,7 +137,7 @@ al. (2022). Within that honest scope, our contributions are:
 
 We do not propose internal-probe or other novel detectors as
 contributions, do not train or fine-tune models, and do not attack
-closed production systems for real third-party PII; differential privacy
+closed production systems for real third-party PII. Differential privacy
 and related defenses are discussed as the mitigation direction only.
 
 # Background: LLM Evaluation Benchmarks as an Attack Surface
@@ -164,7 +164,7 @@ this assumption does high benchmark performance license the intended
 conclusion, that the model *generalizes* (applies learned regularities
 to novel inputs) rather than *memorizes* (retrieves specific training
 instances). When the assumption is violated, the benchmark no longer
-measures capability; a memorized test item inflates the score without
+measures capability. A memorized test item inflates the score without
 any corresponding gain in generalization, rendering the metric an
 unreliable estimator of the construct it claims to measure. The
 generalization-versus- memorization distinction is not merely
@@ -226,20 +226,20 @@ operating point rather than on average (Carlini et al., 2022).
 
 -   **G3: extraction / leakage.** Recover verbatim content (and, on a
     controlled corpus, PII) that was in training. This is the concrete
-    harm; G1–G2 are of interest largely insofar as they predict G3.
+    harm, and G1–G2 are of interest largely insofar as they predict G3.
 
 #### Adversary knowledge and access.
 
 We grade detectors by the minimum access each requires: *black-box*
-(text in, text out; e.g. guided prompting, which we do not evaluate),
-*gray-box* (per-token log-probabilities / loss; LOSS, Min-K%, zlib), and
-*white-box* (the full next-token distribution; Min-K%++). The
-corpus-side *n*-gram test instead assumes access to the training corpus
-(available here because the Pile is public) and is used to construct
-ground-truth contamination labels, not as a model-access attack. For our
-ground-truth experiments the *auditor* additionally knows the public
-training corpus; the modelled attacker does not need corpus access for
-G1/G3.
+(text in, text out, e.g. guided prompting, which we do not evaluate),
+*gray-box* (per-token log-probabilities / loss, e.g. LOSS, Min-K%,
+zlib), and *white-box* (the full next-token distribution,
+e.g. Min-K%++). The corpus-side *n*-gram test instead assumes access to
+the training corpus (available here because the Pile is public) and is
+used to construct ground-truth contamination labels, not as a
+model-access attack. For our ground-truth experiments the *auditor*
+additionally knows the public training corpus. The modelled attacker
+does not need corpus access for G1/G3.
 
 #### Success criteria.
 
@@ -321,14 +321,14 @@ formalized along several axes that we reuse as outcome variables:
 
 -   ***k*-eidetic / extractable memorization.** A string is extractable
     if a prefix makes the model regenerate it, and is *k*-eidetic if it
-    occurs in at most *k* training documents (Carlini et al., 2021); the
+    occurs in at most *k* training documents (Carlini et al., 2021). The
     prefix-continuation form under greedy decoding makes this directly
     measurable (Carlini et al., 2023).
 
 -   **Exposure and example-level memorization.** Injecting a canary
     secret and measuring its *exposure*, its rank against random
     alternatives, quantifies unintended memorization and its growth with
-    occurrence count (Carlini et al., 2019); this requires control over
+    occurrence count (Carlini et al., 2019). This requires control over
     the training process (canary insertion), which our
     pretrained-checkpoint setting does not afford, so we use it for
     definitions rather than as a measurement. Relatedly, memorization is
@@ -343,7 +343,7 @@ formalized along several axes that we reuse as outcome variables:
 
 -   **PII leakage games.** Leakage of personally identifiable
     information decomposes into extraction, reconstruction, and
-    inference; data scrubbing and differential privacy reduce but do not
+    inference. Data scrubbing and differential privacy reduce but do not
     eliminate it (Lukas et al., 2023), models leak PII through
     memorization more than through associative inference (Huang et
     al., 2022), and black-box probing tools can elicit a data subject’s
@@ -379,12 +379,12 @@ For pre-trained LLMs, the field moved to *reference-free* likelihood
 signals that need no shadow models. Min-K% Prob averages the
 log-probabilities of a sequence’s lowest-probability *k*% of tokens, on
 the hypothesis that members lack high-surprise outlier tokens (Shi et
-al., 2024); Min-K%++ sharpens this by *z*-scoring each token against the
+al., 2024). Min-K%++ sharpens this by *z*-scoring each token against the
 *full* next-token distribution before averaging, detecting that the
 target token sits at a local maximum of the modeled distribution (J.
 Zhang et al., 2025). A parallel reference-free line, neighbourhood
 comparison, calibrates a sample’s score against synthetically generated
-neighbour texts instead of a reference model (Mattern et al., 2023); we
+neighbour texts instead of a reference model (Mattern et al., 2023). We
 treat it as a related approach we do not evaluate, since it needs many
 extra masked-LM forward passes per example and, in the regime below,
 underperforms. The reality check on this whole line is the MIMIR study:
@@ -395,7 +395,7 @@ large a dataset to memorize in the way classical MIA assumes, and that
 apparent successes frequently reflect a temporal or topical
 *distribution shift* between the splits rather than membership (Duan et
 al., 2024). This finding defines our honesty constraint: we do not claim
-to beat these numbers; we ask whether the weak signal that remains still
+to beat these numbers. We ask whether the weak signal that remains still
 predicts leakage.
 
 ## Differential privacy as the defense direction
@@ -409,14 +409,14 @@ fine-tuning can retain much of the utility of non-private training,
 particularly with large pre-trained backbones (Li et al., 2022) and
 parameter-efficient adaptation (Yu et al., 2022). DP bounds memorization
 and thereby the leakage we measure, but at a privacy–utility cost and,
-crucially for us, it must be applied *at training time*; it is a defense
+crucially for us, it must be applied *at training time*. It is a defense
 for model producers, not a detector available to an auditor of an
 already-released model. We therefore position DP as the mitigation our
 threat model motivates, and do not implement it (we train no models).
 
 ## Existing detection techniques
 
-We describe the techniques we implement and compare; the comparative
+We describe the techniques we implement and compare. The comparative
 evaluation and the access requirements appear in
 Section <a href="#sec:eval" data-reference-type="ref" data-reference="sec:eval">5</a>.
 All operate without any novel detector of our own, our contribution is
@@ -424,14 +424,14 @@ their security-framed, ground-truth evaluation, not a new method.
 
 -   ***n*-gram / substring overlap.** Flag a benchmark item that shares
     an *N*-gram with the corpus (Brown et al., 2020). Requires corpus
-    access; misses paraphrased and semantic contamination.
+    access, and misses paraphrased and semantic contamination.
 
 -   **Loss / perplexity thresholding.** The mandatory
     membership-inference baseline: members exhibit lower loss, with
     attack success tied to overfitting (Yeom et al., 2018).
 
 -   **Min-K% Prob.** Average the log-probabilities of the
-    lowest-probability *k*% of tokens; reference-free and
+    lowest-probability *k*% of tokens, reference-free and
     logprob-only (Shi et al., 2024).
 
 -   **Min-K%++.** Normalizes each token’s log-probability against the
@@ -446,7 +446,7 @@ their security-framed, ground-truth evaluation, not a new method.
 -   **Permutation / exchangeability test.** At the *benchmark* level
     rather than per item, score each ordering of a benchmark’s examples
     by the log-likelihood of their concatenation and compare the
-    canonical (published) order against random shufflings; a model
+    canonical (published) order against random shufflings. A model
     trained on the benchmark in canonical order favours it beyond
     chance, yielding a provable, FPR-controlled contamination
     certificate (Oren et al., 2024).
@@ -456,7 +456,7 @@ since our ground-truth, logit-access setting makes likelihood-based
 detectors stronger and cleaner: *guided prompting*, which prompts a
 model with dataset metadata and a partial instance and tests for
 verbatim completion (Golchin & Surdeanu, 2024), a black-box signal aimed
-at closed models; and the reference-free *neighbourhood* and
+at closed models, and the reference-free *neighbourhood* and
 shadow-model *reference* attacks discussed in
 Section <a href="#sec:mia-lineage" data-reference-type="ref" data-reference="sec:mia-lineage">4.4</a> (Mattern
 et al., 2023; Shokri et al., 2017).
@@ -507,51 +507,48 @@ for the *membership* task that the few detectors numerically above the
 loss baseline (Min-K%, Min-K%++, ReCaLL) do not beat it robustly once
 random-seed variance is accounted for, and that performance is
 domain-dependent (code-like, low-token-diversity domains such as GitHub
-and StackExchange behave differently from Wikipedia and FreeLaw); we
+and StackExchange behave differently from Wikipedia and FreeLaw). We
 revisit this domain dependence for the *extraction* outcome in our
 per-domain analysis
 (Section <a href="#sec:eval" data-reference-type="ref" data-reference="sec:eval">5</a>),
 noting it is a distinct axis from their membership-AUC result. Finally,
 blind-baseline and SoK critiques (Das et al., 2024; Meeus et al., 2025)
 show that post-hoc member/non-member splits can make detector “success”
-an artifact of distribution shift; our use of ground-truth Pile
+an artifact of distribution shift. Our use of ground-truth Pile
 membership (no post-hoc split) is precisely the design discipline they
 call for.
 
-@p2.1cmp1.6cmp1.9cmp2.0cmp2.4cm@ **Study** & **Outcome** & **Detectors**
-& **Statistical method** & **Conclusion**  
-Shi et al. (2024; J. Zhang et al., 2025) & membership & reference-free
-(Min-K%/++) & AUC / TPR@FPR & detector raises membership AUC  
-Duan et al. (2024) (MIMIR) & membership & ref-free + reference & AUC on
-ground truth & MIAs ≈ chance on LLMs  
-Carlini et al. (2022) (LiRA) & membership & shadow/reference & TPR at
-low FPR & strong only with shadow models  
-B. Chen et al. (2025) & membership & reference-free & seed-variance
-testing vs loss & not robustly beyond loss  
-Hayes et al. (2025) & membership & extraction & LiRA (reference) &
-direct (zero-order) correlation & MIA ≠ extraction  
-Al Sahili et al. (2025) & extraction (targeted) & ref-free + AdaBoost &
-ranking precision; ensemble & marginal gains over likelihood  
-**This work** & **extraction** & **ref-free calibrated** & **partial
-corr. + mediation (control loss)** & **zero/negative residual beyond
-loss**  
+| **Study**                                | **Outcome**             | **Detectors**              | **Statistical method**                       | **Conclusion**                         |
+|:-----------------------------------------|:------------------------|:---------------------------|:---------------------------------------------|:---------------------------------------|
+| Shi et al. (2024; J. Zhang et al., 2025) | membership              | reference-free (Min-K%/++) | AUC / TPR@FPR                                | detector raises membership AUC         |
+| Duan et al. (2024) (MIMIR)               | membership              | ref-free + reference       | AUC on ground truth                          | MIAs ≈ chance on LLMs                  |
+| Carlini et al. (2022) (LiRA)             | membership              | shadow/reference           | TPR at low FPR                               | strong only with shadow models         |
+| B. Chen et al. (2025)                    | membership              | reference-free             | seed-variance testing vs loss                | not robustly beyond loss               |
+| Hayes et al. (2025)                      | membership & extraction | LiRA (reference)           | direct (zero-order) correlation              | MIA does not imply extraction          |
+| Al Sahili et al. (2025)                  | extraction (targeted)   | ref-free + AdaBoost        | ranking precision, ensemble                  | marginal gains over likelihood         |
+| **This work**                            | **extraction**          | **ref-free calibrated**    | **partial corr. + mediation (control loss)** | **zero/negative residual beyond loss** |
+
+Where this work sits. To our knowledge it is the only study that pairs a
+per-item *extraction* outcome with a *partial-correlation/mediation*
+control for raw loss on *calibrated reference-free* detectors, yielding
+a quantified zero/negative marginal.
 
 # Evaluation Overview
 
 ## Threat model and success criteria
 
 We frame contamination detection as a membership/exposure attack with an
-explicit adversary (Section omitted here; see
+explicit adversary (Section omitted here, see
 `docs/experiment_design.md`). Goals range from membership inference on a
 single item, to benchmark-level contamination confirmation, to verbatim
 extraction and PII leakage. Each detector is evaluated at its minimum
-access tier (gray-box logprobs for LOSS/Min-K%/zlib; white-box logits
+access tier (gray-box logprobs for LOSS/Min-K%/zlib, white-box logits
 for Min-K%++). Success is defined by the security-appropriate operating
 point rather than average accuracy.
 
 ## Methods under comparison
 
-We evaluate *existing* detectors only; we propose no new detector. The
+We evaluate *existing* detectors only. We propose no new detector. The
 per-item membership suite is LOSS/perplexity (Yeom et al., 2018), Min-K%
 Prob (Shi et al., 2024), Min-K%++ (J. Zhang et al., 2025), and the
 zlib-entropy ratio (Carlini et al., 2021). Two further tests operate off
@@ -562,8 +559,8 @@ permutation/exchangeability test (Oren et al., 2024), a benchmark-level
 test that compares the canonical ordering of a benchmark’s examples
 against random shufflings to certify contamination with a controlled
 false-positive rate. The leakage outcome is prefix-continuation
-extractable memorization under greedy decoding (Carlini et al., 2023);
-on the controlled corpus we additionally measure regex-detected PII
+extractable memorization under greedy decoding (Carlini et al., 2023).
+On the controlled corpus we additionally measure regex-detected PII
 leakage, framed via the PII-leakage games of Lukas et al. (2023).
 Related approaches we deliberately *do not* evaluate, guided
 prompting (Golchin & Surdeanu, 2024), neighbourhood and shadow-model
@@ -576,13 +573,13 @@ exploratory analysis in the Discussion, not as a contribution.
 
 ## Data
 
-Table <a href="#tab:datasets" data-reference-type="ref" data-reference="tab:datasets">[tab:datasets]</a>
+Table <a href="#tab:datasets" data-reference-type="ref" data-reference="tab:datasets">2</a>
 summarizes every corpus and benchmark used or referenced below.
 
 #### Models and corpus.
 
 The primary model is the Pythia suite (Biderman et al., 2023), trained
-on the public Pile (Gao et al., 2020); its reconstructible training
+on the public Pile (Gao et al., 2020). Its reconstructible training
 order, 154 checkpoints, multiple sizes, and deduplicated variant provide
 exact membership ground truth. We use the released MIMIR member/
 non-member splits (Duan et al., 2024), which control *n*-gram overlap
@@ -596,10 +593,10 @@ adversarial.
 
 | **Dataset**  | **Type**  | **What it is**                                                                                        | **Size**                 | **Cite**                                  |
 |:-------------|:----------|:------------------------------------------------------------------------------------------------------|:-------------------------|:------------------------------------------|
-| The Pile     | corpus    | Curated 22-subset English corpus; Pythia’s training data and our membership ground truth              | 825 GB                   | (Gao et al., 2020)                        |
-| Common Crawl | corpus    | Open, continually updated repository of raw web-crawl data; the base of most LLM pre-training scrapes | petabyte-scale (growing) | (Common Crawl Foundation, n.d.)           |
+| The Pile     | corpus    | Curated 22-subset English corpus. Pythia’s training data and our membership ground truth              | 825 GB                   | (Gao et al., 2020)                        |
+| Common Crawl | corpus    | Open, continually updated repository of raw web-crawl data, the base of most LLM pre-training scrapes | petabyte-scale (growing) | (Common Crawl Foundation, n.d.)           |
 | C4           | corpus    | Colossal Clean Crawled Corpus: a filtered Common Crawl snapshot introduced with T5                    | ∼<!-- -->750 GB          | (Dodge et al., 2021; Raffel et al., 2020) |
-| Dolma        | corpus    | Open pre-training corpus; OLMo’s training data (replication target)                                   | 3 T tokens               | (Soldaini et al., 2024)                   |
+| Dolma        | corpus    | Open pre-training corpus, OLMo’s training data (replication target)                                   | 3 T tokens               | (Soldaini et al., 2024)                   |
 | RedPajama    | corpus    | Open reproduction of an LLaMA-style pre-training mixture                                              | ∼<!-- -->30 T tokens     | (Weber et al., 2024)                      |
 | MMLU         | benchmark | Multiple-choice knowledge/reasoning across 57 subjects                                                | 15,908 questions         | (Hendrycks et al., 2021)                  |
 | GSM8K        | benchmark | Grade-school multi-step math word problems                                                            | 8,500 problems           | (Cobbe et al., 2021)                      |
@@ -608,6 +605,11 @@ adversarial.
 | TruthfulQA   | benchmark | Questions probing imitative falsehoods                                                                | 817 questions            | (Lin et al., 2022)                        |
 | BoolQ        | benchmark | Naturally occurring yes/no reading-comprehension questions                                            | 15,942 questions         | (Clark et al., 2019)                      |
 
+Corpora and benchmarks used in or referenced by the evaluation. The Pile
+is our ground-truth training corpus. Common Crawl and C4/Dolma/RedPajama
+frame the weakly filtered web-scrape regime. The lower block lists the
+contamination benchmarks whose items we label by corpus-side overlap.
+
 #### Benchmarks and PII.
 
 Contamination is tested against MMLU, GSM8K, HumanEval, HellaSwag,
@@ -615,14 +617,14 @@ TruthfulQA, and BoolQ. **\[D3\]** For PII leakage we use the Enron
 Emails data *as a Pile subset already present in Pythia’s training
 data*, plus a synthetic PII set for controlled structure, rather than
 fine-tuning a model to memorize PII. All PII results are reported in
-aggregate; no real PII is reproduced in the paper.
+aggregate. No real PII is reproduced in the paper.
 
 ## Metrics (each justified)
 
 **\[D2\]** Following the membership-inference-from-first-principles
 convention (Carlini et al., 2022), the primary metric is *true-positive
 rate at a fixed low false-positive rate* (TPR @ 0.1% and 1% FPR)
-reported with *log-scale ROC*; AUC-ROC is reported secondarily. These
+reported with *log-scale ROC*. AUC-ROC is reported secondarily. These
 capture whether a detector *confidently* identifies members, the
 privacy-relevant regime, which average-case accuracy hides. For
 benchmark flagging at a chosen operating threshold we additionally
@@ -651,7 +653,7 @@ mitigation direction
 not implemented, since it is a producer-side defense applied at training
 time rather than an auditor-side detector.
 
-This section fixes the threat model, methods, data, and metrics; the
+This section fixes the threat model, methods, data, and metrics. The
 empirical results under this protocol, per-detector TPR at low FPR with
 log-scale ROC, extraction rates, and the headline contamination→leakage
 correlation with confidence intervals, are reported in the results
@@ -660,9 +662,9 @@ section, with every reported number tracing to a logged harness run.
 # Results
 
 **All results in this section are preliminary, obtained on Pythia-160M
-on CPU with *N* = 300 ground-truth Pile members (seed 0); larger-model
-rows are left for the GPU replication.** Every number is reproducible
-from a seeded script and recorded in our results ledger.
+on CPU with *N* = 300 ground-truth Pile members (seed 0), and
+larger-model rows are left for the GPU replication.** Every number is
+reproducible from a seeded script and recorded in our results ledger.
 
 ## Membership separation is at chance on a confound-clean split
 
@@ -671,8 +673,8 @@ inference on pre-trained LLMs (Duan et al., 2024). On a confound-clean
 split (members = Pile train, non-members = Pile validation, stratified
 across 22 Pile subsets to match domain), all four detectors sit at
 chance at 160M
-(Table <a href="#tab:membership" data-reference-type="ref" data-reference="tab:membership">1</a>);
-on the temporally-confounded WikiMIA split the same model shows a
+(Table <a href="#tab:membership" data-reference-type="ref" data-reference="tab:membership">3</a>).
+On the temporally-confounded WikiMIA split the same model shows a
 spurious 0.52–0.56, and a 1.4B model rises further, evidence that the
 WikiMIA signal is substantially distribution shift, not membership.
 
@@ -682,9 +684,9 @@ WikiMIA signal is substantially distribution shift, not membership.
 | WikiMIA-64, confounded (160M)   | 0.523 | 0.539  |  0.545   | 0.564 |
 | WikiMIA-64, confounded (1.4B)   | 0.571 | 0.580  |  0.547   | 0.616 |
 
-Membership AUC. Chance ( ≈ 0.5) on the confound-clean split at 160M; the
+Membership AUC. Chance ( ≈ 0.5) on the confound-clean split at 160M. The
 WikiMIA “signal” is largely temporal/topical distribution shift. CIs in
-the ledger; deduplicated Pythia gives the same chance-level result.
+the ledger. Deduplicated Pythia gives the same chance-level result.
 
 ## Contamination predicts leakage, but only through loss
 
@@ -692,7 +694,7 @@ Our headline analysis correlates each per-item detector score with the
 per-item extraction outcome (prefix-continuation extractable
 memorization under greedy decoding (Carlini et al., 2023)), then
 controls for raw loss.
-Table <a href="#tab:headline" data-reference-type="ref" data-reference="tab:headline">2</a>
+Table <a href="#tab:headline" data-reference-type="ref" data-reference="tab:headline">4</a>
 reports, for each calibrated detector, the zero-order Spearman *ρ*, the
 linear partial *ρ* given loss, the non-linear (cubic-residual) partial
 *ρ* with bootstrap CI, the FDR-corrected permutation *q*, and the
@@ -700,7 +702,7 @@ mediation decomposition.
 
 | Detector | zero-order | partial∣loss |     cubic-resid. \[95% CI\]     |  BH-*q*   | mediation: direct ∣ indirect |
 |:---------|:----------:|:------------:|:-------------------------------:|:---------:|:----------------------------:|
-| LOSS     |   + 0.275  |      ,       |                ,                |     ,     |          (mediator)          |
+| LOSS     |   + 0.275  |     n/a      |               n/a               |    n/a    |          (mediator)          |
 | Min-K%   |   + 0.173  |    − 0.178   |  − 0.110 \[ − 0.234,  − 0.002\] |   0.058   |      − 0.394 ∣  + 0.567      |
 | Min-K%++ |   + 0.108  |    − 0.148   |  − 0.160 \[ − 0.287,  − 0.041\] | **0.015** |      − 0.213 ∣  + 0.321      |
 | zlib     |   + 0.177  |    − 0.042   |  − 0.052 \[ − 0.165,  + 0.068\] |   0.331   |      − 0.061 ∣  + 0.238      |
@@ -709,12 +711,12 @@ Headline: per-item contamination score vs. extraction (Spearman *ρ*),
 Pythia-160M, *N* = 300 members. The positive zero-order correlations
 collapse to  ≈ 0 or significantly *negative* once loss is controlled,
 linearly, and under the non-linear cubic-residual control (no positive
-signal revives; deciles and the deduplicated arm agree). Mediation: the
-loss-mediated *indirect* effect is significantly positive for all three
-detectors while the *direct* effect is null (zlib) or negative (Min-K%,
-Min-K%++). We read this as a *descriptive* decomposition, not a causal
-mediation claim (see below): no calibrated detector adds positive signal
-beyond loss.
+signal revives, and deciles and the deduplicated arm agree). Mediation:
+the loss-mediated *indirect* effect is significantly positive for all
+three detectors while the *direct* effect is null (zlib) or negative
+(Min-K%, Min-K%++). We read this as a *descriptive* decomposition, not a
+causal mediation claim (see below): no calibrated detector adds positive
+signal beyond loss.
 
 #### Collinearity caveat (why we do not over-read the negative partials).
 
@@ -724,7 +726,7 @@ it: Spearman *ρ*(loss,  ⋅ ) = 0.90 (Min-K%), 0.74 (Min-K%++), 0.74
 (zlib), with variance-inflation factors 6.2, 2.6, 2.4. The strongest
 negative partial (Min-K%, the most loss-collinear detector at VIF 6.2)
 is therefore consistent with a *suppression artifact* of
-near-collinearity rather than substantive inverse prediction; we do not
+near-collinearity rather than substantive inverse prediction. We do not
 claim the calibrated detectors *negatively* predict leakage. The
 defensible, conservative statement is that they carry *no positive*
 leakage signal independent of loss. Min-K%++ and zlib have only moderate
@@ -736,7 +738,7 @@ predicts leakage *beyond* loss (a positive partial *ρ*, CI excluding
 zero, FDR-significant). None does, under the linear or the non-linear
 control. **Power note:** with *N* = 300 and a near-degenerate outcome
 (3/300 fully extracted), this is evidence of *no positive independent
-signal of appreciable size*, not proof of an exact null; the analysis is
+signal of appreciable size*, not proof of an exact null. The analysis is
 well-powered only for moderate-to-large positive residuals, and a small
 positive effect at scale is not excluded (hence the GPU replication).
 The per-domain breakdown (ledger) shows the loss↔extraction link is
@@ -748,19 +750,19 @@ not a uniform effect.
 ## Extraction and PII at this scale
 
 Extractable memorization is rare at 160M: 3/300 members are fully
-extractable (exact-match extraction rate 0.010; mean fractional
+extractable (exact-match extraction rate 0.010, mean fractional
 extraction 0.037), the fully-extracted items being templated
 boilerplate. On the Enron-Emails-in-Pile subset we measured *zero*
-verbatim PII leakage (8/36 documents contained PII in the held suffix;
+verbatim PII leakage (8/36 documents contained PII in the held suffix,
 none were regurgitated). We report the PII result as a null at this
-scale and make no PII-exposure claim; both quantities are expected to
+scale and make no PII-exposure claim. Both quantities are expected to
 grow with model scale.
 
 ## Benchmark contamination (model-free *n*-gram + permutation test)
 
 We complement the per-item analysis with two benchmark-level
 contamination tests
-(Table <a href="#tab:matrix" data-reference-type="ref" data-reference="tab:matrix">3</a>).
+(Table <a href="#tab:matrix" data-reference-type="ref" data-reference="tab:matrix">5</a>).
 The model-free *n*-gram overlap against a public *sample* of the Pile
 (10k documents) is a scale-invariant method but, with a sampled
 reference, yields only a loose *lower bound*: overlap is near-zero for
@@ -770,7 +772,7 @@ about true contamination, a full-Pile index (infrastructure-, not GPU-,
 gated) is required for a real rate. The Oren permutation/exchangeability
 test (Oren et al., 2024) at 160M finds the canonical ordering favoured
 beyond chance for MMLU (*p* = 0.001) and GSM8K (*p* = 0.013) but not
-HumanEval (*p* = 0.875); we draw *no* contamination conclusion from
+HumanEval (*p* = 0.875). We draw *no* contamination conclusion from
 this, as the test is membership-based, run at sanity scale (small *k*,
 smallest model), and subject to a fluency/orientation artifact, it is
 flagged GPU-gated and requires a fluency-control baseline before any
@@ -784,7 +786,7 @@ claim.
 
 Benchmark-level contamination at small scale. *n*-gram cells are a
 *lower bound* against a 10k Pile sample (method scale-invariant,
-reference under-powered); Oren *p*-values are sanity-scale at 160M and
+reference under-powered). Oren *p*-values are sanity-scale at 160M and
 GPU-gated (no contamination conclusion drawn). See
 `docs/contamination_matrix.md`.
 
@@ -804,7 +806,7 @@ item is. A descriptive mediation decomposition is consistent with this,
 the loss-mediated (indirect) path is positive for all three detectors
 while the direct paths are null or negative, but we read it
 descriptively, not causally: the detectors are near-collinear transforms
-of loss (Spearman up to 0.90; VIF up to 6.2), so a negative
+of loss (Spearman up to 0.90, VIF up to 6.2), so a negative
 direct/partial term is consistent with statistical suppression rather
 than genuine inverse prediction. We therefore claim only the
 conservative version: the calibrated detectors add *no positive* leakage
@@ -822,7 +824,7 @@ leakage channel? is mis-served by importing the membership-inference
 toolkit wholesale. For an auditor of a released model, the actionable
 implication is to measure loss/extractability directly and to treat a
 high Min-K%/Min-K%++ score as evidence about membership, not about
-leakage risk. This reframing is the contribution; the detectors
+leakage risk. This reframing is the contribution. The detectors
 themselves are prior work.
 
 #### Relation to concurrent work.
@@ -838,21 +840,21 @@ reference-free detectors after loss is removed, and we target the
 reference-free detectors the contamination literature actually deploys
 rather than a shadow-model attack. B. Chen et al. (2025) independently
 find these detectors do not robustly beat the loss baseline for
-*membership* once seed variance is accounted for; our result is the
+*membership* once seed variance is accounted for. Our result is the
 extraction-outcome analogue.
 
 #### Defenses.
 
 Because the leakage we measure is downstream of memorization, the
 principled mitigation is differential privacy applied at training
-time (Abadi et al., 2016; Li et al., 2022); it is a producer-side
+time (Abadi et al., 2016; Li et al., 2022). It is a producer-side
 control, not an auditor-side detector, and bounds the very quantity
 (loss-magnitude / memorization) our analysis identifies as the operative
 one.
 
 # Limitations
 
-We state the limitations plainly; several bound the strength of the
+We state the limitations plainly. Several bound the strength of the
 present claims and motivate the GPU-scale replication the pipeline is
 built for.
 
@@ -860,20 +862,20 @@ built for.
     Memorization grows log-linearly with model scale (Carlini et
     al., 2023), so both the membership signal and the extraction outcome
     are expected to be stronger at 1.4B–12B. The present numbers are
-    *preliminary*; we have built every analysis so the larger-model run
+    *preliminary*. We have built every analysis so the larger-model run
     is a one-line configuration change.
 
 -   **Chance-level membership separation.** On the confound-clean Pile
     train-vs-val split, membership AUC is at chance (0.45–0.49) at 160M,
     consistent with (Duan et al., 2024). The divergence result is
     therefore established in a regime where the membership signal is
-    itself weak; whether the calibrated detectors gain *independent*
+    itself weak. Whether the calibrated detectors gain *independent*
     leakage-predictive value once membership separation becomes
     non-trivial at scale is an open question our design is poised to
     answer.
 
 -   **Near-degenerate extraction outcome.** Extractable memorization at
-    160M is rare (3/300 items fully extracted; mean fractional
+    160M is rare (3/300 items fully extracted, mean fractional
     extraction 0.037), so the correlation analysis leans on a small
     high-extraction tail. We mitigate with rank statistics, bootstrap
     CIs, and a zero-robust Kendall check, but a less zero-inflated
@@ -881,14 +883,14 @@ built for.
 
 -   **PII not yet demonstrated.** On the Enron-in-Pile subset we
     observed *zero* verbatim PII leakage at 160M (8/36 documents
-    contained PII in the held suffix; none were regurgitated). The PII
+    contained PII in the held suffix, none were regurgitated). The PII
     limb of the threat model is thus a designed capability with a null
-    result at this scale, not a demonstrated leak; we report it as such
+    result at this scale, not a demonstrated leak. We report it as such
     and do not claim PII exposure.
 
 -   **Benchmark-level test underpowered.** The Oren
     permutation/exchangeability test is run only at sanity scale on
-    160M; membership-based, it is underpowered here and is flagged as
+    160M. Membership-based, it is underpowered here and is flagged as
     GPU-gated rather than used to draw contamination conclusions.
 
 -   ***n*-gram contamination is a lower bound.** Our model-free *n*-gram
@@ -897,7 +899,7 @@ built for.
     against the full corpus.
 
 -   **Observational, members-only correlation.** The headline analysis
-    correlates detector scores with extraction across known members; it
+    correlates detector scores with extraction across known members. It
     is observational, not interventional. We address the most important
     confound (loss) by pre-registered partial correlation and mediation,
     and the obvious alternatives (frequency, duplication, non-linearity,
@@ -906,11 +908,11 @@ built for.
 
 -   **Collinearity of detectors with loss.** The calibrated detectors
     are deterministic transforms of the same per-token log-probabilities
-    as loss and are empirically collinear with it (Spearman 0.74–0.90;
+    as loss and are empirically collinear with it (Spearman 0.74–0.90,
     VIF up to 6.2 for Min-K%). Consequently we interpret the negative
     partial/direct terms as possible *suppression artifacts* of
     near-collinearity and claim only the conservative “no positive
-    residual” result; we do not assert the detectors inversely predict
+    residual” result. We do not assert the detectors inversely predict
     leakage.
 
 -   **Construct validity of the leakage proxy.** The outcome (greedy
@@ -918,19 +920,19 @@ built for.
     likelihood-related, so part of the loss↔ extraction association is
     mechanical/definitional. Our control removes the loss component, but
     a decisive separation would compute prefix-only loss against
-    extraction; we flag this as a known construct-validity limitation
+    extraction. We flag this as a known construct-validity limitation
     rather than claiming the two are independent by construction.
 
 -   **Selection and aggregation.** Members are drawn from a non-uniform
     public Pile sample (`pile-10k`), so member-selection bias is
-    possible; and the pooled correlation aggregates domains whose
+    possible, and the pooled correlation aggregates domains whose
     effects flip sign
     (Section <a href="#sec:res-headline" data-reference-type="ref" data-reference="sec:res-headline">6.2</a>),
     so the pooled *ρ* should be read as a domain-mixture, not a
     homogeneous effect.
 
 -   **Linearity (now addressed).** An earlier version controlled for
-    loss only linearly; we added a cubic-residual and decile-stratified
+    loss only linearly. We added a cubic-residual and decile-stratified
     non-linear control, under which no positive independent signal
     revives. We note it here because it was a live threat to the claim
     until tested.
@@ -950,10 +952,10 @@ to a non-linear loss control and to deduplication, and is not a
 frequency or zero-inflation artifact. The practical message is a
 divergence: the detectors optimized for membership inference are not the
 right instrument for the leakage question, and an auditor should measure
-loss/extractability directly. We claim no new detector or metric; the
+loss/extractability directly. We claim no new detector or metric. The
 contribution is the security reframing and the controlled,
 pre-registered measurement. These findings are preliminary, on the
-smallest Pythia model; the immediate next step, and the design target of
+smallest Pythia model. The immediate next step, and the design target of
 our released pipeline, is the GPU-scale replication across model sizes,
 where memorization, extraction, and any PII leakage are expected to
 strengthen, and where the question of whether calibrated detectors gain

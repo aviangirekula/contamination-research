@@ -3,7 +3,7 @@
 
 Computes `TokenStats` once per (model, text) and feeds every detector, then writes
 per-item scores + labels to a cache so the matrix is resumable. Metrics and figures
-are produced by `eval/`. This is the scaffold entry point; the real data loaders
+are produced by `eval/`. This is the scaffold entry point. The real data loaders
 (Pile membership, MIMIR splits, benchmark items) plug into `load_dataset_split`.
 
 Usage:

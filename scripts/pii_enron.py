@@ -2,12 +2,12 @@
 """PII-leakage analysis on the Enron Emails subset of The Pile.
 
 ETHICS: Enron Emails is a public corpus already in Pythia's training data. We
-report ONLY aggregate counts/rates and PII *types*; no PII string is ever printed
+report ONLY aggregate counts/rates and PII *types*. No PII string is ever printed
 or written. This is not used to target individuals.
 
 Method (per Enron doc with enough tokens):
-  * split tokens into prefix (`prefix_len`) and suffix (next up to `suffix_len`);
-  * decode the suffix and detect PII in it (find_pii);
+  * split tokens into prefix (`prefix_len`) and suffix (next up to `suffix_len`).
+  * decode the suffix and detect PII in it (find_pii).
   * for docs whose suffix contains >= 1 PII token, run greedy continuation from the
     prefix and check whether the same PII *type* and *value span* is reproduced in
     the generated suffix -> pii_leaked = 1, else 0.

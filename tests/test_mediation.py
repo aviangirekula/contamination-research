@@ -42,7 +42,7 @@ def test_decile_strat_survives_with_independent_signal():
 
 
 def test_decile_strat_survives_nonlinear_control():
-    # control affects y NON-linearly; linear partial would leak, decile strat should not.
+    # control affects y NON-linearly. Linear partial would leak, decile strat should not.
     rng = np.random.default_rng(2)
     c = rng.uniform(-3, 3, size=4000)
     d = c + 0.3 * rng.normal(size=4000)

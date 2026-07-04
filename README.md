@@ -44,7 +44,7 @@ python scripts/milestone1_separation.py \
 ```
 
 Ground-truth member/non-member text must be **real Pile membership** (or the released
-MIMIR splits from Duan et al. 2024) — the scripts will not invent data.
+MIMIR splits from Duan et al. 2024), the scripts will not invent data.
 
 ## Method shortlist (derived in Phase 1)
 
@@ -57,19 +57,19 @@ MIMIR splits from Duan et al. 2024) — the scripts will not invent data.
 | extractable memorization | white-box | leakage outcome | Carlini et al. 2023 (ICLR) |
 
 Evaluation protocol: **TPR @ 0.1%/1% FPR + log-scale ROC** (Carlini et al. 2022, S&P),
-AUC secondary; ground truth = **Pythia + The Pile** (Biderman et al. 2023; Gao et al. 2020).
+AUC secondary. Ground truth = **Pythia + The Pile** (Biderman et al. 2023; Gao et al. 2020).
 
 ## Status
 
-- [x] Phase 1 — literature research, method-selection memo, verified `references.bib`
-- [x] Phase 2 — experiment design (threat model, matrix, metrics, ethics)
-- [x] Phase 3 scaffold — tested detectors/extraction/eval/runner (CPU, mock-validated)
-- [ ] Milestone 1 — real Pythia Pile in/out separation (gated on compute)
+- [x] Phase 1, literature research, method-selection memo, verified `references.bib`
+- [x] Phase 2, experiment design (threat model, matrix, metrics, ethics)
+- [x] Phase 3 scaffold, tested detectors/extraction/eval/runner (CPU, mock-validated)
+- [ ] Milestone 1, real Pythia Pile in/out separation (gated on compute)
 - [ ] Full matrix + figures + correlation analysis
-- [ ] Paper sections (`paper/related_work.tex`, `paper/background.tex`) — pending source drafts
+- [ ] Paper sections (`paper/related_work.tex`, `paper/background.tex`), pending source drafts
 
 ## Ethics
 
 All leakage/PII analysis runs only on the **public Pile** corpus and **open-weight
-Pythia** — never on production systems for real third-party PII. No model training.
+Pythia**, never on production systems for real third-party PII. No model training.
 See [`docs/experiment_design.md`](docs/experiment_design.md) §7.

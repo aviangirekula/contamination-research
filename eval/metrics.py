@@ -7,7 +7,7 @@ Carlini et al. 2022 (S&P): average-case AUC/accuracy hide whether an attack can
 Implemented in pure numpy (no sklearn/scipy) so the metrics layer is dependency-light
 and its correctness is auditable against closed-form synthetic cases in the tests.
 
-Score convention: higher score => more "member-like"; ``y_true`` is 1 for members
+Score convention: higher score => more "member-like". ``y_true`` is 1 for members
 (positives), 0 for non-members (negatives).
 """
 from __future__ import annotations
@@ -113,7 +113,7 @@ def bootstrap_ci(metric_fn, scores, y_true, n_boot: int = 1000, seed: int = 0, a
 
 
 def _rankdata(a: np.ndarray) -> np.ndarray:
-    """Average ranks (1-based), ties shared — equivalent to scipy.stats.rankdata."""
+    """Average ranks (1-based), ties shared, equivalent to scipy.stats.rankdata."""
     a = np.asarray(a, dtype=np.float64)
     order = np.argsort(a, kind="mergesort")
     ranks = np.empty(len(a), dtype=np.float64)

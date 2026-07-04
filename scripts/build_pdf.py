@@ -68,7 +68,8 @@ def build(md_path: str, out_path: str, title: str):
     ss = getSampleStyleSheet()
     def style(name, **kw):
         base = dict(fontName="DejaVu", fontSize=10, leading=13.5, spaceAfter=6)
-        base.update(kw); return ParagraphStyle(name, **base)
+        base.update(kw)
+        return ParagraphStyle(name, **base)
     S = {
         "title": style("t", fontName="DejaVu-Bold", fontSize=16, leading=20, spaceAfter=14, alignment=TA_LEFT),
         "h1": style("h1", fontName="DejaVu-Bold", fontSize=13.5, leading=17, spaceBefore=12, spaceAfter=6),
@@ -89,23 +90,27 @@ def build(md_path: str, out_path: str, title: str):
     def flush_para():
         nonlocal para
         if para:
-            flow.append(Paragraph(inline(clean(" ".join(para))), S["body"])); para = []
+            flow.append(Paragraph(inline(clean(" ".join(para))), S["body"]))
+            para = []
 
     def flush_bullets():
         nonlocal bullets
         if bullets:
             items = [ListItem(Paragraph(inline(clean(b)), S["bullet"]), leftIndent=12) for b in bullets]
-            flow.append(ListFlowable(items, bulletType="bullet", start="•", leftIndent=10)); bullets = []
+            flow.append(ListFlowable(items, bulletType="bullet", start="•", leftIndent=10))
+            bullets = []
 
     while i < n:
         ln = lines[i]
         if re.match(r"^\s*\|", ln) and i + 1 < n and is_table_sep(lines[i + 1]):
-            flush_para(); flush_bullets()
+            flush_para()
+            flush_bullets()
             rows = []
             header = [c.strip() for c in ln.strip().strip("|").split("|")]
             i += 2  # skip header + separator
             while i < n and re.match(r"^\s*\|", lines[i]):
-                rows.append([c.strip() for c in lines[i].strip().strip("|").split("|")]); i += 1
+                rows.append([c.strip() for c in lines[i].strip().strip("|").split("|")])
+                i += 1
             data = [[Paragraph(inline(clean(c)), S["cellh"]) for c in header]]
             for r in rows:
                 r = (r + [""] * len(header))[:len(header)]
@@ -119,27 +124,36 @@ def build(md_path: str, out_path: str, title: str):
                 ("LEFTPADDING", (0, 0), (-1, -1), 3), ("RIGHTPADDING", (0, 0), (-1, -1), 3),
                 ("TOPPADDING", (0, 0), (-1, -1), 2), ("BOTTOMPADDING", (0, 0), (-1, -1), 2),
             ]))
-            flow.append(Spacer(1, 4)); flow.append(t); flow.append(Spacer(1, 8))
+            flow.append(Spacer(1, 4))
+            flow.append(t)
+            flow.append(Spacer(1, 8))
             continue
         m = re.match(r"^(#{1,4})\s+(.*)", ln)
         if m:
-            flush_para(); flush_bullets()
-            lvl = len(m.group(1)); txt = inline(clean(m.group(2)))
+            flush_para()
+            flush_bullets()
+            lvl = len(m.group(1))
+            txt = inline(clean(m.group(2)))
             flow.append(Paragraph(txt, S.get(f"h{min(lvl,3)}", S["h3"])))
         elif re.match(r"^\s*[-*]\s+", ln):
-            flush_para(); bullets.append(re.sub(r"^\s*[-*]\s+", "", ln))
+            flush_para()
+            bullets.append(re.sub(r"^\s*[-*]\s+", "", ln))
         elif ln.strip().startswith(">"):
-            flush_para(); flush_bullets()
+            flush_para()
+            flush_bullets()
             flow.append(Paragraph(inline(clean(ln.strip().lstrip(">").strip())), S["quote"]))
         elif not ln.strip():
-            flush_para(); flush_bullets()
+            flush_para()
+            flush_bullets()
         else:
             if bullets and ln.startswith("  "):
                 bullets[-1] += " " + ln.strip()
             else:
-                flush_bullets(); para.append(ln.strip())
+                flush_bullets()
+                para.append(ln.strip())
         i += 1
-    flush_para(); flush_bullets()
+    flush_para()
+    flush_bullets()
 
     os.makedirs(os.path.dirname(out_path) or ".", exist_ok=True)
     doc = SimpleDocTemplate(out_path, pagesize=letter, topMargin=0.8 * inch,

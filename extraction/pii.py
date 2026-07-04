@@ -26,7 +26,7 @@ _PHONE = re.compile(
     r"(?<!\d)(?:\+?1[\s.\-]?)?(?:\(\d{3}\)|\d{3})[\s.\-]\d{3}[\s.\-]\d{4}(?!\d)"
 )
 
-# SSN-like: 123-45-6789 (optional; reported separately).
+# SSN-like: 123-45-6789 (optional. Reported separately).
 _SSN = re.compile(r"(?<!\d)\d{3}-\d{2}-\d{4}(?!\d)")
 
 #: ordered so SSN is checked before phone (disjoint patterns, but explicit).
@@ -41,7 +41,7 @@ def find_pii(text: str) -> List[Tuple[str, Tuple[int, int]]]:
     """Return a list of ``(pii_type, (start, end))`` spans found in ``text``.
 
     Spans are character offsets into ``text``. Overlapping matches from different
-    detectors are all reported; callers that want unique types should use
+    detectors are all reported. Callers that want unique types should use
     :func:`pii_types`.
     """
     out: List[Tuple[str, Tuple[int, int]]] = []

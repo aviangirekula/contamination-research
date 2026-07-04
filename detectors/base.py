@@ -66,7 +66,7 @@ class Detector(abc.ABC):
 
     A detector is bound to a `ModelScorer` at construction. For efficiency the runner
     calls `score_from_stats` with a `TokenStats` computed once and shared across all
-    detectors; `score(text)` is the convenience path that computes stats internally.
+    detectors. `score(text)` is the convenience path that computes stats internally.
     """
 
     name: str = "detector"
@@ -95,5 +95,5 @@ def bottom_k_indices(values: np.ndarray, k_percent: float) -> np.ndarray:
         raise ValueError("k_percent must be in (0, 100]")
     n = len(values)
     k = max(1, int(np.ceil((k_percent / 100.0) * n)))
-    # argpartition is O(n); we only need the set of k smallest, order within is irrelevant.
+    # argpartition is O(n). We only need the set of k smallest, order within is irrelevant.
     return np.argpartition(values, k - 1)[:k]
