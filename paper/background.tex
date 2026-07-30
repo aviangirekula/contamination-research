@@ -70,18 +70,26 @@ fragments. At each position it produces a probability distribution over which to
 next. Given a real text, we can therefore ask what probability the model assigned to each
 token that actually occurred.
 
-The \emph{loss} of a text is the average negative logarithm of those probabilities. Low
-loss means the model found the text unsurprising. \emph{Perplexity} is the exponential of
-the loss and carries the same information in a different scale, so we use loss
+The \emph{loss} of a text is the average negative logarithm of those probabilities, so a
+low loss means the model found the text unsurprising. \emph{Perplexity} is the exponential
+of the loss and carries the same information on a different scale, so we use loss
 throughout. Every detector in this paper is computed from these same per-token
 probabilities, which is the fact that ultimately drives our result.
+
+\emph{Orientation convention.} All four detector scores in this paper are oriented so that
+\textbf{higher means more member-like}. For the loss-based score this means we report the
+mean per-token log-probability, which is the negation of the loss as defined above, and
+which is therefore higher for text the model finds unsurprising. We state this explicitly
+because the sign is easy to invert when reading the tables, where a positive correlation
+between the loss-based score and extraction means \emph{less surprising text is more
+extractable}.
 
 \emph{Why this is needed.} Loss is the oldest and simplest membership signal, on the
 reasoning that a model tends to find its own training data less surprising than new
 text~\citep{yeom2018privacy}. It is also the natural baseline against which any more
 elaborate detector must prove its worth, which makes it the control variable in RQ2.
 
-\subsubsection{Memorization and how leakage is measured}
+\subsubsection{Memorization and how extraction is measured}
 We use the standard operational definition of \emph{extractable
 memorization}~\citep{carlini2023quantifying}. Take a document from the training data,
 split it into a \emph{prefix} and a \emph{suffix}, and give the model only the prefix.
@@ -95,11 +103,21 @@ suffix was reproduced. \emph{Fractional extraction} is the proportion of leading
 tokens reproduced before the first mismatch, which is a softer measure and is much less
 prone to being zero for every item.
 
-\emph{Why this is needed.} This is our concrete leakage outcome, and the quantity
-detectors must predict if they are to be useful for privacy auditing. It is a lower bound
-on leakage rather than a complete account, because a determined adversary may use richer
-prompting than a single prefix~\citep{nasr2025scalable}, and because rewording can
-preserve leaked content while defeating exact matching~\citep{ippolito2023verbatim}.
+The \emph{extraction rate} is the fraction of sampled documents that were exactly
+extractable.
+
+Throughout this paper we use \emph{extraction} for the outcome we actually measure, namely
+verbatim regeneration of a held-out suffix whatever its content, and we reserve
+\emph{leakage}, or \emph{sensitive-data leakage}, for the emission of \emph{sensitive}
+content, which we do not measure. Assumption A3 in Section~\ref{sec:chain} is precisely
+the gap between the two, and keeping the words separate is what stops that gap from being
+crossed by accident.
+
+\emph{Why this is needed.} Extraction is our concrete outcome, and the quantity detectors
+must predict if they are to be useful for privacy auditing. It is a lower bound rather
+than a complete account, because a determined adversary may use richer prompting than a
+single prefix~\citep{nasr2025scalable}, and because rewording can preserve content while
+defeating exact matching~\citep{ippolito2023verbatim}.
 
 \subsubsection{Personally identifiable information}
 \emph{Personally identifiable information} (PII) is content that identifies a specific
@@ -149,8 +167,32 @@ Throughout, we call the last three \emph{calibrated} detectors, meaning only tha
 adjusts raw loss by some additional quantity in an attempt to improve separation. The
 word carries no claim that the adjustment is probabilistically well calibrated.
 
+Note that loss appears in two roles in this paper. As \textbf{LOSS} it is one of the four
+detectors, and the baseline one. As \textbf{loss} it is also the control variable in RQ2,
+the quantity we hold fixed to ask whether the other three add anything. This dual role is
+deliberate, because the question of whether a detector adds value only has meaning
+relative to the cheapest available alternative. It does mean that RQ2 is a question about
+the three \emph{calibrated} detectors and not about LOSS itself.
+
+When a membership detector is applied to a benchmark item, its score is conventionally
+read as a \emph{contamination score}. We use the two terms for the same number, and we
+flag the assumption this involves as A0 in Section~\ref{sec:chain}.
+
 \emph{Why this is needed.} These four are the instruments an auditor would actually use,
-and RQ2 asks whether the three adjusted ones add anything to the plain baseline.
+and RQ2 asks whether the three calibrated ones add anything to the plain baseline.
+
+\subsubsection{Levels of access to a model}
+Detectors differ in what they need from the model. \emph{Black-box} access means text in
+and text out, with no numeric scores, which is what a public chat interface provides.
+\emph{Gray-box} access adds the model's log-probability for each token of a text you
+supply. \emph{White-box} access adds the model's full probability distribution over the
+entire vocabulary at every position.
+
+\emph{Why this is needed.} Section~\ref{sec:threat} grades each detector by the least
+access it requires, and this determines who can actually run it. An external auditor of a
+hosted model typically has black-box access only. Of our four detectors, LOSS, Min-K\%,
+and the zlib ratio need gray-box access, and Min-K\%++ is the only one that requires
+white-box access.
 
 \subsubsection{Corpus-side and benchmark-level contamination tests}
 Two further tests operate on the corpus or the whole benchmark rather than on the model's
@@ -237,7 +279,40 @@ answer it, and each is used exactly as defined here.
  \item \textbf{Pre-registration.} Writing the analysis plan down, in the repository,
  before running it. This prevents the outcome from being chosen after seeing the data,
  which is the main way a null result can be quietly converted into a positive one.
+ \item \textbf{Zero-order correlation.} The plain correlation between two quantities with
+ nothing controlled for. We use it as the contrast to the partial correlation, so that the
+ difference between the two isolates what loss accounts for.
+ \item \textbf{Decile stratification.} The coarser version of the non-linear control
+ described above. Sort the items by loss, cut them into ten equal groups, compute the
+ correlation inside each group, and combine. It removes any relationship with loss,
+ whatever its shape, at the cost of statistical power.
+ \item \textbf{Kendall's $\tau$-b.} An alternative rank correlation that handles ties
+ explicitly. We report it as a robustness check because our outcome has many tied values
+ at zero, which Spearman handles less gracefully.
+ \item \textbf{Deduplication.} Removing near-duplicate documents from a training corpus
+ before training. Duplication is one of the strongest known drivers of
+ memorization~\citep{carlini2023quantifying}, so the Pythia suite ships a
+ deduplicated-corpus counterpart to each model, which we use as a robustness arm.
+ \item \textbf{Distribution shift, and the temporal confound.} A detector can appear to
+ identify training members when the member and non-member texts simply differ in some other
+ way, such as topic, source, or date of writing. The most common instance is the
+ \emph{temporal confound}, where non-members are drawn from a later period than the
+ training cutoff, so the detector is really detecting era rather than
+ membership~\citep{duan2024mia}. Avoiding this is the main reason we construct members and
+ non-members from the same corpus and match them by subset.
+ \item \textbf{Construct validity.} Whether a measurement actually captures the concept it
+ is meant to capture, as opposed to something correlated with it. This is the central
+ methodological risk in our design, because our outcome is computed from the same token
+ probabilities as our predictor, and Section~\ref{sec:limitations} treats it directly.
+ \item \textbf{Differential privacy.} A formal guarantee, added during training, that the
+ model's behaviour changes only slightly when any single training record is removed, which
+ bounds how much can be inferred about that record~\citep{abadi2016dp}. We discuss it as the
+ producer-side mitigation our threat model motivates and do not implement it.
 \end{itemize}
+
+For the variance inflation factor, a value of $1$ means no collinearity, values above
+roughly $5$ are conventionally treated as high, and our detectors range from $2.4$ to
+$6.2$. We report the index rather than applying a threshold mechanically.
 
 \subsection{From contamination to leakage: the assumption chain}
 \label{sec:chain}
@@ -256,24 +331,53 @@ The chain has the form
 and each arrow needs a premise.
 
 \begin{itemize}
+ \item \textbf{A0 (metric identification).} The scores used to detect contamination are
+ the same scores used to detect training-set membership, and they behave on benchmark
+ items as they do on other training documents. \\
+ \emph{Why it is needed.} Contamination detection in practice reuses the
+ membership-inference toolkit unchanged, in that a benchmark item is called contaminated
+ when a membership detector scores it as a likely training member. Every quantity we
+ compute is therefore a membership score, and calling it a contamination score
+ presupposes that the two coincide. \\
+ \emph{Status.} \textbf{Assumed, not tested.} Our per-item analysis is run on Pile
+ documents rather than on benchmark items, because that is where membership is ground
+ truth and where an extraction outcome can be measured. Benchmark items are handled
+ separately by the corpus-side and benchmark-level tests. Benchmark items are short,
+ highly templated, and unusually widely duplicated, all of which are known to affect
+ memorization~\citep{carlini2023quantifying}, so this identification is not free and we
+ flag it as the chain's entry condition.
  \item \textbf{A1 (signal validity).} A detector's contamination score reflects
  \emph{item-specific retention}, and not merely how intrinsically predictable the text
  is. \\
  \emph{Why it is needed.} If a score rises only because a text is generic or formulaic,
  it cannot separate "the model saw this item" from "this item is easy for any model", and
  it cannot indicate which items carry risk. \\
- \emph{Status.} Testable wherever membership is ground truth. \textbf{This is the
- assumption our experiments examine}, and RQ2 is its operational form. We test it in the
- strongest available way, by asking whether each detector predicts leakage after the
- text's intrinsic predictability, as captured by loss, is held fixed.
+ \emph{Status.} Testable wherever membership is ground truth, and \textbf{this is the
+ assumption our experiments examine, for the three calibrated detectors}. RQ2 is its
+ operational form. Two caveats bound what we can conclude, and we state them here rather
+ than in the limitations because they shape the claim itself. First, we hold intrinsic
+ predictability fixed using loss, but loss is itself the simplest retention signal, so a
+ null residual establishes only that a calibrated detector adds nothing \emph{beyond the
+ cheapest available retention signal}, not that it carries no retention signal at all. We
+ cannot test A1 for LOSS itself, because loss is the control. Second, at our scale loss
+ does not separate members from non-members above chance
+ (Section~\ref{sec:res-membership}), and part of the association between loss and
+ extraction is definitional, since both are computed from the same per-token
+ probabilities. Read together, our evidence is consistent with A1 failing at this scale
+ for every detector we test, including the baseline, and we regard establishing A1 for
+ \emph{any} affordable detector as an open problem rather than a settled premise.
  \item \textbf{A2 (retention implies emission).} Content the model has retained can be
  elicited by a procedure an adversary could actually run. \\
  \emph{Why it is needed.} Retained but unreachable content is not a leak. A privacy claim
  requires that something come out. \\
- \emph{Status.} Partially supported by prior work and partially tested here. We use
- prefix-continuation with greedy decoding, which is one realizable
- procedure~\citep{carlini2023quantifying} and a lower bound, since stronger prompting
- extracts more~\citep{nasr2025scalable}.
+ \emph{Status.} Instantiated here rather than tested. We implement one realizable
+ elicitation procedure, prefix-continuation with greedy
+ decoding~\citep{carlini2023quantifying}, and observe a low but non-zero rate at our
+ scale. It is a lower bound, since stronger prompting extracts
+ more~\citep{nasr2025scalable}. Note also that this procedure requires the adversary to
+ already hold a prefix of the target document, so it models \emph{targeted} extraction
+ against a known document rather than untargeted discovery, which is a weaker threat than
+ the phrase "an adversary could run it" might suggest.
  \item \textbf{A3 (sensitivity co-occurrence).} The content a model memorizes includes
  sensitive information. \\
  \emph{Why it is needed.} This is the assumption that turns an evaluation problem into a

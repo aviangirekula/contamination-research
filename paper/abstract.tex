@@ -21,16 +21,21 @@ controlled measurement of \emph{incremental} value: a pre-registered partial-cor
 and mediation analysis that asks what each detector predicts once the model's per-item
 loss is held fixed. The three adjusted detectors add no positive predictive value beyond
 loss. They are near-collinear with it (Spearman $0.74$ to $0.90$), and their residual
-associations are null or, for the most loss-collinear detector, weakly negative in a
-manner consistent with a statistical suppression artifact rather than genuine inverse
-prediction. The absence of positive residual survives non-linear controls for loss and
+associations are null or weakly negative. We do not build on those negative residuals,
+because their attribution is unstable across near-equivalent specifications: under the
+pre-registered primary control the only one that is significant after correction belongs to
+a detector whose collinearity is moderate, so a suppression artifact does not by itself
+explain it. We therefore claim only the conservative half of the result, the absence of any
+positive residual, which survives non-linear controls for loss and
 survives deduplication, and is not explained by token frequency or by the
 mostly-zero outcome. We read this as a measurement-validity result: the detectors an
 auditor can afford carry little information about \emph{which} items leak that loss does
 not already carry, which bounds what detector-based contamination auditing can support.
-We do not demonstrate leakage of sensitive information. A PII measurement on the Enron
-Emails subset of the Pile returned no detected leakage at our scale, and we report that
-null rather than treating the sensitive-data link as established. \textbf{These results
+We do not demonstrate leakage of sensitive information. A measurement of personally
+identifiable information (PII), meaning content that identifies a specific person such as a
+name paired with an email address or a phone number, on the Enron Emails subset of the Pile
+returned no detected leakage at our scale, and we report that null rather than treating the
+sensitive-data link as established. \textbf{These results
 are preliminary, obtained on the smallest ($160$M) Pythia model on CPU, which is the
 regime least likely to exhibit memorization. The pipeline is built so that replication at
 larger scale is a single configuration change.} All analyses are pre-registered and every

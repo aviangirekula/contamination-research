@@ -13,10 +13,13 @@
  \textbf{Dataset} & \textbf{Type} & \textbf{What it is} & \textbf{Size} & \textbf{Cite} \\
  \midrule
  The Pile & corpus & Curated 22-subset English corpus. Pythia's training data and our membership ground truth & 825\,GB & \citep{gao2020pile} \\
+ pile-10k & corpus sample & Public 10k-document sample of the Pile training set, the source of our member items & 10{,}000 documents & \citep{gao2020pile} \\
+ Enron Emails & corpus subset & Email corpus that is a component subset of The Pile. Supplies the PII measurement reported as a null & part of the Pile & \citep{gao2020pile} \\
  Common Crawl & corpus & Open, continually updated repository of raw web-crawl data, the base of most LLM pre-training scrapes & petabyte-scale (growing) & \citep{commoncrawl} \\
  C4 & corpus & Colossal Clean Crawled Corpus: a filtered Common Crawl snapshot introduced with T5 & $\sim$750\,GB & \citep{raffel2020c4,dodge2021c4} \\
  Dolma & corpus & Open pre-training corpus, OLMo's training data (replication target) & 3\,T tokens & \citep{soldaini2024dolma} \\
  RedPajama & corpus & Open reproduction of an LLaMA-style pre-training mixture & $\sim$30\,T tokens & \citep{weber2024redpajama} \\
+ WikiMIA & benchmark & Membership-inference benchmark split by Wikipedia edit date. Used only as a deliberately temporally confounded contrast & 64-token split & \citep{shi2024detecting} \\
  \midrule
  MMLU & benchmark & Multiple-choice knowledge/reasoning across 57 subjects & 15{,}908 questions & \citep{hendrycks2021mmlu} \\
  GSM8K & benchmark & Grade-school multi-step math word problems & 8{,}500 problems & \citep{cobbe2021gsm8k} \\
@@ -27,8 +30,10 @@
  \bottomrule
  \end{tabular}
  \caption{Corpora and benchmarks used in or referenced by the evaluation. The Pile is
- our ground-truth training corpus. Common Crawl and C4/Dolma/RedPajama frame the
- weakly filtered web-scrape regime. The lower block lists the contamination benchmarks
- whose items we label by corpus-side overlap.}
+ our ground-truth training corpus, and the Enron Emails subset supplies the PII
+ measurement reported as a null in Section~\ref{sec:res-extraction}. WikiMIA appears
+ only as the deliberately confounded contrast split. The lower block lists the
+ contamination benchmarks, of which MMLU, GSM8K, and HumanEval are labeled by
+ corpus-side overlap at the scale reported here.}
  \label{tab:datasets}
 \end{table}

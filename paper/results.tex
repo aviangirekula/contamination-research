@@ -33,7 +33,7 @@ gives the same chance-level result.}
 \label{tab:membership}
 \end{table}
 
-\subsection{Contamination predicts leakage, but only through loss}
+\subsection{Detector scores predict extraction, but only through loss}
 \label{sec:res-headline}
 Our headline analysis correlates each per-item detector score with the per-item extraction outcome
 (prefix-continuation extractable memorization under greedy decoding~\citep{carlini2023quantifying}),
@@ -67,15 +67,20 @@ beyond loss.}
 \paragraph{Collinearity caveat (why we do not over-read the negative partials).} The calibrated
 detectors are deterministic transforms of the same per-token log-probabilities as loss, and are
 empirically collinear with it: Spearman $\rho(\text{loss},\cdot)=0.90$ (Min-K\%), $0.74$ (Min-K\%++),
-$0.74$ (zlib), with variance-inflation factors $6.2$, $2.6$, $2.4$. The strongest negative partial
-(Min-K\%, the most loss-collinear detector at VIF $6.2$) is therefore consistent with a
-\emph{suppression artifact} of near-collinearity rather than substantive inverse prediction. We do
-not claim the calibrated detectors \emph{negatively} predict leakage. The defensible, conservative
-statement is that they carry \emph{no positive} leakage signal independent of loss. Min-K\%++ and
-zlib have only moderate collinearity (VIF $<3$), so their null/near-null residuals are less
-attributable to collinearity.
+$0.74$ (zlib), with variance-inflation factors $6.2$, $2.6$, $2.4$. Under the \emph{linear} partial
+the strongest negative belongs to Min-K\%, the most loss-collinear detector at VIF $6.2$, which is
+the pattern a \emph{suppression artifact} of near-collinearity would produce. That attribution does
+not survive the pre-registered primary control. Under cubic residualization the largest negative, and
+the only one significant after FDR correction, is Min-K\%++ at VIF $2.6$ ($-0.160$, BH-$q=0.015$),
+while Min-K\% weakens to $-0.110$ with $q=0.058$ and a confidence interval whose upper bound is
+$-0.002$. Because the surviving negative sits with a detector of only moderate collinearity,
+suppression alone does not account for it, and the attribution of these negatives is therefore
+unstable across near-equivalent specifications. We consequently do not build on them in either
+direction. We do not claim the calibrated detectors \emph{negatively} predict extraction, and the
+defensible statement we carry forward is that they carry \emph{no positive} extraction signal
+independent of loss.
 
-\noindent The pre-registered decision rule asked whether any calibrated detector predicts leakage
+\noindent The pre-registered decision rule asked whether any calibrated detector predicts extraction
 \emph{beyond} loss (a positive partial $\rho$, CI excluding zero, FDR-significant). None does, under
 the linear or the non-linear control. \textbf{Power note:} with $N=300$ and a near-degenerate
 outcome ($3/300$ fully extracted), this is evidence of \emph{no positive independent signal of

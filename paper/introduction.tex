@@ -108,9 +108,13 @@ are at risk, or only whether contamination happened at all.
  \item \textbf{RQ2 (incremental predictive value).} Do the widely used detectors provide
  information about which individual items a model has memorized, over and above what the
  model's per-item loss already provides?
- \item \textbf{RQ3 (choice of instrument).} Do the adjustments that make a detector
- better at membership discrimination also make it better at predicting leakage, or do
- the two objectives come apart?
+ \item \textbf{RQ3 (choice of instrument).} These detectors were designed and tuned to
+ answer one question well, namely whether a text was in the training data. Do the design
+ adjustments \emph{intended} to sharpen that discrimination also help predict whether the
+ model will reproduce the text, or do the two objectives come apart? We note in advance
+ that at our scale no detector separates members from non-members above chance
+ (Section~\ref{sec:res-membership}), so RQ3 is answered here only in the weaker,
+ design-level sense.
 \end{itemize}
 
 \subsection{Approach in brief}
@@ -176,8 +180,8 @@ leakage, and we flag every affected conclusion as preliminary. The pipeline was 
 that repeating everything on larger models is a change of one configuration value.
 
 \subsection{Roadmap}
-Section~\ref{sec:background} explains benchmarks, memorization, and every technical
-term and statistical tool this paper uses, and then states the assumption chain that
+Section~\ref{sec:background} explains benchmarks, memorization, and the technical terms
+and statistical tools this paper relies on, and then states the assumption chain that
 connects contamination to leakage. Section~\ref{sec:threat} defines the threat model.
 Section~\ref{sec:relatedwork} positions the work against prior contamination,
 memorization, and membership-inference research. Section~\ref{sec:eval} gives the

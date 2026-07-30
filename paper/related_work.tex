@@ -23,13 +23,12 @@
 We adopt the standard definition: \emph{benchmark contamination} is the presence of
 evaluation data, inputs, labels, or accompanying metadata, within a model's
 pre-training corpus~\citep{golchin2024timetravel}. Contamination matters for two
-reasons that this paper treats as inseparable. First, it invalidates evaluation: a
-contaminated score conflates capability with retrieval, so the metric no longer
-estimates generalization. Second, and central to our thesis, contamination is a
-\emph{symptom of, and a measurable proxy for, unintended memorization}, and
-memorization of evaluation data sits on the same mechanism that leaks sensitive
-content from the corpus. We make this contamination~$\rightarrow$~memorization~$
-\rightarrow$~leakage chain the object of empirical study.
+reasons. First, it invalidates evaluation: a contaminated score conflates capability
+with retrieval, so the metric no longer estimates generalization. Second,
+contamination is often argued to be a measurable proxy for unintended memorization,
+and memorization is the mechanism behind sensitive-content leakage. That argument is
+not automatic, and Section~\ref{sec:chain} decomposes it into four assumptions A1
+through A4. Our empirical object is the first link, A1, and not the chain as a whole.
 
 \subsection{A typology of contamination}
 Following the project's framing and the contamination-detection
@@ -50,7 +49,7 @@ between the corpus copy and the benchmark item:
  string matching.
 \end{itemize}
 A second, orthogonal severity axis is \emph{what} is contaminated: input-only leakage
-inflates familiarity, whereas joint input--label leakage enables direct answer
+inflates familiarity, whereas joint input and label leakage enables direct answer
 retrieval and is the most damaging to evaluation validity. Empirically, overlap between
 open-model training data and benchmarks such as GSM8K has been reported for models
 trained on largely undisclosed corpora~\citep{touvron2023llama}, motivating
@@ -59,8 +58,7 @@ ground-truth-controlled study on models whose corpus is fully public.
 \subsection{Why memorization is a security and privacy problem}
 Memorization is not a benign curiosity. Over-parameterized models trained on
 web-scale scrapes retain and can regurgitate verbatim sequences, including personally
-identifiable information (PII) such as names, emails, and phone
-numbers~\citep{carlini2021extracting}. This has been formalized along several axes that
+identifiable information (PII)~\citep{carlini2021extracting}. This has been formalized along several axes that
 we reuse as outcome variables:
 \begin{itemize}
  \item \textbf{$k$-eidetic / extractable memorization.} A string is extractable if a
@@ -74,7 +72,9 @@ we reuse as outcome variables:
  pretrained-checkpoint setting does not afford, so we use it for definitions rather than
  as a measurement. Relatedly, memorization is concentrated on specific
  examples~\citep{zhang2023counterfactual} rather than spread uniformly, which is what
- makes per-item contamination scores meaningful predictors of per-item leakage.
+ makes per-item leakage a meaningful target for per-item prediction in the first place.
+ Whether the available per-item scores actually supply that prediction is the question
+ of RQ2, and Section~\ref{sec:chain} states it as assumption A1.
  \item \textbf{Extraction at scale.} Production models can be driven, via a divergence
  attack, to emit memorized training data well above their nominal aligned rate,
  recovering thousands of verbatim examples cheaply~\citep{nasr2025scalable}.
@@ -85,9 +85,11 @@ we reuse as outcome variables:
  inference~\citep{huang2022leaking}, and black-box probing tools can elicit a data
  subject's PII directly from a deployed model~\citep{kim2023propile}.
 \end{itemize}
-The security framing follows directly: if contamination is a measurable proxy for
-memorization, and memorization is the vector for PII and proprietary-data exposure,
-then contamination is not only a metrics problem but a \emph{privacy vulnerability}.
+This is where the security framing enters, and it is also where it must be stated
+carefully. The inference from contamination to privacy vulnerability requires that
+memorized content include sensitive material (A3) and that the measured relationship
+transfer to sensitive records (A4). Section~\ref{sec:chain} states both as assumptions
+that this paper does not test.
 
 \subsection{The membership-inference lineage}
 \label{sec:mia-lineage}
@@ -136,7 +138,7 @@ gradients and adding calibrated noise, with privacy accounted via the moments
 accountant~\citep{abadi2016deep}. Applied to language models, DP fine-tuning can retain
 much of the utility of non-private training, particularly with large pre-trained
 backbones~\citep{li2022dpllm} and parameter-efficient adaptation~\citep{yu2022dpfinetuning}.
-DP bounds memorization and thereby the leakage we measure, but at a privacy--utility cost
+DP bounds memorization and thereby the leakage we measure, but at a privacy and utility cost
 and, crucially for us, it must be applied \emph{at training time}. It is a defense for
 model producers, not a detector available to an auditor of an already-released model. We
 therefore position DP as the mitigation our threat model motivates, and do not implement
@@ -157,9 +159,9 @@ evaluation, not a new method.
  \item \textbf{Min-K\% Prob.} Average the log-probabilities of the lowest-probability
  $k\%$ of tokens, reference-free and logprob-only~\citep{shi2024detecting}.
  \item \textbf{Min-K\%++.} Normalizes each token's log-probability against the full
- next-token distribution before the bottom-$k\%$ average, the current state of the art
- among reference-free detectors~\citep{zhang2025minkpp}.
- \item \textbf{zlib-entropy ratio.} Calibrate model perplexity by the zlib-compressed
+ next-token distribution before the bottom-$k\%$ average, the most recent refinement in
+ the reference-free line~\citep{zhang2025minkpp}.
+ \item \textbf{zlib ratio.} Calibrate model perplexity by the zlib-compressed
  size of the text, controlling for intrinsic compressibility/frequency~\citep{carlini2021extracting}.
  \item \textbf{Permutation / exchangeability test.} At the \emph{benchmark} level rather
  than per item, score each ordering of a benchmark's examples by the log-likelihood of
@@ -187,7 +189,7 @@ AUC or accuracy can mask whether an attack confidently identifies any members, s
 security-appropriate report is true-positive rate at low false-positive rate with
 log-scale ROC~\citep{carlini2022lira}. We therefore do not claim a stronger detector.
 We ask a different, security-relevant question: \emph{even where contamination signal
-is weak, does it predict concrete privacy leakage?} We answer it with ground-truth
+is weak, does it predict concrete extraction?} We answer it with ground-truth
 membership on the Pythia suite~\citep{biderman2023pythia} trained on the public
 Pile~\citep{gao2020pile}, under the low-FPR protocol, with explicit controls for the
 frequency, duplication, and temporal confounds that prior work identifies.
@@ -195,28 +197,32 @@ frequency, duplication, and temporal confounds that prior work identifies.
 \subsection{Closest prior work, and how we differ}
 \label{sec:closest}
 Three recent works reach conclusions adjacent to ours, and we are careful to position
-against them rather than overclaim. \citet{alsahili2025effectiveness}
+against them rather than overclaim.
+The closest prior result is \citet{hayes2025strong}, who established the divergence we
+build on: they ``observe no correlation with MIA success'' for extraction and conclude
+the ``two privacy attacks may capture different signals.'' We do not claim that
+observation. Their evidence is a \emph{direct, zero-order} correlation between a
+reference-model attack (LiRA) and extraction, and our question is what remains once loss
+is controlled. We \emph{partial out per-item loss} rather than correlating directly, and
+we target the reference-free \emph{calibrated} detectors (Min-K\%, Min-K\%++, zlib) that
+the contamination-detection literature actually deploys, which converts their observation
+into a measurement-validity statement about those instruments.
+\citet{alsahili2025effectiveness}
 reach a compatible conclusion for targeted extraction, that ``complex MIA techniques
 yield only marginal improvements over simple likelihood-based ranking'', but they
 establish it through aggregate \emph{ranking-precision} comparisons and an AdaBoost
 ensemble over MIA features, reporting \emph{marginal gains} rather than testing for
 independent signal. In contrast, we run a pre-registered \emph{partial correlation
-controlling for raw per-item loss}, which lets us state the stronger, calibrated claim
-that the reference-free detectors contribute \emph{zero or negative} residual predictive
-value once loss is partialled out. \citet{hayes2025strong} likewise
-``observe no correlation with MIA success'' for extraction and conclude the ``two privacy
-attacks may capture different signals,'' but their evidence is a \emph{direct, zero-order}
-correlation between a reference-model attack (LiRA) and extraction. We differ on both
-method and object: we \emph{partial out per-item loss} rather than correlating directly,
-and we target the reference-free \emph{calibrated} detectors (Min-K\%, Min-K\%++, zlib)
-that the contamination-detection literature actually deploys, showing the divergence
-persists as a controlled mediation result. Independently, \citet{chen2025statistical}
+controlling for raw per-item loss}, which lets us state a sharper, conservative claim:
+the reference-free detectors contribute no \emph{positive} residual predictive value
+once loss is partialled out, with the negative residuals we do observe attributable to
+suppression under near-collinearity rather than to inverse prediction. Independently, \citet{chen2025statistical}
 find for the \emph{membership} task that the few detectors
 numerically above the loss baseline (Min-K\%, Min-K\%++, ReCaLL) do not beat it robustly
 once random-seed variance is accounted for, and that performance is domain-dependent
 (code-like, low-token-diversity domains such as GitHub and StackExchange behave
 differently from Wikipedia and FreeLaw). We revisit this domain dependence for the
-\emph{extraction} outcome in our per-domain analysis (Section~\ref{sec:eval}), noting it
+\emph{extraction} outcome in our per-domain analysis (Section~\ref{sec:res-headline}), noting it
 is a distinct axis from their membership-AUC result. Finally, blind-baseline and SoK
 critiques~\citep{das2024blind,meeus2025sok} show that post-hoc member/non-member splits can
 make detector ``success'' an artifact of distribution shift. Our use of ground-truth Pile
@@ -235,11 +241,14 @@ membership (no post-hoc split) is precisely the design discipline they call for.
 \citet{chen2025statistical} & membership & reference-free & seed-variance testing vs loss & not robustly beyond loss \\
 \citet{hayes2025strong} & membership \& extraction & LiRA (reference) & direct (zero-order) correlation & MIA does not imply extraction \\
 \citet{alsahili2025effectiveness} & extraction (targeted) & ref-free + AdaBoost & ranking precision, ensemble & marginal gains over likelihood \\
-\textbf{This work} & \textbf{extraction} & \textbf{ref-free calibrated} & \textbf{partial corr.\ + mediation (control loss)} & \textbf{zero/negative residual beyond loss} \\
+\textbf{This work} & \textbf{extraction} & \textbf{ref-free calibrated} & \textbf{partial corr.\ + mediation (control loss)} & \textbf{no positive residual beyond loss} \\
 \bottomrule
 \end{tabular}
 \caption{Where this work sits. To our knowledge it is the only study that pairs a per-item
 \emph{extraction} outcome with a \emph{partial-correlation/mediation} control for raw loss
-on \emph{calibrated reference-free} detectors, yielding a quantified zero/negative marginal.}
+on \emph{calibrated reference-free} detectors, yielding a quantified null-to-negative
+marginal that we read conservatively as no positive residual. Our row is measured on a
+single $160$M model with $N=300$ members and is preliminary
+(Section~\ref{sec:limitations}).}
 \label{tab:closest}
 \end{table}

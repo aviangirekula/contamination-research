@@ -6,24 +6,30 @@ We state the limitations plainly. Several bound the strength of the present clai
 GPU-scale replication the pipeline is built for.
 
 \begin{itemize}
+ \item \textbf{A3 and A4 are untested.} Our design bears on A1 and secondarily on A2
+ (Section~\ref{sec:chain}). Testing A3 would require a corpus with known sensitive content and a
+ model scale at which extraction is not near-degenerate. Testing A4 would require measuring the same
+ detector-to-extraction relationship separately on sensitive records and on benchmark-like documents,
+ since memorization is example-dependent and duplication-sensitive. Neither is possible at the scale
+ reported here.
  \item \textbf{Single, smallest model.} All results are on Pythia-$160$M (CPU). Memorization grows
  log-linearly with model scale~\citep{carlini2023quantifying}, so both the membership signal and the
  extraction outcome are expected to be stronger at $1.4$B--$12$B. The present numbers are
  \emph{preliminary}. We have built every analysis so the larger-model run is a one-line
  configuration change.
  \item \textbf{Chance-level membership separation.} On the confound-clean Pile train-vs-val split,
- membership AUC is at chance ($0.45$--$0.49$) at $160$M, consistent with~\citep{duan2024mia}. The
- divergence result is therefore established in a regime where the membership signal is itself weak.
- Whether the calibrated detectors gain \emph{independent} leakage-predictive value once membership
- separation becomes non-trivial at scale is an open question our design is poised to answer.
+ membership AUC is at chance ($0.45$--$0.49$) at $160$M, consistent with~\citep{duan2024mia}.
+ Our incremental-value result is therefore established in a regime where the membership signal is
+ itself weak. Whether the calibrated detectors gain \emph{independent} extraction-predictive value once
+ membership separation becomes non-trivial at scale is an open question our design is poised to answer.
  \item \textbf{Near-degenerate extraction outcome.} Extractable memorization at $160$M is rare
  ($3/300$ items fully extracted, mean fractional extraction $0.037$), so the correlation analysis
  leans on a small high-extraction tail. We mitigate with rank statistics, bootstrap CIs, and a
  zero-robust Kendall check, but a less zero-inflated outcome at scale would sharpen all estimates.
- \item \textbf{PII not yet demonstrated.} On the Enron-in-Pile subset we observed \emph{zero}
- verbatim PII leakage at $160$M ($8/36$ documents contained PII in the held suffix, none were
- regurgitated). The PII limb of the threat model is thus a designed capability with a null result at
- this scale, not a demonstrated leak. We report it as such and do not claim PII exposure.
+ \item \textbf{PII leakage is a reported null, not a pending result.} On the Enron-in-Pile subset we
+ observed \emph{zero} verbatim PII leakage at $160$M ($8/36$ documents contained PII in the held
+ suffix, none were regurgitated). We report this as a null and make no PII-exposure claim. It is the
+ reason assumption A3 of Section~\ref{sec:chain} is untested here rather than supported.
  \item \textbf{Benchmark-level test underpowered.} The Oren permutation/exchangeability test is run
  only at sanity scale on $160$M. Membership-based, it is underpowered here and is flagged as
  GPU-gated rather than used to draw contamination conclusions.
@@ -41,7 +47,7 @@ GPU-scale replication the pipeline is built for.
  partial/direct terms as possible \emph{suppression artifacts} of near-collinearity and claim only
  the conservative ``no positive residual'' result. We do not assert the detectors inversely predict
  leakage.
- \item \textbf{Construct validity of the leakage proxy.} The outcome (greedy prefix-continuation
+ \item \textbf{Construct validity of the extraction proxy.} The outcome (greedy prefix-continuation
  extraction over the held suffix) is itself likelihood-related, so part of the loss$\leftrightarrow$
  extraction association is mechanical/definitional. Our control removes the loss component, but a
  decisive separation would compute prefix-only loss against extraction. We flag this as a known
