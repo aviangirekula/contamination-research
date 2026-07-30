@@ -1,65 +1,309 @@
 % =============================================================================
-% background.tex -- "LLM Evaluation Benchmarks" (the attack-surface framing).
-% Owner: Subagent A (Literature Review Writer). All \cite keys -> ../references.bib.
+% background.tex -- Background and key concepts.
 %
-% DIVERGENCES FROM THE PASTED DRAFT (flagged for review):
-% * Removed reliance on "Wei et al. 2023" (Skywork, a model paper) for definitional
-% claims. Replaced with the survey (ravaut2024survey) and primary sources.
-% * Kept the benchmarks-as-proxies and assumption-violation argument, re-grounded.
-% * Dropped unverified citations (Deng et al.) not in the verified bib. If you want
-% them, they must be verified and added to references.bib first.
+% REVISION CONTRACT (advisor feedback, 2026-07):
+% * Section 2.4 (sec:concepts) defines EVERY technical term and statistical tool the
+%   paper uses, each as "what it is / why it is needed / how it serves the research
+%   question". Nothing later in the paper may use a term that is not defined here.
+% * Section 2.5 (sec:chain) replaces the previous one-sentence assertion that
+%   contamination indicates leakage with four explicit assumptions A1-A4, and marks
+%   which the paper tests and which it does not. This is the conceptual spine.
 % =============================================================================
 
-\section{Background: LLM Evaluation Benchmarks as an Attack Surface}
+\section{Background and Key Concepts}
 \label{sec:background}
 
-\subsection{Benchmarks as proxies for latent capabilities}
-Large language model (LLM) benchmarks function as \emph{proxies} for latent
-capabilities, reasoning, comprehension, factual knowledge, coding proficiency, that
-cannot be measured directly. By scoring a model on a fixed set of standardized tasks,
-the community infers a model's likely utility (and, increasingly, its safety) in
-deployment~\citep{hendrycks2021mmlu}. Canonical examples target distinct competencies:
-MMLU for broad multitask knowledge across 57 subjects~\citep{hendrycks2021mmlu}, GSM8K
-for multi-step mathematical reasoning~\citep{cobbe2021gsm8k}, and HumanEval for
-functional code generation~\citep{chen2021humaneval}. Reported scores on these suites
-drive model-selection decisions, leaderboard rankings, and published claims of progress.
+\subsection{Benchmarks as proxies for capability}
+LLM benchmarks act as \emph{proxies} for abilities that cannot be measured directly, such
+as reasoning, comprehension, factual recall, and programming skill. By scoring a model on
+a fixed set of standardized tasks, the community infers how useful, and increasingly how
+safe, that model is likely to be in deployment~\citep{hendrycks2021mmlu}. Familiar
+examples target distinct competencies: MMLU covers multitask knowledge across 57
+subjects~\citep{hendrycks2021mmlu}, GSM8K covers multi-step arithmetic word
+problems~\citep{cobbe2021gsm8k}, and HumanEval covers functional code
+generation~\citep{chen2021humaneval}. Scores on these suites drive model selection,
+leaderboard position, and public claims of progress.
 
-\subsection{The core validity assumption}
-The inferential validity of benchmark evaluation rests on one strict assumption:
-\emph{the test data was not seen during pre-training}. Only under this assumption does
-high benchmark performance license the intended conclusion, that the model
-\emph{generalizes} (applies learned regularities to novel inputs) rather than
-\emph{memorizes} (retrieves specific training instances). When the assumption is
-violated, the benchmark no longer measures capability. A memorized test item inflates
-the score without any corresponding gain in generalization, rendering the metric an
-unreliable estimator of the construct it claims to measure. The generalization-versus-
-memorization distinction is not merely conceptual: memorization is directly measurable
-as the verbatim regeneration of training sequences and grows predictably, log-linearly
-in model scale, data duplication, and context length~\citep{carlini2023quantifying}. The
-same phenomenon has a sharper, privacy-relevant form: a planted secret's
-\emph{exposure}, the model's tendency to rank that secret above random alternatives,
-rises with how often it was seen during training~\citep{carlini2019secret}, and which
-specific examples a model memorizes is itself a measurable, example-level property rather
-than a uniform background rate~\citep{zhang2023counterfactual}. A memorized benchmark item
-is thus the visible end of the same mechanism that retains rare, sensitive strings.
+\subsection{The validity assumption, and what breaks when it fails}
+The inference from benchmark score to capability rests on one strict assumption:
+\emph{the test data was not seen during training}. Only then does a high score support
+the intended conclusion, that the model \emph{generalizes}, meaning it applies learned
+regularities to inputs it has not encountered, rather than \emph{memorizes}, meaning it
+reproduces specific training instances.
+
+When the assumption fails, the benchmark stops measuring what it claims to measure. A
+memorized test item raises the score with no corresponding gain in ability, so the metric
+becomes an unreliable estimate of the underlying construct. This distinction is not only
+conceptual. Memorization is directly measurable as verbatim regeneration of training
+text, and it grows predictably with model size, with how often a sequence was duplicated
+in training, and with how much context the model is
+given~\citep{carlini2023quantifying}. A closely related privacy-facing measurement plants
+a secret in the training data and records how strongly the model prefers it over random
+alternatives, which rises with the number of times the secret was
+seen~\citep{carlini2019secret}. Memorization is also highly uneven across examples rather
+than a uniform background rate, so which particular items a model memorizes is itself a
+measurable per-example property~\citep{zhang2023counterfactual}.
 
 \subsection{Static test sets meet weakly filtered corpora}
-The security-relevant tension is structural. Evaluation benchmarks are \emph{static,
-small, widely circulated, and publicly indexed}: once published, an MMLU or GSM8K item
-is copied into papers, blog posts, GitHub repositories, and discussion forums. Training
-corpora, by contrast, are \emph{massive web scrapes with weak filtering}, Common
-Crawl~\citep{commoncrawl} and The Pile~\citep{gao2020pile} are assembled at the scale of
-hundreds of gigabytes to petabytes, where exhaustive removal of any particular short
-string is impractical. The natural consequence is that benchmark items are swept into
-training corpora through ordinary web redistribution, with no adversary required. This
-makes a public benchmark a persistent, low-effort \emph{attack surface}: the same
-property that makes a benchmark useful (stable, shared, citable) is what guarantees its
-eventual presence in the next corpus crawl.
+The structural tension is that benchmarks and training corpora have opposite properties.
+Benchmarks are static, small, widely circulated, and publicly indexed. Once an MMLU or
+GSM8K item is published it is copied into papers, blog posts, code repositories, and
+forum discussions. Training corpora are the reverse: very large web scrapes with light
+filtering. Common Crawl~\citep{commoncrawl} and The Pile~\citep{gao2020pile} are
+assembled at the scale of hundreds of gigabytes to petabytes, where reliably removing any
+particular short string is impractical.
 
-We argue this is best understood through a security lens rather than purely as a
-measurement-hygiene problem. Contamination converts an evaluation artifact into a
-channel that (i) invalidates the safety and capability claims downstream decisions rely
-on, and (ii), the focus of this paper, couples directly to \emph{memorization}, and
-through memorization to the leakage of sensitive content that co-occurs in the same
-weakly filtered corpora. Section~\ref{sec:relatedwork} formalizes contamination, its
-typology, and the detection and memorization literature on which our evaluation builds.
+The consequence is that benchmark items enter training corpora through ordinary
+redistribution, with no adversary required. A public benchmark is therefore a persistent
+and low-effort exposure surface, because the very properties that make a benchmark useful
+(stable, shared, citable) are what make its eventual presence in a future crawl likely.
+
+\subsection{Key concepts and methodological tools}
+\label{sec:concepts}
+This subsection defines every technical idea used later in the paper. Each entry states
+what the concept is, why the study needs it, and how it bears on the research questions
+of Section~\ref{sec:intro}.
+
+\subsubsection{Token probabilities, loss, and perplexity}
+A language model reads text as a sequence of \emph{tokens}, which are words or word
+fragments. At each position it produces a probability distribution over which token comes
+next. Given a real text, we can therefore ask what probability the model assigned to each
+token that actually occurred.
+
+The \emph{loss} of a text is the average negative logarithm of those probabilities. Low
+loss means the model found the text unsurprising. \emph{Perplexity} is the exponential of
+the loss and carries the same information in a different scale, so we use loss
+throughout. Every detector in this paper is computed from these same per-token
+probabilities, which is the fact that ultimately drives our result.
+
+\emph{Why this is needed.} Loss is the oldest and simplest membership signal, on the
+reasoning that a model tends to find its own training data less surprising than new
+text~\citep{yeom2018privacy}. It is also the natural baseline against which any more
+elaborate detector must prove its worth, which makes it the control variable in RQ2.
+
+\subsubsection{Memorization and how leakage is measured}
+We use the standard operational definition of \emph{extractable
+memorization}~\citep{carlini2023quantifying}. Take a document from the training data,
+split it into a \emph{prefix} and a \emph{suffix}, and give the model only the prefix.
+Then let the model continue the text by repeatedly choosing its single most probable next
+token, a procedure called \emph{greedy decoding}. If the continuation reproduces the
+suffix, the suffix is \emph{extractable}: the model has retained enough about this
+specific document to regenerate it.
+
+We report two versions of this outcome. \emph{Exact extraction} is whether the whole
+suffix was reproduced. \emph{Fractional extraction} is the proportion of leading suffix
+tokens reproduced before the first mismatch, which is a softer measure and is much less
+prone to being zero for every item.
+
+\emph{Why this is needed.} This is our concrete leakage outcome, and the quantity
+detectors must predict if they are to be useful for privacy auditing. It is a lower bound
+on leakage rather than a complete account, because a determined adversary may use richer
+prompting than a single prefix~\citep{nasr2025scalable}, and because rewording can
+preserve leaked content while defeating exact matching~\citep{ippolito2023verbatim}.
+
+\subsubsection{Personally identifiable information}
+\emph{Personally identifiable information} (PII) is content that identifies a specific
+person, such as a name paired with an email address, a phone number, or a postal address.
+Leakage of PII from training data is the canonical privacy harm in this
+literature~\citep{carlini2021extracting}, it decomposes into distinct extraction,
+reconstruction, and inference threats~\citep{lukas2023pii}, and models leak it more
+through memorization than through inference about
+individuals~\citep{huang2022leaking}.
+
+\emph{Why this is needed.} PII is the harm that motivates the security framing. It is
+also the point where we must be most careful about scope, because benchmark items are
+generally not PII-bearing. Section~\ref{sec:chain} makes this gap explicit.
+
+\subsubsection{Membership inference, and the detectors we evaluate}
+\emph{Membership inference} asks whether a particular piece of text was part of a model's
+training data~\citep{shokri2017membership}. A \emph{detector} assigns each text a score
+intended to be higher for training members.
+
+Detectors divide by what they require. \emph{Reference-based} methods compare the target
+model against other models trained on similar data, which is accurate but requires
+training those extra models and is therefore infeasible at the scale of a corpus like The
+Pile~\citep{carlini2022lira}. \emph{Reference-free} methods need only the target model's
+own token probabilities. Reference-free methods are what a real auditor can afford, so
+they are the family we study. We evaluate four:
+
+\begin{itemize}
+ \item \textbf{LOSS.} The average per-token loss described above, used directly as the
+ score~\citep{yeom2018privacy}. This is the baseline.
+ \item \textbf{Min-K\%.} Rather than averaging over all tokens, average only over the
+ $k\%$ of tokens the model found \emph{least} likely. The motivation is that a text the
+ model has seen should lack highly surprising outlier tokens, so focusing on the worst
+ tokens should sharpen the distinction~\citep{shi2024detecting}. We use $k=20$.
+ \item \textbf{Min-K\%++.} A refinement that, before selecting the least likely tokens,
+ rescales each token's log-probability by the mean and standard deviation of the
+ model's full distribution at that position. This asks whether a token was unlikely
+ \emph{relative to the alternatives the model considered there}, rather than in absolute
+ terms~\citep{zhang2025minkpp}. It needs the full next-token distribution and therefore
+ assumes deeper access than the others.
+ \item \textbf{zlib ratio.} Divide the model's loss by the length of the text after
+ generic compression with the zlib algorithm. Compressed length is a model-independent
+ estimate of how repetitive or formulaic a text is, so the ratio is intended to discount
+ texts that are unsurprising merely because they are boilerplate~\citep{carlini2021extracting}.
+\end{itemize}
+
+Throughout, we call the last three \emph{calibrated} detectors, meaning only that each
+adjusts raw loss by some additional quantity in an attempt to improve separation. The
+word carries no claim that the adjustment is probabilistically well calibrated.
+
+\emph{Why this is needed.} These four are the instruments an auditor would actually use,
+and RQ2 asks whether the three adjusted ones add anything to the plain baseline.
+
+\subsubsection{Corpus-side and benchmark-level contamination tests}
+Two further tests operate on the corpus or the whole benchmark rather than on the model's
+probabilities for a single item.
+
+\emph{$n$-gram overlap} searches the training corpus for exact matches of contiguous
+$n$-token spans from a benchmark item, the convention introduced with
+GPT-3~\citep{brown2020gpt3}. Because it needs the corpus rather than the model, we use it
+to build contamination labels rather than as an attack. It provides a lower bound only,
+since reworded copies do not match.
+
+The \emph{permutation}, or \emph{exchangeability}, test asks whether a model prefers a
+benchmark's items in their original published order over randomly shuffled orderings. A
+model trained on the benchmark file tends to favour the canonical order, which yields a
+statistically calibrated benchmark-level test~\citep{oren2024proving}.
+
+\emph{Why this is needed.} These give benchmark-level and corpus-level evidence to
+complement the per-item model-side detectors, and they let us report contamination status
+for real benchmarks independent of any detector's reliability.
+
+\subsubsection{How privacy attacks should be evaluated}
+A detector produces a score, and turning it into a decision requires a threshold. Varying
+the threshold traces a \emph{receiver operating characteristic} (ROC) curve, plotting the
+\emph{true-positive rate} (the fraction of real members flagged) against the
+\emph{false-positive rate} (the fraction of non-members wrongly flagged). The
+\emph{area under the curve} (AUC) summarizes the whole curve in one number, where $0.5$
+means no better than chance.
+
+Average-case AUC is a poor summary for a privacy threat, because an attack matters if it
+identifies \emph{some} members with very few false accusations. The accepted convention is
+therefore to report the true-positive rate at a low fixed false-positive rate, such as
+$0.1\%$ or $1\%$, and to plot the ROC curve on logarithmic axes so that the
+low-false-positive region is visible~\citep{carlini2022lira}. We follow that convention
+and treat AUC as secondary.
+
+\emph{Why this is needed.} It is the reporting standard that privacy and security venues
+expect, and it prevents a detector that never fires confidently from looking successful.
+
+\subsubsection{Statistical tools for isolating incremental value}
+RQ2 asks whether a detector adds predictive value \emph{beyond} loss, which is a question
+about incremental contribution rather than about raw association. The following tools
+answer it, and each is used exactly as defined here.
+
+\begin{itemize}
+ \item \textbf{Spearman rank correlation ($\rho$).} A measure between $-1$ and $+1$ of
+ how well two quantities increase together after each is replaced by its rank. Ranks make
+ it insensitive to outliers and to any monotone rescaling, which matters because the
+ detectors are on different and arbitrary scales.
+ \item \textbf{Partial correlation.} The correlation between a detector score and the
+ leakage outcome \emph{after statistically removing} the part of each that is predictable
+ from loss. This is the precise meaning of "holding loss fixed". If a detector's partial
+ correlation is zero, it tells us nothing about leakage that loss had not already told
+ us. This single quantity is the paper's primary outcome measure.
+ \item \textbf{Collinearity.} Two variables are collinear when one is close to a
+ rescaling of the other. We measure it with the correlation between loss and each
+ detector, and with the \emph{variance inflation factor}, a standard index of how much
+ collinearity destabilizes a regression coefficient. Collinearity matters because it
+ limits how confidently any residual effect can be interpreted.
+ \item \textbf{Suppression.} When two predictors are strongly collinear, the estimated
+ coefficient of one can flip sign for purely algebraic reasons rather than because the
+ relationship truly reverses. This is a known artifact, and it is why we interpret a
+ negative partial correlation cautiously and claim only the absence of positive value.
+ \item \textbf{Mediation.} A descriptive decomposition of an association into the part
+ that travels through an intermediate variable (here loss) and the part that does not. We
+ use it only as description, not as a causal claim, because our design is observational.
+ \item \textbf{Non-linear controls.} Partial correlation removes only a linear
+ relationship with loss. To check that nothing survives merely because the true
+ relationship is curved, we repeat the analysis after removing a cubic function of loss,
+ and again within narrow bands of similar loss values.
+ \item \textbf{Bootstrap confidence interval.} Repeatedly resample the items with
+ replacement, recompute the statistic, and report the middle $95\%$ of the results. This
+ conveys how much the estimate would move with a different sample of the same size.
+ \item \textbf{Permutation test.} Randomly shuffle one variable many times to build the
+ distribution of the statistic under no association, then locate the observed value in
+ it. This yields a $p$-value without assuming the data are normally distributed.
+ \item \textbf{Multiple-comparison correction.} Testing several detectors at once
+ inflates the chance of at least one false positive. We apply the Benjamini-Hochberg
+ procedure, which controls the expected proportion of false discoveries among the
+ findings declared significant.
+ \item \textbf{Zero inflation.} An outcome is zero-inflated when most observations are
+ exactly zero, which weakens any correlation and widens its confidence interval. Our
+ exact-extraction outcome is severely zero-inflated at small model scale, which is why we
+ also report the fractional outcome.
+ \item \textbf{Pre-registration.} Writing the analysis plan down, in the repository,
+ before running it. This prevents the outcome from being chosen after seeing the data,
+ which is the main way a null result can be quietly converted into a positive one.
+\end{itemize}
+
+\subsection{From contamination to leakage: the assumption chain}
+\label{sec:chain}
+The security framing of Section~\ref{sec:intro} rests on a chain of reasoning from
+contamination to sensitive-information leakage. Contamination and leakage are distinct
+phenomena, and the chain is not automatic, so we state it as four assumptions and then
+say which the paper tests. Writing them out serves two purposes: it makes the framing
+falsifiable, and it bounds what any contamination-based privacy claim is entitled to
+conclude.
+
+The chain has the form
+\[
+\text{contamination} \;\rightarrow\; \text{memorization} \;\rightarrow\;
+\text{extractable output} \;\rightarrow\; \text{sensitive leakage,}
+\]
+and each arrow needs a premise.
+
+\begin{itemize}
+ \item \textbf{A1 (signal validity).} A detector's contamination score reflects
+ \emph{item-specific retention}, and not merely how intrinsically predictable the text
+ is. \\
+ \emph{Why it is needed.} If a score rises only because a text is generic or formulaic,
+ it cannot separate "the model saw this item" from "this item is easy for any model", and
+ it cannot indicate which items carry risk. \\
+ \emph{Status.} Testable wherever membership is ground truth. \textbf{This is the
+ assumption our experiments examine}, and RQ2 is its operational form. We test it in the
+ strongest available way, by asking whether each detector predicts leakage after the
+ text's intrinsic predictability, as captured by loss, is held fixed.
+ \item \textbf{A2 (retention implies emission).} Content the model has retained can be
+ elicited by a procedure an adversary could actually run. \\
+ \emph{Why it is needed.} Retained but unreachable content is not a leak. A privacy claim
+ requires that something come out. \\
+ \emph{Status.} Partially supported by prior work and partially tested here. We use
+ prefix-continuation with greedy decoding, which is one realizable
+ procedure~\citep{carlini2023quantifying} and a lower bound, since stronger prompting
+ extracts more~\citep{nasr2025scalable}.
+ \item \textbf{A3 (sensitivity co-occurrence).} The content a model memorizes includes
+ sensitive information. \\
+ \emph{Why it is needed.} This is the assumption that turns an evaluation problem into a
+ privacy problem, and it is the weakest link. Memorizing a public MMLU question damages
+ measurement validity but harms nobody's privacy. Benchmark items are generally public
+ and non-sensitive by construction. \\
+ \emph{Status.} Testable in principle on a corpus with known sensitive content. We
+ attempted it on the Enron Emails subset of The Pile and detected no leakage at our
+ scale (Section~\ref{sec:results}), so for practical purposes it remains
+ \textbf{untested here}. Prior work establishes that models can emit PII from web-scale
+ corpora~\citep{carlini2021extracting,lukas2023pii}, which is why we regard the
+ assumption as plausible rather than established.
+ \item \textbf{A4 (mechanism transfer).} The relationship measured on benchmark-like
+ documents also holds for sensitive records. \\
+ \emph{Why it is needed.} We measure on Pile documents, whereas the privacy claim
+ concerns sensitive content. If memorization behaves differently for rare, unusually
+ formatted, or seldom-duplicated strings, then a result about benchmark-like text does
+ not automatically transfer. \\
+ \emph{Status.} \textbf{Untested here}, and non-trivial. Memorization is known to be
+ strongly example-dependent~\citep{zhang2023counterfactual} and to scale with
+ duplication~\citep{carlini2023quantifying}, both of which argue against assuming free
+ transfer.
+\end{itemize}
+
+\paragraph{What this means for the paper's claims.} Our empirical work bears on A1, and
+secondarily on A2. We do not establish A3 or A4, so we make no claim to have demonstrated
+sensitive-data leakage, and we present the privacy framing as the motivation for studying
+A1 rather than as a validated end-to-end result. This matters for interpretation in a
+specific way. A1 is the chain's first plank, so evidence that it fails for the calibrated
+detectors constrains every downstream privacy claim built on those detectors, regardless
+of whether A3 and A4 hold. Conversely, and we state this plainly, a positive result on A1
+alone would not have demonstrated a privacy harm either. Section~\ref{sec:limitations}
+returns to what would be required to test A3 and A4 directly.
