@@ -48,6 +48,8 @@ def main():
     p.add_argument("--model", default="EleutherAI/pythia-160m")
     p.add_argument("--revision", default="main")
     p.add_argument("--device", default="cpu")
+    p.add_argument("--dtype", default=None,
+                   help="float16/bfloat16/float32. Use float16 to fit large models on a 16GB GPU")
     p.add_argument("--items", required=True)
     p.add_argument("--tag", required=True)
     p.add_argument("--results", default="results")
@@ -68,7 +70,7 @@ def main():
     print(f"{args.tag}: {len(items)} items, mean frac={frac.mean():.4f}, "
           f"fully={int((frac>=1.0).sum())}")
 
-    scorer = HFScorer(args.model, revision=args.revision, device=args.device)
+    scorer = HFScorer(args.model, revision=args.revision, device=args.device, dtype=args.dtype)
     dets = build_default_detectors(scorer)  # [loss, min_20_prob, min_20_plusplus, zlib_ratio]
     scores = {d.name: [] for d in dets}
     for i, t in enumerate(texts):

@@ -31,6 +31,8 @@ def main():
     p.add_argument("--model", default="EleutherAI/pythia-160m")
     p.add_argument("--revision", default="main")
     p.add_argument("--device", default="cpu")
+    p.add_argument("--dtype", default=None,
+                   help="float16/bfloat16/float32. Use float16 to fit large models on a 16GB GPU")
     p.add_argument("--items", default=None, help="defaults to results/pile_items_<model>.jsonl")
     p.add_argument("--out", default="figures")
     p.add_argument("--results", default="results")
@@ -44,7 +46,7 @@ def main():
     items = [json.loads(l) for l in open(items_path)]
     print(f"Loaded {len(items)} member items from {items_path}")
 
-    scorer = HFScorer(args.model, revision=args.revision, device=args.device)
+    scorer = HFScorer(args.model, revision=args.revision, device=args.device, dtype=args.dtype)
     detectors = build_default_detectors(scorer)
 
     det_scores = {d.name: [] for d in detectors}

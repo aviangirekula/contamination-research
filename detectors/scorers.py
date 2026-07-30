@@ -26,6 +26,12 @@ class HFScorer(ModelScorer):
         "cpu", "cuda", or "mps".
     max_length : int
         Truncate inputs to this many tokens (memory bound. Mu/sigma are O(vocab) per pos).
+    dtype : str | None
+        Weight precision ("float16"/"bfloat16"/"float32"). None keeps full precision, as
+        in the 160M CPU runs. Half precision is what makes the multi-billion-parameter
+        models fit on a single 16GB cloud GPU. Note that `score_tokens` upcasts the
+        logits to float32 before the log-softmax, so the per-token statistics (and
+        therefore mu/sigma, which Min-K%++ depends on) stay numerically stable.
     """
 
     def __init__(
@@ -34,6 +40,7 @@ class HFScorer(ModelScorer):
         revision: str | None = None,
         device: str = "cpu",
         max_length: int = 1024,
+        dtype: str | None = None,
     ):
         # Lazy imports so importing this module (and running mock tests) needs no torch.
         import torch  # noqa: F401
@@ -43,8 +50,12 @@ class HFScorer(ModelScorer):
         self.revision = revision
         self.device = device
         self.max_length = max_length
+        self.dtype = dtype
         self.tokenizer = AutoTokenizer.from_pretrained(model_name, revision=revision)
-        self.model = AutoModelForCausalLM.from_pretrained(model_name, revision=revision)
+        kw = {}
+        if dtype:
+            kw["torch_dtype"] = getattr(torch, dtype)
+        self.model = AutoModelForCausalLM.from_pretrained(model_name, revision=revision, **kw)
         self.model.to(device).eval()
 
     def score_tokens(self, text: str) -> TokenStats:

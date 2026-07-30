@@ -75,13 +75,28 @@ def fractional_extraction(results: Sequence[ExtractionResult]) -> np.ndarray:
     )
 
 
-def hf_greedy_generator(model_name: str, revision: str | None = None, device: str = "cpu") -> GreedyGenerator:
-    """Build an HF-backed greedy generator (lazy import. Not needed for tests)."""
+def hf_greedy_generator(
+    model_name: str,
+    revision: str | None = None,
+    device: str = "cpu",
+    dtype: str | None = None,
+) -> GreedyGenerator:
+    """Build an HF-backed greedy generator (lazy import. Not needed for tests).
+
+    ``dtype`` selects the weight precision ("float16"/"bfloat16"/"float32"). Leaving it
+    None keeps full precision, which is what the 160M CPU runs used. Half precision is
+    what makes the multi-billion-parameter models fit on a single 16GB cloud GPU.
+    Greedy decoding is argmax, so fp16 does not change the decision except in ties.
+    """
     import torch
     from transformers import AutoModelForCausalLM, AutoTokenizer
 
     tok = AutoTokenizer.from_pretrained(model_name, revision=revision)
-    model = AutoModelForCausalLM.from_pretrained(model_name, revision=revision).to(device).eval()
+    kw = {}
+    if dtype:
+        kw["torch_dtype"] = getattr(torch, dtype)
+    model = AutoModelForCausalLM.from_pretrained(model_name, revision=revision, **kw)
+    model = model.to(device).eval()
 
     def generate(prefix_ids, n_new):
         ids = torch.tensor([list(prefix_ids)], device=device)
