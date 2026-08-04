@@ -1,0 +1,35 @@
+{
+  "model": "EleutherAI/pythia-160m",
+  "members_file": "results/pile_items_160m.jsonl",
+  "control_a": {
+    "n_members": 300,
+    "n_nonmembers": 300,
+    "mean_matched_members": 1.85,
+    "mean_matched_nonmembers": 1.9566666666666668,
+    "exact_members": 3,
+    "exact_nonmembers": 2,
+    "rank_mean_diff": -12.950000000000045,
+    "perm_p_one_sided": 0.8361581920903954
+  },
+  "control_b": {
+    "loss": {
+      "rho_full": 0.2746506320134808,
+      "rho_prefix_only": 0.1394431779917637
+    },
+    "min_20_prob": {
+      "rho_full": 0.1729732393612115,
+      "rho_prefix_only": 0.09763870714282324,
+      "partial_given_prefix_loss": -0.0434595088931469
+    },
+    "min_20_plusplus": {
+      "rho_full": 0.1078924246347382,
+      "rho_prefix_only": 0.04201019154281108,
+      "partial_given_prefix_loss": -0.10362557158019185
+    },
+    "zlib_ratio": {
+      "rho_full": 0.17729023868159155,
+      "rho_prefix_only": 0.08172923819491769,
+      "partial_given_prefix_loss": -0.035421405892193954
+    }
+  }
+}

@@ -34,17 +34,77 @@ from extraction import (  # noqa: E402
 )
 
 
-def load_member_docs(n, min_tokens, prefix_len, suffix_len, tokenizer, seed):
-    """Return up to `n` member docs as (pile_set_name, token_ids[>= min_tokens]).
+def _bucket_nonmembers(floor, prefix_len, suffix_len, tokenizer, quota, max_scan):
+    """Stream Pile *validation* docs (never trained on) into per-subset buckets.
 
-    Stratified across Pile subsets (same construction as milestone1_pile.py): we
-    bucket docs by subset, then round-robin draw a balanced quota per subset.
+    Stops as soon as every requested subset has a large enough pool to sample from, so
+    we do not tokenize the whole validation split. Subsets that the stream never supplies
+    in sufficient number are reported as a shortfall by the caller.
+    """
+    from datasets import load_dataset
+
+    by_subset = defaultdict(list)
+    stream = load_dataset("mit-han-lab/pile-val-backup", split="validation", streaming=True)
+    scanned = 0
+    for ex in stream:
+        scanned += 1
+        if scanned > max_scan:
+            break
+        name = (ex.get("meta") or {}).get("pile_set_name")
+        if name is None or name not in quota:
+            continue
+        if len(by_subset[name]) >= 3 * quota[name]:
+            # this subset already has a deep enough pool
+            if all(len(by_subset[s]) >= 3 * quota[s] for s in quota):
+                break
+            continue
+        ids = tokenizer(ex["text"], add_special_tokens=False)["input_ids"]
+        if len(ids) >= floor:
+            by_subset[name].append(ids[: prefix_len + suffix_len])
+    print(f"  scanned {scanned} validation docs")
+    return by_subset
+
+
+def load_docs(n, min_tokens, prefix_len, suffix_len, tokenizer, seed,
+              source="members", quota=None, max_scan=60000):
+    """Return up to `n` docs as (pile_set_name, token_ids[>= min_tokens]).
+
+    ``source="members"`` draws Pile *train* documents (in Pythia's training data).
+    ``source="nonmembers"`` draws Pile *validation* documents (held out from training).
+    Both go through the identical downstream extraction path, which is what makes the
+    two arms comparable.
+
+    ``quota`` maps subset name -> exact number of documents to draw, and is how the
+    non-member arm is matched to the member arm's domain mix. Without it the member
+    path keeps its original balanced-stratification behaviour unchanged.
     """
     from datasets import load_dataset
 
     rng = np.random.default_rng(seed)
     need = prefix_len + 1  # at least one suffix token
     floor = max(min_tokens, need)
+
+    if source == "nonmembers":
+        if not quota:
+            raise ValueError("nonmembers source requires a --match-domains quota")
+        by_subset = _bucket_nonmembers(floor, prefix_len, suffix_len, tokenizer, quota, max_scan)
+        picked, used, short = [], [], []
+        for s in sorted(quota):
+            want = quota[s]
+            pool = by_subset.get(s, [])
+            k = min(want, len(pool))
+            if k < want:
+                short.append((s, want, k))
+            if k:
+                idx = rng.choice(len(pool), size=k, replace=False)
+                for j in idx:
+                    picked.append((s, pool[j]))
+                used.append((s, k))
+        rng.shuffle(picked)
+        print(f"Loaded {len(picked)} NON-member docs (>= {floor} tokens). Per-subset: {used}")
+        if short:
+            print(f"  SHORTFALL (subset, wanted, got): {short}")
+        return picked
 
     by_subset = defaultdict(list)
     for ex in load_dataset("NeelNanda/pile-10k", split="train"):
@@ -88,23 +148,37 @@ def load_member_docs(n, min_tokens, prefix_len, suffix_len, tokenizer, seed):
     return picked
 
 
-def load_or_cache_docs(args, tokenizer, tag):
-    """Select the member docs, caching the selection to disk.
+def domain_quota_from(items_path):
+    """Read a member items file and return {subset: count}, the mix to match."""
+    from collections import Counter
+    counts = Counter()
+    with open(items_path) as f:
+        for line in f:
+            line = line.strip()
+            if line:
+                counts[json.loads(line)["pile_set_name"]] += 1
+    return dict(counts)
 
-    The selection is deterministic in (n, min_tokens, prefix_len, suffix_len, seed), but
-    building it tokenizes all 10k Pile docs, which is slow enough that we do not want to
-    repeat it on every resume. Caching also guarantees a resumed run scores exactly the
-    same item_id -> document mapping as the interrupted one.
+
+def load_or_cache_docs(args, tokenizer, tag, quota=None):
+    """Select the documents, caching the selection to disk.
+
+    The selection is deterministic in (source, n, min_tokens, prefix_len, suffix_len,
+    seed), but building it tokenizes many Pile docs, which is slow enough that we do not
+    want to repeat it on every resume. Caching also guarantees a resumed run scores
+    exactly the same item_id -> document mapping as the interrupted one.
     """
-    key = f"{tag}_n{args.n}_p{args.prefix_len}_s{args.suffix_len}_m{args.min_tokens}_seed{args.seed}"
+    key = (f"{args.source}_{tag}_n{args.n}_p{args.prefix_len}_s{args.suffix_len}"
+           f"_m{args.min_tokens}_seed{args.seed}")
     cache_path = os.path.join(args.results, f"pile_docs_{key}.json")
     if os.path.exists(cache_path):
         with open(cache_path) as f:
             docs = [(row[0], row[1]) for row in json.load(f)]
-        print(f"Loaded {len(docs)} cached member docs from {cache_path}")
+        print(f"Loaded {len(docs)} cached {args.source} docs from {cache_path}")
         return docs
-    docs = load_member_docs(
-        args.n, args.min_tokens, args.prefix_len, args.suffix_len, tokenizer, args.seed
+    docs = load_docs(
+        args.n, args.min_tokens, args.prefix_len, args.suffix_len, tokenizer, args.seed,
+        source=args.source, quota=quota,
     )
     with open(cache_path, "w") as f:
         json.dump([[s, list(ids)] for s, ids in docs], f)
@@ -131,16 +205,32 @@ def main():
                    help="fsync the output every k items so an interrupted run loses at most k")
     p.add_argument("--restart", action="store_true",
                    help="ignore and overwrite any existing partial output")
+    p.add_argument("--source", choices=["members", "nonmembers"], default="members",
+                   help="members = Pile train (in training data). "
+                        "nonmembers = Pile validation (held out), the control arm")
+    p.add_argument("--match-domains", default=None,
+                   help="path to a member items jsonl whose per-subset counts the "
+                        "nonmember arm should match, so the two arms are domain-controlled")
     args = p.parse_args()
 
     from transformers import AutoTokenizer
 
     tag = args.model.split("/")[-1]
     os.makedirs(args.results, exist_ok=True)
-    out_path = os.path.join(args.results, args.out or f"pile_items_{tag}.jsonl")
+    default_out = (f"pile_items_{tag}.jsonl" if args.source == "members"
+                   else f"pile_items_nonmem_{tag}.jsonl")
+    out_path = os.path.join(args.results, args.out or default_out)
+
+    quota = None
+    if args.source == "nonmembers":
+        if not args.match_domains:
+            p.error("--source nonmembers requires --match-domains <member items jsonl>")
+        quota = domain_quota_from(args.match_domains)
+        print(f"Matching domain mix from {args.match_domains}: {sum(quota.values())} docs "
+              f"across {len(quota)} subsets")
 
     tokenizer = AutoTokenizer.from_pretrained(args.model, revision=args.revision)
-    docs = load_or_cache_docs(args, tokenizer, tag)
+    docs = load_or_cache_docs(args, tokenizer, tag, quota=quota)
 
     # ---- resume: keep whatever is already on disk, score only the missing item_ids.
     if args.restart and os.path.exists(out_path):
