@@ -89,6 +89,61 @@ analysis.
    detectors. At this scale the outcome itself does not separate members from non-members,
    so the premise the chain starts from is unavailable here.
 
+## Control C: which properties predict reproduction, in both arms
+
+This is the advisor's suggested analysis (compare the properties of documents that get
+reproduced against those that do not), run on both arms so the two explanations separate.
+A property that predicts reproduction in both arms describes predictable text. A property
+that predicts reproduction only in the trained-on arm describes something the model
+retained.
+
+Script: `scripts/phase1_features.py`. Raw output: `results/phase1_features_pythia-160m.json`.
+
+| Property | rho, members | p | rho, non-members | p |
+|---|---|---|---|---|
+| prefix loss score | +0.142 | 0.016 | +0.185 | 0.002 |
+| repeated lines | **+0.184** | **0.0004** | -0.026 | 0.660 |
+| punctuation fraction | +0.151 | 0.007 | +0.093 | 0.107 |
+| digit fraction | +0.099 | 0.082 | +0.119 | 0.039 |
+| compressibility | -0.063 | 0.260 | -0.011 | 0.861 |
+| type-token ratio | +0.008 | 0.883 | +0.020 | 0.738 |
+| word commonness | -0.103 | 0.071 | -0.084 | 0.151 |
+
+Comparing a significant result in one arm against a null in the other is not itself a test
+of difference, so each candidate was checked with a bootstrap confidence interval on the
+difference between arms (4000 resamples).
+
+| Property | rho difference | 95% CI | Verdict |
+|---|---|---|---|
+| repeated lines | +0.210 | [+0.032, +0.358] | arms differ |
+| punctuation fraction | +0.057 | [-0.111, +0.220] | not distinguishable |
+| digit fraction | -0.020 | [-0.182, +0.138] | not distinguishable |
+
+**Reading.** The strongest single predictor of reproduction, the model's loss on the
+opening tokens, behaves the same in both arms, which is what a predictability effect looks
+like. The punctuation and digit effects are also present in both arms once tested properly.
+
+One property does behave differently. Documents containing repeated lines are reproduced
+more often, but only when the model was trained on them. Internal repetition is a plausible
+proxy for corpus-level duplication, which is the best-established driver of memorization,
+so this is the one hint of a member-specific effect in the data.
+
+**How much weight to put on it.** Not much yet. The interaction interval reaches to +0.032,
+so it barely excludes zero, seven properties were tested and the interaction test is not
+corrected for that, and N is 300 per arm. This is a hypothesis worth testing, not a result.
+The natural test is the deduplicated-model comparison the advisor suggested, since it
+targets duplication directly, and repeating the analysis at larger scale.
+
+The per-domain pattern points the same way as Control A. The domains where reproduction is
+highest are the same in both arms: Github 5.76 against 6.38, PubMed Central 3.87 against
+4.00, HackerNews 3.00 against 4.85. Reproduction tracks the kind of text, not whether the
+model trained on it.
+
+**Not computable here.** Duplication count needs an index of the whole Pile, which is why
+it is deferred to the deduplicated-model comparison. Prefix and suffix lengths are fixed at
+32 and 50 in this item set, so they have no variance to analyse and would need runs that
+vary them.
+
 ## Reproducibility note
 
 Re-running the member extraction after the `--source` refactor reproduced all 300 items

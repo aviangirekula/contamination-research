@@ -1,0 +1,51 @@
+{
+  "compressibility": {
+    "members_rho": -0.06347250534797319,
+    "members_p": 0.2595480903819236,
+    "nonmembers_rho": -0.010602156628901288,
+    "nonmembers_p": 0.8612277544491101,
+    "reading": "no effect"
+  },
+  "repeated_lines": {
+    "members_rho": 0.18407371415328186,
+    "members_p": 0.0003999200159968006,
+    "nonmembers_rho": -0.02635812257122695,
+    "nonmembers_p": 0.6602679464107178,
+    "reading": "members only -> possible memorization"
+  },
+  "digit_frac": {
+    "members_rho": 0.09864345862614864,
+    "members_p": 0.08198360327934413,
+    "nonmembers_rho": 0.11888355849350567,
+    "nonmembers_p": 0.038992201559688064,
+    "reading": "non-members only"
+  },
+  "punct_frac": {
+    "members_rho": 0.15081810681305657,
+    "members_p": 0.006798640271945611,
+    "nonmembers_rho": 0.09335133670537042,
+    "nonmembers_p": 0.10657868426314737,
+    "reading": "members only -> possible memorization"
+  },
+  "type_token_ratio": {
+    "members_rho": 0.0078962011550796,
+    "members_p": 0.8834233153369326,
+    "nonmembers_rho": 0.020400299525797822,
+    "nonmembers_p": 0.7380523895220956,
+    "reading": "no effect"
+  },
+  "prefix_loss_score": {
+    "members_rho": 0.1418459700736747,
+    "members_p": 0.015796840631873626,
+    "nonmembers_rho": 0.1848623150868999,
+    "nonmembers_p": 0.0015996800639872025,
+    "reading": "PREDICTABILITY (both arms)"
+  },
+  "word_commonness": {
+    "members_rho": -0.10283930540009852,
+    "members_p": 0.07058588282343531,
+    "nonmembers_rho": -0.08418886973271432,
+    "nonmembers_p": 0.15096980603879223,
+    "reading": "no effect"
+  }
+}
